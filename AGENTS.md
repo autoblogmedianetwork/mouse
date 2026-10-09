@@ -14,7 +14,7 @@ Dashboard pribadi untuk membuat konten Threads dari produk affiliate Shopee. Bah
 
 **Stack:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase, Zod, React Hook Form, Vitest.
 
-**Sumber kebenaran:** docs/PRD-AutoThreads.md (fitur), docs/UI-Spec-AutoThreads.md (UI), docs/Rencana-Pengembangan-AutoThreads.md (fase), docs/skema-database.md (data), docs/ai-provider.md (AI), docs/keputusan.md (keputusan).
+**Sumber kebenaran:** docs/PRD-AutoThreads.md (fitur), docs/UI-Spec-AutoThreads.md (UI), docs/Rencana-Pengembangan-AutoThreads.md (fase), docs/skema-database.md (data), docs/ai-provider.md (AI), docs/keputusan.md (keputusan). Semua berkas itu ada di folder `docs/` repo ini, dan **hanya salinan di repo yang disunting** (lihat docs/README.md).
 
 **Aturan:**
 1. Baca dokumen yang relevan sebelum coding, dan sebutkan yang sudah dibaca.
