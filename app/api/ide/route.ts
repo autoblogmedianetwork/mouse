@@ -1,0 +1,32 @@
+/**
+ * POST /api/ide — Prompt 2 (10 ide konten), server-side only.
+ */
+import { NextResponse } from "next/server";
+import { generateJSON } from "@/lib/ai/generate-json";
+import { ideRequestSkema, ideSkema } from "@/lib/ai/schemas";
+import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v1";
+
+export async function POST(req: Request) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
+  }
+
+  const parsed = ideRequestSkema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
+      { status: 400 },
+    );
+  }
+
+  const prompt = buildIdeKontenPrompt(parsed.data);
+  const result = await generateJSON(prompt, ideSkema, { retries: 1 });
+
+  return NextResponse.json(
+    { ...result, prompt_version: PROMPT_VERSION },
+    { status: result.ok ? 200 : 502 },
+  );
+}
