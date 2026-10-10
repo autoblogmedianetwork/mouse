@@ -1,0 +1,5 @@
+Order ID;Product Name;SKU ID;Quantity;Order Amount;Commission;Commission Rate;Order Status;Order created time
+5778abc001;Kaos Polos Oversize;SKU-OVR-BLK-L;2;189000;12285;6.5%;Completed;2026-09-20 14:03:00
+5778abc002;Celana Chino Slim;SKU-CHN-32;1;325000;21125;6.5%;Settled;2026-09-21 09:15:00
+5778abc003;Topi Baseball;SKU-CAP-01;1;85000;5525;6.5%;Refunded;2026-09-22 20:45:00
+5778abc004;Kemeja Flanel Lengan Panjang;SKU-FLN-M;1;210000;;6.5%;Menunggu Konfirmasi;2026-09-23 08:05:00

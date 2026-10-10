@@ -12,6 +12,7 @@ import {
 import { FILTER_AWAL, filterKonten, type Konten, type KontenFilter } from "@/lib/konten/skema";
 import { eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
 import { useLocalState } from "@/lib/konten/use-local-state";
+import { subIdDefault } from "@/lib/performa/atribusi";
 import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS: Array<{ value: KontenFilter["status"]; label: string }> = [
@@ -101,6 +102,13 @@ export function PustakaKonten() {
     } catch (err) {
       setPesan(err instanceof Error ? err.message : "Impor gagal.");
     }
+  };
+
+  /** Kode pelacak konten: ditempel di kolom sub_id/Creator pada link affiliate. */
+  const salinSubId = (id: string) => {
+    const kode = subIdDefault(id);
+    void navigator.clipboard.writeText(kode);
+    setPesan(`Kode pelacak ${kode} disalin. Tempel di kolom sub_id pada link affiliate.`);
   };
 
   const dibuka = bukaId ? konten.find((k) => k.id === bukaId) : null;
@@ -205,6 +213,19 @@ export function PustakaKonten() {
                   ? `diarsipkan ${k.arsip_at ? new Date(k.arsip_at).toLocaleDateString("id-ID") : ""}`
                   : `diubah ${new Date(k.updated_at).toLocaleDateString("id-ID")}`}
                 {k.letak_link !== "tanpa_link" ? " · link aktif" : ""}
+              </p>
+
+              <p className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span>Kode pelacak</span>
+                <span className="font-mono text-foreground">{subIdDefault(k.id)}</span>
+                <button
+                  type="button"
+                  onClick={() => salinSubId(k.id)}
+                  className="underline-offset-2 hover:text-foreground hover:underline"
+                  aria-label={`Salin kode pelacak ${k.judul}`}
+                >
+                  Salin
+                </button>
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2 border-t border-surface-border pt-3">

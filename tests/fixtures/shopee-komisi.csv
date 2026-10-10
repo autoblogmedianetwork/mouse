@@ -1,0 +1,5 @@
+Nama Produk,ID Pesanan,Status Pesanan,Tanggal Pesanan,Jumlah,Harga,Komisi,Tingkat Komisi,Sub_id
+"Tas Kanvas Wanita Premium, Motif Bunga",240915ABC123,Selesai,15/09/2026,1,Rp189.000,Rp12.285,6.5%,threads-01
+"Blender Portable 400ml ""Travel""",240916XYZ789,Menunggu Pembayaran,16/09/2026,2,Rp158.000,Rp10.270,6.5%,threads-01
+Sepatu Sneakers Pria Size 42,240917QWE456,Dibatalkan,17/09/2026,1,Rp325.000,-Rp21.125,6.5%,threads-02
+Lampu Meja Belajar LED,240918RTY321,Selesai,18/09/2026,3,Rp240.000,Rp15.600,6.5%,threads-02

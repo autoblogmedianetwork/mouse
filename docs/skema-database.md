@@ -477,3 +477,97 @@ create policy media_delete_own on storage.objects for delete to authenticated
 - **Status siap posting:** database menyimpannya, tapi aturan "kembali ke draft saat diedit" dijalankan oleh aplikasi.
 - **Fase 7 (auto-posting):** tabel `posts` dan `threads_accounts` ditambahkan saat M6, bukan sekarang.
 - **Free tier:** jeda otomatis jika tidak dipakai beberapa hari. Cek batas storage dan database di halaman harga sebelum Fase 1.
+
+---
+
+## 8. Rencana migrasi 0003: tabel performa affiliate (belum dijalankan)
+
+Bagian ini melengkapi draft migrasi `0002` yang ada di salinan folder kerja (provider per fungsi dan
+`content_variants`). Tabel di bawah belum dijalankan dan menunggu keputusan arah produk (K8–K11).
+
+Dipakai oleh fitur impor laporan affiliate (ADR 0004, halaman `/impor` dan `/analitik`). Bentuk
+kolomnya sudah dipakai apa adanya oleh `lib/impor/skema.ts` di localStorage, jadi migrasi nanti hanya
+memindahkan field.
+
+```sql
+-- 0003_performa_affiliate.sql (draft)
+
+create type marketplace as enum ('shopee', 'tiktok', 'tokopedia', 'lainnya');
+create type status_pesanan as enum ('selesai', 'menunggu', 'batal', 'lainnya');
+
+-- Satu baris per impor berkas, untuk jejak dan tombol "batalkan impor".
+create table performa_imports (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  nama_berkas text not null,
+  marketplace marketplace not null,
+  jumlah_baris integer not null default 0,
+  jumlah_ditolak integer not null default 0,
+  pemisah text,                            -- ',', ';', '\t', atau 'xlsx'
+  skor_deteksi integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- Baris performa hasil impor. Unik per pesanan+produk supaya impor ulang
+-- memperbarui baris lama, bukan menggandakan komisi (ADR 0004).
+create table performa_rows (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  import_id uuid not null references performa_imports(id) on delete cascade,
+  marketplace marketplace not null,
+  id_pesanan text not null default '',
+  produk text not null default '',
+  varian text not null default '',
+  tanggal date,
+  jumlah numeric(12,2) not null default 1,
+  harga numeric(14,2) not null default 0 check (harga >= 0),
+  komisi numeric(14,2) not null default 0,
+  tingkat_komisi numeric(6,2),
+  status_pesanan text not null default '',
+  status_kode status_pesanan not null default 'lainnya',
+  sub_id text not null default '',
+  updated_at timestamptz not null default now(),
+  unique (user_id, marketplace, id_pesanan, produk)
+);
+
+create index performa_rows_user_tanggal_idx on performa_rows(user_id, tanggal desc);
+create index performa_rows_user_marketplace_idx on performa_rows(user_id, marketplace);
+
+alter table performa_imports enable row level security;
+alter table performa_rows enable row level security;
+create policy owner_all on performa_imports for all to authenticated
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy owner_all on performa_rows for all to authenticated
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+Catatan:
+
+- `komisi` boleh negatif karena laporan memuat retur dan pembatalan.
+- Baris tanpa `id_pesanan` (laporan ringkasan produk) tetap disimpan; keunikannya dibedakan lewat
+  kombinasi `produk`.
+- Agregasi (komisi cair, GMV, tren bulanan) dihitung di aplikasi lewat `lib/impor/performa.ts`
+  supaya aturannya teruji unit dan bisa dipakai saat data masih di localStorage.
+
+Tambahan untuk migrasi yang sama (atribusi komisi per konten, ADR 0005):
+
+```sql
+-- Kode pelacak per link affiliate, dipakai mencocokkan laporan dengan konten.
+alter table affiliate_links add column sub_id text;
+create unique index affiliate_links_user_subid_idx
+  on affiliate_links(user_id, lower(sub_id)) where sub_id is not null;
+
+-- Baris klik dari ekspor analitik marketplace tidak dihitung sebagai penjualan.
+alter table performa_rows add column klik integer not null default 0
+  check (klik >= 0);
+alter table performa_rows add column jenis text not null default 'penjualan'
+  check (jenis in ('penjualan', 'klik'));
+```
+
+Catatan:
+
+- Agregasi komisi dan konversi tetap dihitung di aplikasi (`lib/impor/performa.ts` dan
+  `lib/performa/atribusi.ts`), bukan di database, supaya aturannya teruji unit dan tetap bisa dipakai
+  saat data masih di localStorage.
+- Konten yang belum punya `sub_id` tetap sah: yang dipakai adalah kode pelacak hasil hitungan dari
+  id konten, bukan kolom baru di `contents`.

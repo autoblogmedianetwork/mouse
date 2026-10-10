@@ -17,7 +17,9 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Kalender", href: "/kalender", group: "workspace", available: false },
   { label: "Riwayat posting", href: "/riwayat", group: "workspace", available: true },
   // Tools group
-  { label: "Analitik", href: "/analitik", group: "tools", available: false },
+  { label: "Analitik", href: "/analitik", group: "tools", available: true },
+  // Impor laporan affiliate (Shopee, TikTok Shop, Tokopedia).
+  { label: "Impor performa", href: "/impor", group: "tools", available: true },
   { label: "Link affiliate", href: "/link", group: "tools", available: true },
   { label: "Template deskripsi", href: "/template", group: "tools", available: true },
   { label: "Pengaturan", href: "/pengaturan", group: "tools", available: true },

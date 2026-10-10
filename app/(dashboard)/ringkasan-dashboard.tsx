@@ -7,6 +7,10 @@ import { StatCard } from "@/components/stat-card";
 import { StatusBadge } from "@/components/status-badge";
 import { ringkasanKonten, type Konten } from "@/lib/konten/skema";
 import { useLocalState } from "@/lib/konten/use-local-state";
+import { ringkasPerforma } from "@/lib/impor/performa";
+import { PerformaRingkas } from "@/features/impor/performa-ringkas";
+import { usePerforma } from "@/features/impor/use-performa";
+import { BagianPerformaKonten } from "@/features/performa/performa-konten";
 
 interface DraftRingkas {
   updatedAt?: string;
@@ -22,8 +26,11 @@ interface DraftRingkas {
 export function RingkasanDashboard() {
   const [konten] = useLocalState<Konten[]>("autothreads-konten", []);
   const [draft] = useLocalState<DraftRingkas>("autothreads-draft-posting", {});
+  const { simpanan: performa, siap: performaSiap } = usePerforma();
 
   const ringkas = useMemo(() => ringkasanKonten(konten), [konten]);
+  const ringkasPerf = useMemo(() => ringkasPerforma(performa.baris), [performa.baris]);
+  const adaPerforma = performa.baris.length > 0;
 
   const draftJudul =
     draft?.konten?.[0]?.ide?.judul ??
@@ -31,14 +38,23 @@ export function RingkasanDashboard() {
     null;
   const adaDraft = Boolean(draftJudul) || (draft?.konten?.length ?? 0) > 0;
 
-  if (konten.length === 0 && !adaDraft) {
+  if (konten.length === 0 && !adaDraft && !adaPerforma) {
     return (
-      <EmptyState
-        title="Belum ada konten"
-        description="Mulai dari produk pertama: tempel link Shopee atau isi manual, lalu buat utas Threads dari hasilnya. Semua output berstatus draft sampai Anda menandainya siap posting."
-        actionLabel="Mulai dari produk pertama"
-        actionHref="/posting/baru"
-      />
+      <div className="space-y-4">
+        <EmptyState
+          title="Belum ada konten"
+          description="Mulai dari produk pertama: tempel link Shopee atau isi manual, lalu buat utas Threads dari hasilnya. Semua output berstatus draft sampai Anda menandainya siap posting."
+          actionLabel="Mulai dari produk pertama"
+          actionHref="/posting/baru"
+        />
+        <p className="text-center text-sm text-muted-foreground">
+          Sudah punya laporan komisi dari Shopee, TikTok Shop, atau Tokopedia?{" "}
+          <Link href="/impor" className="text-primary underline-offset-2 hover:underline">
+            Impor performa affiliate
+          </Link>
+          .
+        </p>
+      </div>
     );
   }
 
@@ -50,6 +66,38 @@ export function RingkasanDashboard() {
         <StatCard label="Siap posting" nilai={ringkas.siap} tone="siap" catatan="Menunggu disalin ke Threads" />
         <StatCard label="Arsip" nilai={ringkas.arsip} catatan="Retensi 90 hari (K3)" />
       </div>
+
+      {adaPerforma ? (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold">Performa affiliate</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Dihitung dari laporan Shopee, TikTok Shop, dan Tokopedia yang Anda impor.
+              </p>
+            </div>
+            <Link href="/analitik" className="text-sm text-primary underline-offset-2 hover:underline">
+              Buka Analitik
+            </Link>
+          </div>
+          <PerformaRingkas ringkas={ringkasPerf} />
+          <BagianPerformaKonten />
+        </section>
+      ) : performaSiap ? (
+        <section className="rounded-xl border border-dashed border-surface-border bg-surface p-4 sm:p-6">
+          <h2 className="text-base font-semibold">Hubungkan data affiliate Anda</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Unggah ekspor komisi dari Shopee Affiliate, TikTok Shop, atau Tokopedia Affiliate, lalu
+            dashboard ini menampilkan komisi, GMV, dan produk terlaris dari data nyata.
+          </p>
+          <Link
+            href="/impor"
+            className="mt-3 inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+          >
+            Impor laporan
+          </Link>
+        </section>
+      ) : null}
 
       {adaDraft ? (
         <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
