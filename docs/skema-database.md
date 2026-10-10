@@ -480,17 +480,53 @@ create policy media_delete_own on storage.objects for delete to authenticated
 
 ---
 
-## 8. Rencana migrasi 0003: tabel performa affiliate (belum dijalankan)
+## 8. Migrasi 0003: tabel performa affiliate (file siap, belum dijalankan di project)
 
-Bagian ini melengkapi draft migrasi `0002` yang ada di salinan folder kerja (provider per fungsi dan
-`content_variants`). Tabel di bawah belum dijalankan dan menunggu keputusan arah produk (K8–K11).
+Status: file `supabase/migrations/0003_performa_affiliate.sql` sudah ada di repo (11 Oktober 2026) dan
+**belum dijalankan** di project Supabase. Cara menjalankan: tempel seluruh isi file ke Supabase →
+SQL Editor → Run. Nomor 0003 dipakai karena 0002 sudah dipesan untuk "provider per fungsi +
+`content_variants`" yang belum dibuat.
+
+Isi file tersebut:
+
+| Objek | Ringkasan |
+|---|---|
+| `marketplace`, `status_pesanan` | Enum baru, sejajar `lib/impor/skema.ts` |
+| `performa_imports` | Satu baris per berkas: nama, marketplace, jumlah baris/ditolak, pemisah, skor deteksi, `komisi_total`, `gmv_total` |
+| `performa_rows` | Baris penjualan atau baris klik: `sub_id`, `klik`, `jenis`, `status_kode`, `komisi` (boleh negatif), `tanggal date` |
+| Index | `performa_imports(user_id, created_at desc)`; `performa_rows(user_id, tanggal desc)`, `(user_id, marketplace)`, `(import_id)` |
+| RLS | `owner_all` di kedua tabel dengan `(select auth.uid()) = user_id` |
+| `affiliate_links.sub_id` | Kolom baru + unique index `(user_id, lower(sub_id))` untuk kode pelacak per konten (ADR 0005) |
+
+Tiga hal yang berbeda dari draft lama di bagian bawah dokumen ini:
+
+1. `tanggal` ikut masuk kunci unique. Tanpa itu, laporan ringkasan produk (tanpa ID pesanan) untuk
+   produk yang sama di hari berbeda akan saling menimpa.
+2. `klik` dan `jenis` masuk sebagai kolom tabel, bukan `alter table` terpisah.
+3. `komisi_total` dan `gmv_total` disimpan di `performa_imports` supaya daftar "Sumber data" di
+   halaman Analitik tidak perlu menjumlah ulang semua baris hanya untuk satu angka.
+
+Catatan yang masih berlaku:
+
+- `komisi` boleh negatif karena laporan memuat retur dan pembatalan.
+- `tanggal` boleh null dan null dianggap berbeda oleh unique index, jadi aplikasi sebaiknya mengisi
+  tanggal impor untuk baris yang laporannya tidak punya kolom tanggal.
+- Agregasi (komisi cair, GMV, tren bulanan, konversi) tetap dihitung di aplikasi lewat
+  `lib/impor/performa.ts` dan `lib/performa/atribusi.ts`, bukan di database.
+- Konten yang belum punya `sub_id` tetap sah: yang dipakai adalah kode pelacak hasil hitungan dari
+  id konten, bukan kolom baru di `contents`.
+
+### 8.1 Draft lama (arsip, jangan dipakai sebagai acuan)
+
+Bagian di bawah ini adalah draft pertama sebelum file migrasi dibuat. Bentuk finalnya ada di
+`supabase/migrations/0003_performa_affiliate.sql`. Disimpan hanya sebagai catatan sejarah.
 
 Dipakai oleh fitur impor laporan affiliate (ADR 0004, halaman `/impor` dan `/analitik`). Bentuk
 kolomnya sudah dipakai apa adanya oleh `lib/impor/skema.ts` di localStorage, jadi migrasi nanti hanya
 memindahkan field.
 
 ```sql
--- 0003_performa_affiliate.sql (draft)
+-- 0003_performa_affiliate.sql (draft awal, sudah digantikan oleh file migrasi di repo)
 
 create type marketplace as enum ('shopee', 'tiktok', 'tokopedia', 'lainnya');
 create type status_pesanan as enum ('selesai', 'menunggu', 'batal', 'lainnya');
