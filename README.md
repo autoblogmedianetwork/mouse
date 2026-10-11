@@ -19,7 +19,7 @@ Dashboard pribadi untuk membuat konten affiliate. MVP mengaktifkan Threads, deng
 | docs/adr/ | Keputusan teknis (0001 sampai 0003) |
 | prompts/ | Prompt AI bernomor versi |
 | golden/ | Produk uji untuk regresi kualitas |
-| .env.example | Semua environment variable |
+| env.example | Semua environment variable (nama ini dipakai karena `.env*` diabaikan Git) |
 
 ## Mulai
 
@@ -27,7 +27,7 @@ Prasyarat: Node.js LTS, akun Supabase, API key provider yang dipakai.
 
 ```bash
 npm install
-cp .env.example .env.local     # isi nilainya
+cp env.example .env.local      # isi nilainya
 npx supabase link --project-ref <ref>
 npx supabase db push           # migrasi di docs/skema-database.md bagian 6
 npm run dev                    # http://localhost:3000
@@ -68,7 +68,7 @@ Setiap prompt bernomor versi di nama dan frontmatter. Versi yang sudah dipakai t
 ## Deploy
 
 1. Hubungkan repo ke Vercel.
-2. Isi environment variable di Vercel sesuai `.env.example`. Variabel tools lokal dikosongkan kecuali tool berjalan di server yang bisa diakses.
+2. Isi environment variable di Vercel sesuai `env.example`. Variabel tools lokal dikosongkan kecuali tool berjalan di server yang bisa diakses.
 3. Setiap push ke `main` di-deploy otomatis.
 
 ## Status
