@@ -43,6 +43,7 @@ Semua item ini harus selesai. Kalau belum, fase berikutnya ditunda.
 | P7 | Foto produk bisa dikirim ke Gemini 2.5 Flash-Lite lewat API, dan respons JSON-nya valid | Satu panggilan uji dengan gambar | Slamet |
 | P8 | Harga dan kuota gratis Gemini (termasuk TTS) sudah dicek di halaman resmi | Catat tanggal pengecekan di `docs/ai-provider.md` | Slamet |
 | P9 | Cadangan sudah ditentukan (MiMo atau DeepSeek) dan diuji dengan golden set yang sama | Catatan hasil di `docs/penilaian.md` | Slamet |
+| P10 | Tools media yang diaktifkan sudah diuji di perangkat tujuan (rembg, HyperFrames, VoiceStudio, atau backend cloud) | Catatan di `docs/adr/0003-tools-media-opsional.md` bagian konfigurasi | Slamet |
 
 ---
 
@@ -130,13 +131,16 @@ Setiap fase punya tugas, hasil, dan exit criteria. Fase berikutnya tidak dimulai
 - Dashboard menampilkan draft terakhir dengan benar.
 
 ### Fase 4.5: Mode Foto ke Video (F7.1, 3 sampai 5 hari)
-Bisa dikerjakan setelah Fase 3, tidak wajib untuk M3.
+Bisa dikerjakan setelah Fase 3, tidak wajib untuk M3. Tools media (rembg, HyperFrames, VoiceStudio) diaktifkan per fitur sesuai ADR 0003, default mati.
 
 **Tugas:**
 - Form upload foto (dari F0) dengan durasi dan rasio default.
 - Template prompt tetap dengan kunci produk dan batas VO 25 kata.
 - Output prompt final dengan checkpoint konfirmasi.
 - Checklist cek hasil video.
+- Checklist cek hasil video.
+- Adapter tools media di `lib/media/` dengan `isAvailable()` dan `run()`. Tombol fitur menampilkan status ketersediaan.
+- Pengaturan Tools media: toggle per fitur dan pilihan backend (off, local, cloud).
 
 **Exit criteria:**
 - Prompt final mengandung semua kunci produk dan larangan.

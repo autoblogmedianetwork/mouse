@@ -33,7 +33,7 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 - Analitik performa posting.
 - Penggunaan multi-user atau dijual ke affiliate lain. MVP untuk akun affiliate pribadi.
 - Akses Shopee Open Platform. Akses belum ada, data produk diisi manual.
-- Dukungan platform selain Threads.
+- Dukungan platform selain Threads di MVP. Arsitektur sudah disiapkan untuk multi-platform (lihat bagian 16 dan rencana fase). Platform lain masuk roadmap.
 - Penjadwalan posting.
 
 ## 6. Fitur
@@ -44,6 +44,7 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 - **Mode draft wajib (default).** Semua output AI (ringkasan produk, ide, status Threads, storyboard, JSON) disimpan dengan status `draft`. Tidak ada output yang berstatus "siap posting" sebelum user menandainya sendiri.
 - **Checkpoint di tiap tahap.** Alur berhenti di tiap tahap sampai user menyetujui hasilnya: setelah analisis, setelah pilih ide, setelah generate, dan setelah storyboard. User bisa mengulang tahap mana pun tanpa mengulang tahap sebelumnya.
 - **Tanda draft terlihat jelas.** Setiap konten menampilkan label Draft dan tanggal terakhir diubah, sampai user menekan "Tandai siap".
+- **Tools media opsional.** Hapus background (rembg) dan render video (HyperFrames) tersedia sebagai fitur, default mati. Diaktifkan per fitur di Pengaturan, lihat ADR 0003.
 
 ### F1. Analisis Link Produk
 - Input: link produk Shopee atau link affiliate (`s.shopee.co.id/...`).
@@ -89,11 +90,13 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 - Hasil edit tersimpan sebagai draft.
 - Pelacakan per konten: setiap konten punya ID dan link yang dipakai. User mencatat jumlah klik dan komisi secara manual di Bank Konten.
 - Ringkasan performa sederhana: daftar konten diurutkan berdasarkan klik dan komisi, untuk melihat angle mana yang paling menghasilkan.
+- Antrian review dengan tab status (lihat F10).
+- Status `ditolak` ditambahkan ke enum status konten lewat migrasi baru.
 - Tracking otomatis dari Shopee tidak masuk MVP karena akses API belum ada.
 
 ### F6. Akun & Pengaturan
 - Login (email atau Google).
-- Model AI: Gemini 2.5 Flash-Lite (satu model di MVP, belum ada pilihan model).
+- Provider AI dipilih per fungsi di Pengaturan: chat, visi, TTS, dan transkripsi (ADR 0002). Default Gemini 2.5 Flash-Lite.
 - Opsi "Mulai di percakapan AI baru" (default aktif).
 - Paket Free dan Pro dihapus dari MVP. Fokus ke pemakaian pribadi.
 
@@ -114,6 +117,8 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 - Checkpoint wajib: user mengonfirmasi prompt final sebelum disalin. Hasil video dibandingkan dengan foto asli sebelum status berubah menjadi "siap posting".
 - Semua output tetap berstatus draft (lihat F0).
 - Batasan: mode ini tidak dipakai untuk produk yang fotonya diambil dari visual promosi seller, kecuali user sudah punya izin atau hanya untuk referensi internal.
+- Voice-over (VO) memakai provider TTS yang dipilih di Pengaturan: cloud (Gemini TTS, ElevenLabs) atau lokal (VoiceStudio, jika aktif). Suara yang di-clone harus suara yang punya hak untuk dipakai.
+- Foto produk bisa dihapus background dengan rembg jika fitur aktif. Hasil disimpan sebagai referensi internal dan tidak diposting tanpa izin seller.
 - Hubungan dengan mode storyboard: mode cepat untuk konten singkat dan uji cepat. Mode storyboard (Template-Video-Affiliate.md) untuk konten yang butuh alur lebih panjang atau banyak scene.
 
 ### F8. Mode Posting: Manual atau Auto
@@ -125,6 +130,27 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 - **Status posting.** Setiap konten punya status: draft, siap posting, dijadwalkan, terkirim, atau gagal. Status gagal menampilkan alasan dan tombol coba lagi.
 - **Fallback.** Jika API gagal, konten kembali ke mode manual dan user bisa menyalin langsung.
 - **Pilihan mode per konten.** User bisa memilih manual atau auto untuk setiap konten. Default mengikuti pengaturan akun.
+- **Menu provider posting.** Setiap konten bisa dikirim lewat salah satu provider berikut. Mode manual selalu tersedia.
+  1. Manual (salin utas). Default, tidak butuh akun.
+  2. Threads API. Aktif setelah review Meta disetujui.
+  3. Buffer atau Metricool. Hosted, dicek dukungan Threads sebelum dipakai.
+  4. Postiz atau Mixpost. Self-host, hanya di VPS atau server terpisah.
+- Jika provider gagal, konten kembali ke mode manual. Provider yang dipilih disimpan per konten (`posting_provider`).
+- Aturan lengkap dan alasan ada di ADR 0002.
+
+### F9. Carousel Konten
+- Carousel 3 sampai 10 slide dibuat dari ide terpilih, dengan cover, isi, dan CTA.
+- Template tetap, rasio 4:5 default, dan caption serta hashtag dari prompt 08.
+- Renderer default `off`: user merender sendiri atau memakai Canva. Renderer `local` atau `cloud` diaktifkan kemudian (ADR 0003).
+- Checklist khusus carousel dan aturan disclosure berlaku.
+- Detail lengkap di `docs/fitur-carousel.md`. Keputusan renderer di K13.
+
+### F10. Mode Kerja dan Antrian Review
+- Mode kerja per akun: manual (default), semi-otomatis (Fase 5), dan otomatis penuh (Fase 7, opsional, menunggu K12).
+- Mode semi hanya membuat draft pada jam aktif, dengan batas draft per hari dan ambang skor ide.
+- Antrian review dengan tab: perlu review, disetujui, terjadwal, gagal posting, sudah posting, dan ditolak.
+- Widget biaya AI di header dengan peringatan pada 80 persen dan penghentian pada 100 persen dari batas bulanan.
+- Detail lengkap di `docs/fitur-mode-kerja.md`.
 
 ## 7. User Flow Utama
 
@@ -155,7 +181,7 @@ Detail alur ada di `Workflow-AutoThreads.md`.
 - `idea_batches`: id, product_id, created_at
 - `ideas`: id, batch_id, judul, deskripsi, jembatan, format_label, dipilih (bool)
 - `generations`: id, idea_id, pengaturan (json: jumlah_status, panjang, instruksi, anti_ai_slop, persona), status (pending/done/failed), created_at
-- `contents`: id, generation_id, judul, status_list (json), versi, is_draft, letak_link (status_terakhir | balasan | tanpa_link), link_produk, klik_manual, komisi_manual
+- `contents`: id, generation_id, judul, status_list (json), versi, is_draft, letak_link (status_terakhir | balasan | tanpa_link), link_produk, klik_manual, komisi_manual, posting_provider (manual | threads_api | buffer | metricool | postiz | mixpost)
 - `threads_statuses`: id, content_id, urutan, teks, jumlah_karakter, edited_at
 - `templates`: id, user_id, nama, pengaturan (json)
 

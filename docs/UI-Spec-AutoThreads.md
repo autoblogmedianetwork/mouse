@@ -95,7 +95,8 @@ Halaman inti. Dibagi menjadi tiga kolom di desktop:
    - Pilihan letak link: status terakhir, balasan terpisah, atau tanpa link (F3a).
 
 4. **Mode posting dan jadwal**
-   - Pilihan mode: Manual (default) atau Auto (tersedia setelah M6, F8).
+   - Pilihan provider posting: Manual (default), Threads API, Buffer atau Metricool, Postiz atau Mixpost. Pilihan yang belum tersedia tampil dengan label "Segera" atau "Perlu setup".
+   - Jadwal: tanggal dan jam, hanya aktif jika provider mendukung jadwal dan status siap posting.
    - Jadwal: tanggal dan jam, hanya aktif jika status siap posting.
 
 **Kolom kanan (preview, 40%)**
@@ -155,12 +156,23 @@ Halaman inti. Dibagi menjadi tiga kolom di desktop:
 
 Bagian:
 - **Profil dan akun.**
-- **AI:** model (Gemini 2.5 Flash-Lite), batas biaya bulanan, dan opsi "Mulai di percakapan baru".
+- **Provider AI per fungsi:** chat, visi, TTS, dan transkripsi. Setiap pilihan menampilkan status ketersediaan dan kuota (jika ada).
+- **Provider posting:** pilihan default untuk konten baru. Setiap konten tetap bisa diubah di halaman Buat posting.
+- **Tools media:** toggle per fitur (hapus background, render video, TTS lokal). Setiap fitur menampilkan status "Tersedia", "Tidak tersedia", atau "Nonaktif" dan petunjuk setup.
+- **Batas biaya AI per bulan** (K6).
 - **Scraping:** toggle default mati, dengan peringatan ToS dan batas harian.
 - **Aturan konten:** wajib menyebut kekurangan produk (on/off), anti AI slop, gaya hook default.
 - **Data:** periode retensi arsip (F15.4 di PRD).
 
 ---
+
+### 3.9 Antrian Review (`/antrian`)
+
+- Header berisi judul, widget biaya AI (hari ini dan bulan ini, dengan progres terhadap batas), dan tombol "Jeda semua" (muncul hanya jika mode semi atau penuh aktif).
+- Tab status: Perlu review, Disetujui, Terjadwal, Gagal posting, Sudah posting, dan Ditolak. Setiap tab menampilkan jumlahnya.
+- Kartu konten menampilkan thumbnail (foto atau slide pertama), judul, skor ide, produk, tanggal, dan label "Otomatis" bila dibuat oleh mode semi atau penuh.
+- Aksi massal: pilih beberapa lalu tandai siap, tolak, atau hapus. Aksi massal tetap memeriksa checklist per konten.
+- Tampilan mobile memakai satu kolom dengan tab yang bisa digulir.
 
 ## 4. Komponen Inti
 
@@ -179,6 +191,12 @@ Bagian:
 | `EmptyState` | Semua daftar | Ilustrasi, penjelasan, satu tombol aksi |
 | `ConfirmDialog` | Hapus, jadwal ulang | Selalu ada untuk aksi yang tidak bisa dibatalkan |
 | `Toast` | Global | Notifikasi simpan, salin, dan error |
+| `ProviderSelector` | Pengaturan, Buat posting | Pilihan provider per fungsi dengan status ketersediaan |
+| `MediaToolToggle` | Pengaturan, Buat posting | Toggle fitur media dengan status dan petunjuk setup |
+| `ReviewTabs` | Antrian review | Tab status dengan jumlah per tab |
+| `CostWidget` | Header | Biaya AI hari ini dan bulan ini, dengan progres terhadap batas |
+| `ModeKerjaSelector` | Pengaturan | Pilihan manual, semi, atau penuh, dengan penjelasan singkat |
+| `CarouselSlideEditor` | Buat posting | Edit teks per slide dengan penghitung kata dan preview |
 
 ---
 

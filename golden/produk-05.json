@@ -1,0 +1,37 @@
+{
+  "id": "produk-05",
+  "status": "belum_diisi",
+  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
+  "kategori": null,
+  "input": {
+    "nama": null,
+    "varian": null,
+    "harga": null,
+    "deskripsi_bersih": null,
+    "foto": []
+  },
+  "harapan": {
+    "analisis": {
+      "wajib_ada_fitur": [],
+      "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
+    },
+    "ide": {
+      "jumlah": 10,
+      "wajib_ada_format": ["Pengalaman"]
+    },
+    "status": {
+      "maks_karakter": 500,
+      "wajib_kekurangan": true,
+      "tidak_boleh_ada_harga": true
+    }
+  },
+  "penilaian": {
+    "validasi_otomatis": null,
+    "kesesuaian_deskripsi": null,
+    "bahasa_indonesia_kasual": null,
+    "tanpa_klaim_tak_terbukti": null,
+    "variasi_antarstatus": null,
+    "kepatuhan_karakter": null,
+    "catatan": ""
+  }
+}

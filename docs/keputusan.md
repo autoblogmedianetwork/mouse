@@ -1,49 +1,61 @@
 # Keputusan Proyek: AutoThreads
 
-Status: usulan default dari rencana. Kolom "Konfirmasi" diisi setelah kamu menyetujui.
+Keputusan yang sudah diambil dicatat di `docs/adr/`. Dokumen ini berisi keputusan yang masih menunggu konfirmasi dan ringkasan status prasyarat.
 
-## K1–K7 (dari Rencana bagian 4)
+## 1. Keputusan produk (menunggu konfirmasi)
 
 | No | Pertanyaan | Usulan | Konfirmasi |
 |---|---|---|---|
 | K1 | Preview memakai rasio asli Threads? | Ya, 4:5 untuk foto | [ ] |
 | K2 | Ada tombol "Simpan sebagai template"? | Ya, menu sekunder di bilah aksi | [ ] |
-| K3 | Lama arsip sebelum dihapus? | 90 hari sejak arsip_at | [ ] |
+| K3 | Lama arsip sebelum dihapus? | 90 hari sejak `arsip_at` | [ ] |
 | K4 | Metode login? | Magic link email | [ ] |
 | K5 | Scraping mati di MVP? | Ya, default mati | [ ] |
-| K6 | Batas biaya API per bulan? | Batas keras yang bisa diubah di Pengaturan, angka awal ditentukan setelah P8 | [ ] |
+| K6 | Batas biaya AI per bulan? | Batas keras di Pengaturan, angka awal ditentukan setelah P8 | [ ] |
 | K7 | Foto produk dianalisis AI? | Ya, jika P7 lolos | [ ] |
+| K8 | Arah produk: MVP Threads-only dengan arsitektur multi-platform | Ya | [ ] |
+| K9 | Nama produk | AutoThreads tetap, atau ganti (AutoAffiliate, AffiliateHub) | [ ] |
+| K10 | Platform tahap kedua | Instagram dan Facebook (satu API Meta) | [ ] |
+| K11 | Marketplace tahap pertama | Shopee, dengan input generik untuk lainnya | [ ] |
+| K12 | Mode otomatis penuh: opsi A (persetujuan sekali per produk atau batch, lalu kirim otomatis untuk konten yang lolos checklist) atau opsi B (tidak dibuat) | Opsi A, sesuai `docs/fitur-mode-kerja.md` bagian 1.2 | [ ] |
+| K13 | Renderer carousel: off dulu, lalu local atau cloud. Apakah gambar AI masuk | Renderer off di Fase 4.5. Gambar AI ditunda | [ ] |
+| K14 | Nilai default ambang skor (70), skor prioritas (85), dan batas draft per hari (3) | Sesuai bagian 2 `docs/fitur-mode-kerja.md`, dikalibrasi setelah golden set | [ ] |
 
-## Prasyarat P1–P9
+## 2. Keputusan yang sudah diambil (ADR)
+
+| ADR | Judul | Status |
+|---|---|---|
+| 0001 | Google Gemini sebagai provider AI utama | Diterima |
+| 0002 | Provider AI dan posting dipisah per fungsi | Diterima |
+| 0003 | Tools media tersedia dan diaktifkan per fitur | Diterima |
+
+## 3. Prasyarat
 
 | No | Prasyarat | Status |
 |---|---|---|
-| P1 | Endpoint, format request, dan harga Gemini dicatat dari dokumentasi resmi | selesai 9 Okt 2026 (endpoint; harga masih dari aggregator) |
+| P1 | Endpoint, format request, dan harga Gemini dicatat dari dokumentasi resmi | belum |
 | P2 | Satu panggilan teks menghasilkan JSON valid | belum |
 | P3 | Akun Supabase dan Vercel dibuat | belum |
 | P4 | Repo Git dibuat dan terhubung ke Vercel | belum |
 | P5 | Golden set 10 produk ditulis manual | belum |
-| P6 | K1–K7 dijawab (dokumen ini) | belum |
+| P6 | K1 sampai K7 dijawab | belum |
 | P7 | Foto produk berhasil dikirim ke Gemini dan JSON valid | belum |
-| P8 | Harga dan kuota gratis Gemini (termasuk TTS) dicek | belum |
-| P9 | Cadangan (MiMo atau DeepSeek) diuji dengan golden set | belum |
+| P8 | Harga dan kuota gratis provider yang dipakai dicek (chat, TTS, posting) | belum |
+| P9 | Provider cadangan untuk chat diuji dengan golden set yang sama | belum |
+| P10 | Tools media yang akan diaktifkan sudah diuji di perangkat tujuan | belum |
+| P11 | Akun dibuat per provider, tanpa membuat banyak akun untuk satu provider | belum |
 
-## Tooling
+## 4. Tooling
 
-| Area | Pilihan | Alasan |
-|---|---|---|
-| Frontend | Next.js (App Router), TypeScript, Tailwind, shadcn/ui | Sesuai rencana, cocok untuk pemula |
-| Form dan validasi | React Hook Form, Zod | Skema yang sama dipakai klien dan server |
-| Database, auth, storage | Supabase | RLS, storage privat, free tier |
-| AI utama | Google Gemini API, gemini-2.5-flash-lite | Termurah yang menerima gambar, satu provider |
-| AI cadangan | MiMo atau DeepSeek | Diuji di P9 |
-| Hosting | Vercel | Gratis untuk pemakaian pribadi |
-| Video | Google Flow (manual), prompt dari aplikasi | Tidak ada generate video di aplikasi |
-| Test | Vitest, Playwright (E2E nanti) | Ringan dan umum dipakai |
-
-## Keputusan terbuka tambahan
-
-| No | Pertanyaan | Status |
-|---|---|---|
-| T1 | Apakah Google Flow memakai akun berbayar? | belum dijawab |
-| T2 | Siapa yang menjawab K1–K7: Slamet sendiri | diasumsikan ya |
+| Area | Pilihan |
+|---|---|
+| Frontend | Next.js (App Router), TypeScript, Tailwind, shadcn/ui |
+| Form dan validasi | React Hook Form, Zod |
+| Database, auth, storage | Supabase |
+| Provider chat (utama) | Gemini 2.5 Flash-Lite |
+| Provider chat (cadangan) | Groq, OpenRouter, DeepSeek, atau MiMo |
+| Provider suara | Gemini TTS, cadangan ElevenLabs atau VoiceStudio lokal |
+| Provider posting | Manual (default), Threads API, Buffer atau Metricool, Postiz atau Mixpost |
+| Tools media | Kompresi di browser, rembg, HyperFrames, VoiceStudio (opsional, lihat ADR 0003) |
+| Hosting | Vercel |
+| Test | Vitest, Playwright (E2E nanti) |

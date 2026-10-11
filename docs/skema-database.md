@@ -607,3 +607,128 @@ Catatan:
   saat data masih di localStorage.
 - Konten yang belum punya `sub_id` tetap sah: yang dipakai adalah kode pelacak hasil hitungan dari
   id konten, bukan kolom baru di `contents`.
+
+---
+
+## 9. Rencana migrasi berikutnya (draft, belum dibuat)
+
+Nomor yang sudah terpakai: `0001_init.sql` dan `0003_performa_affiliate.sql`. Dokumen fitur
+(`fitur-carousel.md`, `fitur-mode-kerja.md`) menyebut "migrasi 0002" untuk provider per fungsi dan
+tabel carousel; file dengan nomor itu belum pernah dibuat, jadi saat draft di bawah dijalankan
+nomornya mengikuti urutan berikutnya. Bagian ini **bukan** acuan yang sudah dijalankan.
+
+### 9.1 Provider posting dan varian platform (ADR 0002)
+
+```sql
+alter table contents add column posting_provider text not null default 'manual'
+  check (posting_provider in ('manual', 'threads_api', 'buffer', 'metricool', 'postiz', 'mixpost'));
+
+create table platforms (
+  kode text primary key,              -- 'threads', 'instagram', 'facebook', 'tiktok', 'wa_saluran'
+  nama text not null,
+  batas_karakter integer,             -- nilai awal, cek dokumentasi resmi tiap platform sebelum aktif
+  aktif boolean not null default false
+);
+
+create table content_variants (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  content_id uuid not null references contents(id) on delete cascade,
+  platform text not null references platforms(kode),
+  format text,
+  teks text,
+  unique (content_id, platform)
+);
+
+create index content_variants_content_idx on content_variants(content_id);
+alter table content_variants enable row level security;
+create policy owner_all on content_variants for all to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+```
+
+- `marketplaces` ditambahkan saat adapter marketplace kedua dibuat.
+- `threads_statuses` tetap dipakai di MVP, lalu dipindah ke `content_variants` bertahap (Workflow bagian 9).
+
+### 9.2 Status konten `ditolak` (F10, antrian review)
+
+```sql
+alter type content_status add value if not exists 'ditolak';
+```
+
+Tab "Ditolak" di Antrian review memakai status ini. Perubahan enum tidak bisa dibatalkan, jadi
+dijalankan setelah UI tab-nya siap.
+
+### 9.3 Carousel (F9, `docs/fitur-carousel.md` bagian 9)
+
+```sql
+create table carousel_slides (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  content_id uuid not null references contents(id) on delete cascade,
+  urutan integer not null,
+  peran text not null check (peran in ('cover', 'isi', 'cta')),
+  kicker text,
+  headline text,
+  isi text,
+  template text,
+  rasio text not null default '4:5' check (rasio in ('4:5', '1:1')),
+  path_render text,
+  created_at timestamptz not null default now(),
+  unique (content_id, urutan)
+);
+
+create index carousel_slides_content_idx on carousel_slides(content_id);
+alter table carousel_slides enable row level security;
+create policy owner_all on carousel_slides for all to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+```
+
+Batas jumlah slide (3 sampai 10), 8 kata di headline, dan 25 kata di isi dijaga di kode, bukan di
+database. Hasil render disimpan di Storage pada `{user_id}/carousel/{content_id}/`, dengan retensi
+yang sama seperti foto (K3). Renderer default `off`, jadi `path_render` boleh kosong.
+
+### 9.4 Akun Threads dan masa berlaku token (Fase 7)
+
+```sql
+create table threads_accounts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  threads_user_id text not null,
+  nama_tampilan text,
+  token_terenkripsi text not null,     -- hanya dibaca di server
+  token_kedaluwarsa_at timestamptz,
+  status_koneksi text not null default 'terhubung'
+    check (status_koneksi in ('terhubung', 'akan_kedaluwarsa', 'kedaluwarsa')),
+  terakhir_diperbarui_at timestamptz not null default now(),
+  unique (user_id, threads_user_id)
+);
+
+create index threads_accounts_user_idx on threads_accounts(user_id);
+alter table threads_accounts enable row level security;
+create policy owner_all on threads_accounts for all to authenticated
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+```
+
+Token tidak pernah dikirim ke klien: policy di atas hanya melindungi baris, enkripsi dan pembacaan
+token tetap di server (AGENTS aturan 11).
+
+### 9.5 Mode kerja (F10, `docs/fitur-mode-kerja.md` bagian 2)
+
+Tidak ada tabel baru. Parameter disimpan di `settings.data` (`settings.user_id` sudah unik per user):
+
+| Kunci | Default | Rentang |
+|---|---|---|
+| `mode_kerja` | `manual` | `manual`, `semi`, `penuh` |
+| `ambang_skor` | 70 | 0 sampai 100 |
+| `skor_prioritas` | 85 | 0 sampai 100 |
+| `maks_draft_otomatis_per_hari` | 3 | 1 sampai 10 |
+| `jam_aktif_mulai`, `jam_aktif_selesai` | 07:00, 22:00 | WIB |
+| `interval_cek_menit` | 30 | 15 sampai 240 |
+
+Batas biaya bulanan (`AI_MONTHLY_BUDGET_USD`) tetap di env, bukan di `settings`, supaya tidak bisa
+diubah dari klien. Mode `penuh` tidak dibuat sebelum K12 diputuskan.
+
+### 9.6 Tabel yang masih ditunda
+
+- `posts`: riwayat pengiriman dan ID posting platform, ditambahkan saat Fase 7.
+- Tabel cache ide: belum ada di skema; analisis sudah punya `analysis_cache`.

@@ -92,3 +92,39 @@ Pindah ke model lain jika salah satu terjadi:
 | Tanggal | Keputusan |
 |---|---|
 | Oktober 2026 | Utama dipindah dari MiMo ke Gemini 2.5 Flash-Lite. MiMo jadi cadangan. Alasan: satu provider untuk teks, gambar, dan TTS, serta harga setara. |
+
+---
+
+## 8. Provider per fungsi (ADR 0002)
+
+Setiap fungsi dipilih terpisah lewat environment variable. Daftar lengkap dan alasan ada di `docs/adr/0002-provider-per-fungsi.md`.
+
+| Fungsi | Variabel | Provider utama | Cadangan | Akun yang dibutuhkan |
+|---|---|---|---|---|
+| Chat | `AI_CHAT_PROVIDER` | Gemini 2.5 Flash-Lite | Groq, OpenRouter, DeepSeek, MiMo | Google (utama), lainnya lewat "Login with Google" jika didukung |
+| Visi | `AI_VISION_PROVIDER` | Gemini | Provider chat yang menerima gambar | Sama dengan chat |
+| TTS | `AI_TTS_PROVIDER` | Gemini TTS | ElevenLabs, Edge TTS | Google, atau akun ElevenLabs |
+| Transkripsi | `AI_TRANSCRIBE_PROVIDER` | Groq (Whisper) | Gemini | Akun Groq (opsional) |
+| Posting | `POSTING_PROVIDER` | manual | Threads API, Buffer, Metricool, Postiz, Mixpost | Facebook untuk Threads API, akun masing-masing untuk lainnya |
+
+Catatan:
+- Cek kuota gratis dan harga setiap provider sebelum mendaftar (P8). Angka di dokumen ini belum diverifikasi langsung.
+- Dilarang membuat banyak akun untuk mengakali kuota. Gunakan satu akun dan pilih provider yang bisa login dengan akun itu.
+- Video AI (Google Flow) dijalankan manual oleh user, tidak diintegrasikan ke aplikasi.
+
+---
+
+## 9. Tools media (ADR 0003)
+
+Tools media default `off` dan diaktifkan per fitur.
+
+| Fitur | Variabel | Pilihan | Catatan |
+|---|---|---|---|
+| Kompresi foto | `MEDIA_COMPRESS` | browser, off | Kompresi di browser, tanpa server |
+| Hapus background | `MEDIA_BG_REMOVAL` | off, local (rembg), cloud | rembg butuh Python dan CPU cukup |
+| Render video template | `MEDIA_VIDEO_RENDER` | off, local (HyperFrames) | Butuh Chromium stabil |
+| TTS lokal | `AI_TTS_PROVIDER=voicestudio` | VoiceStudio di `VOICESTUDIO_URL` | API kompatibel OpenAI, butuh perangkat memadai |
+
+Tool lokal hanya bisa dipanggil dari PC yang menjalankannya, atau dari server yang bisa dijangkau dengan `MEDIA_TOOLS_TOKEN`. Vercel tidak bisa memanggil localhost.
+
+Untuk perangkat low-end, gunakan `off` atau backend cloud. Setelah perangkat atau VPS memadai, aktifkan tanpa mengubah kode.
