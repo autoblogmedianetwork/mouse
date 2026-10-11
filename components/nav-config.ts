@@ -12,7 +12,7 @@ export const MENU_ITEMS: MenuItem[] = [
   // Workspace group
   { label: "Dashboard", href: "/", group: "workspace", available: true },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", available: true },
-  { label: "Pustaka konten", href: "/konten", group: "workspace", available: true },
+  { label: "Antrian review", href: "/antrian", group: "workspace", available: true },
   { label: "Akun sosial", href: "/akun", group: "workspace", available: false },
   { label: "Kalender", href: "/kalender", group: "workspace", available: false },
   { label: "Riwayat posting", href: "/riwayat", group: "workspace", available: true },

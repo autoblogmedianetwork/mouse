@@ -5,7 +5,8 @@ export type ContentStatus =
   | "siap_posting"
   | "terjadwal"
   | "terkirim"
-  | "gagal";
+  | "gagal"
+  | "ditolak";
 
 const STATUS_CONFIG: Record<
   ContentStatus,
@@ -29,6 +30,10 @@ const STATUS_CONFIG: Record<
   },
   gagal: {
     label: "Gagal",
+    className: "bg-muted text-status-failed border-surface-border",
+  },
+  ditolak: {
+    label: "Ditolak",
     className: "bg-muted text-status-failed border-surface-border",
   },
 };

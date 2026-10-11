@@ -292,8 +292,8 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
       {belumDipetakan === 0 && hasil.per_konten.length > 0 ? (
         <p className="text-xs text-muted-foreground">
           Semua sub_id pada laporan sudah dikenali.{" "}
-          <Link href="/konten" className="text-primary underline-offset-2 hover:underline">
-            Buka Pustaka konten
+          <Link href="/antrian" className="text-primary underline-offset-2 hover:underline">
+            Buka Antrian review
           </Link>{" "}
           untuk menyalin kode pelacak konten baru.
         </p>

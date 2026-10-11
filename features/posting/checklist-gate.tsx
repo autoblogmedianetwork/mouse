@@ -3,17 +3,14 @@
 /**
  * ChecklistGate (UI-Spec 3.2 checkpoint): all boxes must be ticked before
  * "Tandai siap posting" becomes available.
+ *
+ * The item list lives in lib/konten/checklist.ts because Antrian review (F10)
+ * applies the same rules to bulk "tandai siap".
  */
+import { CHECKLIST_ITEMS as CHECKLIST_ITEM_LIST, type ChecklistId } from "@/lib/konten/checklist";
 
-export const CHECKLIST_ITEMS = [
-  { id: "produk", label: "Produk di media sesuai listing." },
-  { id: "klaim", label: "Tidak ada klaim yang tidak bisa dibuktikan." },
-  { id: "kekurangan", label: "Ada satu status yang menyebut kekurangan produk (jika aturan kepercayaan aktif)." },
-  { id: "link", label: "Link sudah diuji." },
-  { id: "disclosure", label: "Disclosure affiliate sudah ada." },
-] as const;
-
-export type ChecklistId = (typeof CHECKLIST_ITEMS)[number]["id"];
+export const CHECKLIST_ITEMS = CHECKLIST_ITEM_LIST;
+export type { ChecklistId };
 
 export function ChecklistGate({
   nilai,

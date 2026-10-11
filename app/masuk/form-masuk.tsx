@@ -83,8 +83,8 @@ export function FormMasuk() {
             <button type="button" className={btnGhost} onClick={keluar}>
               Keluar
             </button>
-            <Link href="/konten" className={btnGhost}>
-              Buka Pustaka konten
+            <Link href="/antrian" className={btnGhost}>
+              Buka Antrian review
             </Link>
           </div>
         </div>

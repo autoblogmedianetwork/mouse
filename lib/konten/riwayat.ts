@@ -11,7 +11,7 @@ export const riwayatSkema = z.object({
   waktu: z.string(),
   konten_judul: z.string(),
   mode: z.enum(["manual", "auto"]),
-  status_akhir: z.enum(["draft", "siap_posting", "terjadwal", "terkirim", "gagal"]),
+  status_akhir: z.enum(["draft", "siap_posting", "terjadwal", "terkirim", "gagal", "ditolak"]),
   catatan: z.string(),
 });
 

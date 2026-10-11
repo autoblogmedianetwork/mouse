@@ -34,7 +34,11 @@ export function simpanKonten(list: Konten[]): void {
   }
 }
 
-/** Duplicate a content entry as a fresh draft copy (UI-Spec 3.3). */
+/**
+ * Duplicate a content entry as a fresh draft copy (UI-Spec 3.3).
+ * The copy is manual work, so the "Otomatis" label and the checklist answers
+ * belong to the original and are dropped (UI-Spec 3.9, PRD F0).
+ */
 export function duplikatKonten(k: Konten): Konten {
   const now = new Date().toISOString();
   return {
@@ -42,6 +46,8 @@ export function duplikatKonten(k: Konten): Konten {
     id: crypto.randomUUID(),
     judul: `${k.judul} (salinan)`,
     status: "draft",
+    otomatis: false,
+    checklist: {},
     arsip: false,
     arsip_at: null,
     created_at: now,

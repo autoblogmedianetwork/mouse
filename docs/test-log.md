@@ -41,3 +41,32 @@ Cara menguji manual:
 2. Cek empat rute: `/`, `/masuk`, `/impor`, `/analitik`.
 3. Setelah env Supabase diisi, coba magic link dan pastikan halaman `/masuk` menampilkan pesan yang
    benar saat email belum terdaftar.
+
+## 12 Oktober 2026 — Antrian review (UI-Spec 3.9)
+
+Fase: bagian awal F10 (antrian review). Data masih localStorage, jadi tes integrasi RLS tidak
+berlaku untuk tugas ini.
+
+| Pemeriksaan | Perintah / cara | Hasil |
+|---|---|---|
+| Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
+| Lint | `npm run lint` | Lulus, 0 temuan |
+| Unit dan fixture | `npx vitest run` | 163 tes lulus di 15 berkas (3 berkas baru: `lib/konten/skema.test.ts`, `lib/konten/store.test.ts`, `lib/ai/biaya.test.ts`) |
+| Build produksi | `npx next build` | Lulus, rute `/antrian` terdaftar |
+| Rute lama | `curl -I localhost:3210/konten` | `307` ke `/antrian` |
+| Jumlah per tab | buka `/antrian` dengan 5 konten uji | Perlu review 2, Disetujui 1, Terjadwal 0, Gagal posting 0, Sudah posting 1, Ditolak 1 |
+| Label Otomatis | konten dengan `otomatis: true` | Muncul tepat satu kali di kartu yang benar |
+| Aksi massal tandai siap | pilih 2 draft, satu checklist lengkap | 1 dipindah ke Disetujui, 1 dilewati dengan pesan checklist belum lengkap |
+| Tab Ditolak | buka tab | Kartu tampil dengan aksi Pulihkan ke draft, Duplikat, Hapus |
+| Widget biaya | periksa header | "Belum ada panggilan AI tercatat. Batas bulanan $5.00" |
+| Konsol | pemeriksaan konsol peramban | Tidak ada error |
+
+Yang belum dicakup:
+
+- Kartu belum menampilkan thumbnail, karena `contents` tidak punya field media. Menunggu field foto
+  dan relasi `product_media` di Supabase.
+- Tab Terjadwal, Gagal posting, dan tombol "Jeda semua" baru tampil kosong: provider posting dan
+  mode semi/otomatis belum dibuat (Fase 5-7).
+- Widget biaya menampilkan angka nol saat log lokal terisi; log sendiri baru terisi setelah pemanggilan
+  AI mencatat `usageMetadata` (tugas batas biaya, K6).
+- Deploy produksi belum memuat halaman ini; jalankan `vercel deploy --prod` setelah push.

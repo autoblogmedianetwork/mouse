@@ -128,8 +128,8 @@ export function RingkasanDashboard() {
         <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">Konten terbaru</h2>
-            <Link href="/konten" className="text-sm text-primary underline-offset-2 hover:underline">
-              Lihat Pustaka
+            <Link href="/antrian" className="text-sm text-primary underline-offset-2 hover:underline">
+              Lihat Antrian review
             </Link>
           </div>
           <ul className="mt-3 divide-y divide-surface-border">

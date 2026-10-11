@@ -14,6 +14,7 @@ import { ChecklistGate, type ChecklistId } from "./checklist-gate";
 import { ActionBar } from "./action-bar";
 import { charLength, validateStatusList } from "@/lib/statuses/validator-500";
 import { muatKonten, simpanKonten, upsertKonten } from "@/lib/konten/store";
+import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 
@@ -34,13 +35,6 @@ const LANGKAH_LIST: Array<{ id: Langkah; label: string }> = [
 ];
 
 const DRAFT_KEY = "autothreads-draft-posting";
-const CHECKLIST_AWAL: Record<ChecklistId, boolean> = {
-  produk: false,
-  klaim: false,
-  kekurangan: false,
-  link: false,
-  disclosure: false,
-};
 
 interface KontenKerja {
   ide: Ide;
@@ -209,6 +203,10 @@ export function AlurBuatPosting() {
         ide_judul: k.ide.judul,
         statuses,
         status: statusBank,
+        // Stored so Antrian review (F10) can run the checklist gate on bulk
+        // "tandai siap" without trusting the current draft state.
+        checklist: draft.checklist,
+        otomatis: false,
         letak_link: draft.pengaturan.letak_link,
         link_produk: draft.produk?.url_referensi ?? "",
         arsip: lama?.arsip ?? false,
