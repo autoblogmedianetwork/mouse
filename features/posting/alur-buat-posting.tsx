@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Analisis, Ide, Pengaturan } from "@/lib/ai/schemas";
-import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
+import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import { muatKonten, simpanKonten, upsertKonten } from "@/lib/konten/store";
 import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { catatRiwayat } from "@/lib/konten/riwayat";
+import { buatIdeManual } from "@/lib/konten/ide-manual";
 
 /**
  * Alur bertahap Buat posting (PRD F0 checkpoint per tahap):
@@ -116,6 +117,10 @@ export function AlurBuatPosting() {
   const [error, setError] = useState<string | null>(null);
   const [tersimpanPukul, setTersimpanPukul] = useState<string | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
+  // Form ide manual (PRD F1): selalu tersedia walau panggilan AI gagal.
+  const [judulManual, setJudulManual] = useState("");
+  const [deskripsiManual, setDeskripsiManual] = useState("");
+  const [formatManual, setFormatManual] = useState<(typeof FORMAT_LABELS)[number]>("Problem-Solution");
   const dirtyRef = useRef(false);
   const loadedRef = useRef(false);
 
@@ -276,6 +281,31 @@ export function AlurBuatPosting() {
       ? draft.ideDipilih.filter((j) => j !== judul)
       : [...draft.ideDipilih, judul];
     update({ ideDipilih: dipilih });
+  };
+
+  /** Tambah satu ide buatan tangan; langsung terpilih supaya alur bisa lanjut. */
+  const tambahIdeManual = () => {
+    const hasil = buatIdeManual({
+      judul: judulManual,
+      deskripsi: deskripsiManual,
+      format_label: formatManual,
+    });
+    if (!hasil.ok) {
+      setError(hasil.error);
+      return;
+    }
+    if (draft.ideList.some((i) => i.judul === hasil.ide.judul)) {
+      setError("Ide dengan judul itu sudah ada di daftar.");
+      return;
+    }
+    update({
+      ideList: [...draft.ideList, hasil.ide],
+      ideDipilih: [...draft.ideDipilih, hasil.ide.judul],
+    });
+    setJudulManual("");
+    setDeskripsiManual("");
+    setError(null);
+    setPesan(`Ide "${hasil.ide.judul}" ditambahkan dan ikut terpilih.`);
   };
 
   /* ------------------------------ Tahap: generate ----------------------------- */
@@ -669,9 +699,56 @@ export function AlurBuatPosting() {
           ) : (
             <EmptyState
               title="Belum ada ide"
-              description="Tekan “Buat 10 ide” untuk menghasilkan ide dari hasil analisis. Jika AI tidak tersedia, Anda tetap bisa generate dengan ide yang dipilih manual di tahap berikutnya."
+              description="Tekan “Buat 10 ide” untuk menghasilkan ide dari hasil analisis. Kalau AI tidak tersedia atau sedang gagal, tulis idemu sendiri di kartu Ide manual di bawah — alur tetap bisa lanjut sampai tahap edit."
             />
           )}
+
+          {/* Ide manual: PRD F1 — input manual tidak pernah dihapus, AI hanya pelengkap. */}
+          <section className={cardClass}>
+            <h2 className="text-base font-semibold">Ide manual</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tanpa AI pun alur tetap berjalan: tulis idemu di sini, lanjut, lalu ketik
+              statusnya sendiri di editor.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+              <input
+                id="ide-manual-judul"
+                type="text"
+                value={judulManual}
+                onChange={(e) => setJudulManual(e.target.value)}
+                placeholder="Judul ide, mis. 5 alasan tas kanvas awet"
+                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <select
+                id="ide-manual-format"
+                value={formatManual}
+                onChange={(e) =>
+                  setFormatManual(e.target.value as (typeof FORMAT_LABELS)[number])
+                }
+                aria-label="Label format ide"
+                className="rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              >
+                {FORMAT_LABELS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input
+              id="ide-manual-deskripsi"
+              type="text"
+              value={deskripsiManual}
+              onChange={(e) => setDeskripsiManual(e.target.value)}
+              placeholder="Deskripsi singkat (opsional)"
+              className="mt-3 w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+            <div className="mt-3">
+              <button type="button" onClick={tambahIdeManual} className={ghostBtn}>
+                Tambah ide
+              </button>
+            </div>
+          </section>
 
           <div className="flex gap-3">
             <button type="button" onClick={() => setLangkah("analisis")} className={ghostBtn}>

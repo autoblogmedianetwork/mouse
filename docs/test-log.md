@@ -70,3 +70,28 @@ Yang belum dicakup:
 - Widget biaya menampilkan angka nol saat log lokal terisi; log sendiri baru terisi setelah pemanggilan
   AI mencatat `usageMetadata` (tugas batas biaya, K6).
 - Deploy produksi belum memuat halaman ini; jalankan `vercel deploy --prod` setelah push.
+
+## 12 Oktober 2026 — Jalur manual ide (PRD F1)
+
+Fase: perbaikan alur Buat posting. Tahap 3 tadinya menerima ide hanya dari panggilan AI, jadi saat
+`GEMINI_API_KEY` kosong alur terkunci di "Pilih minimal satu ide" — padahal pesan error server dan
+ EmptyState menyarankan "lanjutkan dengan input manual" yang tidak pernah ada.
+
+| Pemeriksaan | Perintah / cara | Hasil |
+|---|---|---|
+| Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
+| Lint | `npm run lint` | Lulus, 0 temuan |
+| Unit dan fixture | `npx vitest run` | 168 tes lulus di 16 berkas (berkas baru `lib/konten/ide-manual.test.ts`, 5 tes) |
+| Build produksi | `npx next build` | Lulus, rute terdaftar |
+| Judul kosong | klik "Tambah ide" tanpa mengisi | Alert "Judul ide wajib diisi."; daftar ide tidak berubah |
+| Tambah ide manual | isi judul, klik "Tambah ide" | Kartu ide muncul, checkbox langsung tercentang, hitungan "1 dipilih" |
+| Lanjut tanpa AI | klik "Lanjut ke pengaturan" | Tahap berpindah ke 4. Generate (tadinya terkunci) |
+| Fallback generate | klik "Generate 1 konten" tanpa key | Alert "Generate gagal … Bisa ditulis manual di editor." dan tahap 5 terbuka dengan editor kosong |
+| Bentuk objek ide | 5 tes unit | Lolos `ideItemSkema`; judul di-trim; judul kosong/spasi ditolak; `format_label` di luar `FORMAT_LABELS` ditolak |
+
+Yang belum dicakup:
+
+- Panggilan AI sungguhan (P2) belum bisa dijalankan: `GEMINI_API_KEY` masih kosong di `.env.local`
+  (baris 12, 15 karakter) dan tidak ada di Vercel. Key sudah disalin dari Google AI Studio tapi belum
+  pernah disimpan ke berkas maupun variabel lingkungan.
+- Ide manual tidak menyimpan format ke tabel `ideas` (belum ada kaitan ke Supabase untuk langkah ini).
