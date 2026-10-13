@@ -42,16 +42,14 @@ Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase.
 
 | Item | Peran | Fase | Status | Catatan |
 |---|---|---|---|---|
-| Gemini 2.5 Flash-Lite | Chat, visi (utama) | MVP | Aktif | ADR 0001, ADR 0002. Harga belum diverifikasi (P1, P8) |
-| Gemini 3.1 Flash-Lite | Chat (naik kelas) | MVP | Opsional | Jika kualitas kurang |
-| Gemini TTS | Voice-over | 4.5 | Aktif | Harga belum diverifikasi (P8) |
-| Groq | Chat cadangan pertama, transkripsi | MVP | Aktif | ADR 0002. Tidak menerima gambar di semua model |
-| OpenRouter | Chat cadangan kedua | MVP | Opsional | Model berlabel gratis |
-| DeepSeek atau MiMo | Chat cadangan berbayar | MVP | Opsional | Perlu saldo kecil |
-| Google AI Studio | Akses API Gemini yang sama | - | Ditolak sebagai fallback | Vendor sama dengan Gemini. Tetap dipakai sebagai tempat membuat API key |
-| ElevenLabs | TTS cadangan | 4.5 | Opsional | Kuota gratis bulanan |
-| Edge TTS | TTS cadangan | 4.5 | Opsional | |
-| Cloudflare Workers AI | Cadangan chat atau TTS | - | Belum diverifikasi | Kuota 10.000 Neuron per hari. Model dan kualitas belum dicek |
+| OpenRouter (`nvidia/nemotron-3-super-120b-a12b:free`) | Chat, visi (utama, bawaan) | MVP | Aktif | ADR 0006. Gratis tanpa saldo, `response_format` JSON mode didukung. Rate limit dan model gratis bisa berubah |
+| Endpoint kompatibel OpenAI lain (DeepSeek, Groq, Ollama, LM Studio) | Chat, visi (ganti `AI_BASE_URL` + `AI_MODEL`) | MVP | Opsional | ADR 0006. Tanpa ubah kode |
+| Gemini 2.5 Flash-Lite | Chat, visi | - | Ditolak | ADR 0001 digantikan ADR 0006. `GEMINI_API_KEY` tidak lagi dibaca kode |
+| Gemini TTS | Voice-over | 4.5 | Opsional | Harga belum diverifikasi (P8). ADR 0001 masih berlaku untuk TTS |
+| Groq | Transkripsi Whisper | MVP | Opsional | ADR 0002. Bisa juga jadi chat lewat `AI_BASE_URL` |
+| ElevenLabs atau Edge TTS | TTS cadangan | 4.5 | Opsional | |
+| Google AI Studio | Akses API Gemini | - | Ditolak | Digantikan ADR 0006 |
+| Cloudflare Workers AI | Cadangan chat atau TTS | - | Belum diverifikasi | Kuota 10.000 Neuron per hari. Model dan kualitas belum dicek. Bisa dicoba sebagai `AI_BASE_URL` |
 | Pollinations.AI | - | - | Ditolak | Data produk tidak bisa dikontrol. Jangan dipakai untuk prompt berisi data produk atau foto |
 | FreeLLMAPI | Router pengembangan lokal | Pengembangan | Belum diverifikasi | Hanya lokal. Periksa repo, lisensi, dan pengiriman data sebelum dipakai |
 
@@ -114,7 +112,10 @@ Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase.
 | Supabase | Rp 0 | Free tier, batas bisa berubah | Belum (P3) |
 | Vercel | Rp 0 | Free tier, untuk pemakaian pribadi | Belum (P4) |
 | Groq | Rp 0 | Free tier | Belum (P8) |
-| Google AI Studio / Gemini | Rp 0 (free tier) | Berbayar di atas kuota. Perkiraan sekitar Rp 50 per batch 4 konten, belum diverifikasi | Belum (P1, P8) |
+| OpenRouter (model `:free`) | Rp 0 | Tanpa saldo, tanpa kartu kredit. Rate limit ketat dan model bisa dihapus sewaktu-waktu (ADR 0006) | Sebagian (dicek via `/api/v1/models`, 13 Okt 2026) |
+| Endpoint kompatibel OpenAI lain | Rp 0 sampai berbayar | DeepSeek/Groq punya free tier atau harga sangat murah; Ollama dan LM Studio gratis karena jalan lokal | Belum (P8) |
+| Gemini (chat) | - | Ditolak, lihat ADR 0006 | - |
+| Gemini TTS | Rp 0 (free tier) | Belum diverifikasi. Masih kandidat untuk VO Fase 4.5 | Belum (P8) |
 | Cloudflare Workers AI | Rp 0 | 10.000 Neuron per hari, belum diverifikasi | Belum |
 | Pollinations.AI | - | Ditolak untuk data produk | - |
 | Domain (opsional) | ~Rp 12.500 per bulan | Rp 150.000 per tahun, bisa ditunda ke Fase 4 | - |
@@ -130,7 +131,7 @@ Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase.
 | K9 | Nama produk | Branding |
 | K10 | Platform tahap kedua | Platform |
 | K11 | Marketplace tahap pertama | Marketplace |
-| Q1 | Peran Groq: cadangan atau utama | ADR 0001 vs 0002 |
+| Q1 | Peran Groq: cadangan atau utama | ADR 0002, ADR 0006 |
 | Q2 | Job queue: ditunda sampai kapan | Workflow |
 | Q3 | HyperFrames (jalur B) masuk Fase 4.5 atau setelahnya | Jalur video |
 | Q4 | TTS untuk VO: Gemini TTS atau VoiceStudio | ADR 0003 |

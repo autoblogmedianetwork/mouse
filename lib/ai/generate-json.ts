@@ -1,12 +1,14 @@
 /**
- * Single entry point for AI calls (AGENTS rule 6): calls the Gemini REST
- * endpoint, parses the JSON answer, and validates it with Zod. Retries once
- * by default per PRD 10.3; Prompt 3 raises it to 2 per PRD 10.4.
+ * Single entry point for AI calls (AGENTS rule 6): calls an OpenAI-compatible
+ * `/chat/completions` endpoint, parses the JSON answer, and validates it with
+ * Zod. Retries once by default per PRD 10.3; Prompt 3 raises it to 2 per
+ * PRD 10.4.
  *
- * Server-only: GEMINI_API_KEY must never reach the client (AGENTS rule 8).
+ * Provider bebas: cukup ganti AI_BASE_URL / AI_MODEL / AI_API_KEY di server.
+ * Default memakai OpenRouter (lihat docs/ai-provider.md bagian 3).
+ *
+ * Server-only: API key must never reach the client (AGENTS rule 11).
  * Call this only from route handlers under app/api/ — never from components.
- *
- * Endpoint reference: docs/ai-provider.md section 3 (verified 9 Oct 2026).
  */
 import { z } from "zod";
 import { parseModelJson } from "./parse-json";
@@ -21,106 +23,164 @@ export interface GenerateJSONResult<T> {
 export interface GenerateJSONOptions {
   /** Extra attempts after the first try. Default 1 (PRD 10.3). */
   retries?: number;
-  /** Override model; default gemini-2.5-flash-lite (docs/ai-provider.md). */
+  /** Override model; default from AI_MODEL or DEFAULT_MODEL. */
   model?: string;
   temperature?: number;
   timeoutMs?: number;
 }
 
-const MODELS_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const DEFAULT_MODEL = "gemini-2.5-flash-lite";
+export const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
+export const DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 
-interface GeminiResponse {
-  candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+/**
+ * Base URL endpoint OpenAI-compatible, berurut dari yang paling diutamakan:
+ * opsi eksplisit -> `AI_BASE_URL` -> `DEFAULT_BASE_URL`.
+ *
+ * Trailing slash dibuang supaya URL jadi `{base}/chat/completions` tanpa
+ * ganda `//` yang bikin beberapa provider menjawab 404.
+ */
+export function resolveBaseURL(explicit?: string, envValue?: string): string {
+  const dariOpsi = explicit?.trim();
+  const dariEnv = envValue?.trim();
+  return (dariOpsi || dariEnv || DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
+
+/**
+ * Model yang dipakai, berurut dari yang paling diutamakan:
+ * opsi eksplisit -> `AI_MODEL` -> `DEFAULT_MODEL`.
+ *
+ * Nilai di-trim karena satu spasi tak sengaja di environment variable berubah
+ * jadi nama model yang ditolak provider dengan pesan membingungkan.
+ */
+export function resolveModel(explicit?: string, envValue?: string): string {
+  const dariOpsi = explicit?.trim();
+  if (dariOpsi) return dariOpsi;
+  const dariEnv = envValue?.trim();
+  if (dariEnv) return dariEnv;
+  return DEFAULT_MODEL;
+}
+
+/**
+ * API key server-side. `AI_API_KEY` dipakai dulu; `OPENROUTER_API_KEY`
+ * tetap dibaca sebagai cadangan agar rahasia lama di Vercel tidak perlu
+ * diganti nama.
+ */
+export function resolveApiKey(): string | undefined {
+  const utama = process.env.AI_API_KEY?.trim();
+  if (utama) return utama;
+  return process.env.OPENROUTER_API_KEY?.trim() || undefined;
+}
+
+interface ChatCompletionsResponse {
+  choices?: Array<{ message?: { content?: string | null } }>;
   error?: { message?: string };
 }
 
-function extractText(payload: GeminiResponse): string {
-  const parts = payload.candidates?.[0]?.content?.parts ?? [];
-  return parts
-    .map((p) => p.text ?? "")
-    .join("")
-    .trim();
+function extractText(payload: ChatCompletionsResponse): string {
+  return (payload.choices?.[0]?.message?.content ?? "").trim();
 }
 
+/**
+ * Satu panggilan teks ke provider chat. Provider bebas lewat AI_BASE_URL,
+ * model lewat AI_MODEL, kunci lewat AI_API_KEY (terlihat di dua baris
+ * berikutnya). Parse, validasi dengan Zod, retry sekali, dan ringkas pesan
+ * error provider (bukan JSON mentah) sebelum mengembalikan.
+ */
 export async function generateJSON<T>(
   prompt: string,
-  schema: z.ZodType<T>,
+  schema: z.ZodTypeAny,
   options: GenerateJSONOptions = {},
 ): Promise<GenerateJSONResult<T>> {
-  if (typeof window !== "undefined") {
-    return {
-      ok: false,
-      error: "generateJSON hanya boleh dipanggil dari server.",
-      attempts: 0,
-    };
-  }
+  const retries = Math.max(0, options.retries ?? 1);
+  const model = resolveModel(options.model, process.env.AI_MODEL);
+  const baseURL = resolveBaseURL(undefined, process.env.AI_BASE_URL);
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  // Server-only: kunci AI tidak pernah sampai ke klien (AGENTS rule 11).
+  const apiKey = resolveApiKey();
   if (!apiKey) {
     return {
       ok: false,
-      error:
-        "GEMINI_API_KEY belum diisi di server. Isi di .env.local lalu coba lagi, atau lanjutkan dengan input manual.",
+      error: "AI_API_KEY (atau OPENROUTER_API_KEY) belum diisi di server. Isi di .env.local atau Vercel Settings -> Environment Variables.",
       attempts: 0,
     };
   }
 
-  const model = options.model ?? DEFAULT_MODEL;
-  const maxAttempts = (options.retries ?? 1) + 1;
-  let lastError = "unknown error";
+  const controller = options.timeoutMs ? new AbortController() : undefined;
+  if (controller) setTimeout(() => controller.abort(), options.timeoutMs);
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
-      const res = await fetch(`${MODELS_BASE}/${model}:generateContent`, {
+      const response = await fetch(`${baseURL}/chat/completions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://autothreads.app",
+          "X-Title": "AutoThreads",
+        },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: options.temperature ?? 0.7,
-          },
+          model,
+          messages: [{ role: "user", content: prompt }],
+          temperature: options.temperature ?? 0.7,
+          response_format: { type: "json_object" },
         }),
-        signal: AbortSignal.timeout(options.timeoutMs ?? 30_000),
+        signal: controller?.signal,
       });
 
-      if (!res.ok) {
-        const detail = await res.text().catch(() => "");
-        lastError = `Gemini HTTP ${res.status}: ${(detail || res.statusText).slice(0, 300)}`;
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { error?: { message?: string; code?: string } };
+        const detail = body.error?.message ?? `HTTP ${response.status}`;
+        lastError = new Error(`HTTP ${response.status}: ${detail}`);
         continue;
       }
 
-      const payload = (await res.json()) as GeminiResponse;
+      const payload = (await response.json()) as ChatCompletionsResponse;
       const text = extractText(payload);
       if (!text) {
-        lastError = "Respons AI kosong.";
+        lastError = new Error("Provider mengembalikan teks kosong.");
         continue;
       }
 
-      let raw: unknown;
+      let json: unknown;
       try {
-        raw = parseModelJson(text);
-      } catch {
-        lastError = "Output AI bukan JSON valid.";
+        json = parseModelJson(text);
+      } catch (err) {
+        lastError = err;
         continue;
       }
 
-      const parsed = schema.safeParse(raw);
-      if (parsed.success) {
-        return { ok: true, data: parsed.data, attempts: attempt };
+      const parsed = schema.safeParse(json);
+      if (!parsed.success) {
+        lastError = new Error(`JSON tidak valid setelah 1 retry: ${JSON.stringify(parsed.error.flatten().fieldErrors)}`);
+        continue;
       }
-      lastError = parsed.error.issues
-        .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`)
-        .join("; ");
+
+      return { ok: true, data: parsed.data as T, error: undefined, attempts: attempt + 1 };
     } catch (err) {
-      lastError = err instanceof Error ? err.message : String(err);
+      // AbortError / jaringan: retry sampai habis, lalu tampilkan pesan ringkas.
+      const isAbort = err instanceof DOMException && err.name === "AbortError";
+      const isNetwork = err instanceof TypeError && err.message.includes("Failed to fetch");
+      if (isAbort || isNetwork) {
+        lastError = err;
+        continue;
+      }
+      lastError = err;
+      break;
     }
   }
 
+  const message = (() => {
+    if (lastError instanceof Error) return lastError.message;
+    if (lastError) return String(lastError);
+    return "Generate JSON gagal tanpa alasan yang bisa dibaca.";
+  })();
+
+  const retryLabel = retries > 0 ? `gagal setelah ${retries + 1} percobaan` : "gagal pada percobaan pertama";
+
   return {
     ok: false,
-    error: `${lastError} — gagal setelah ${maxAttempts} percobaan.`,
-    attempts: maxAttempts,
+    error: `${message} (${retryLabel})`,
+    attempts: retries + 1,
   };
 }

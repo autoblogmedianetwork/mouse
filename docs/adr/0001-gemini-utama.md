@@ -1,7 +1,11 @@
 # ADR 0001: Google Gemini sebagai provider AI utama
 
-Status: diterima
+Status: digantikan sebagian oleh ADR 0006 (13 Oktober 2026)
 Tanggal: Oktober 2026
+
+> **Catatan 13 Okt 2026:** peran chat/JSON pindah ke ADR 0006. `GEMINI_API_KEY` dan `GEMINI_MODEL`
+> tidak lagi dibaca kode mana pun. ADR ini tetap berlaku sebagai catatan keputusan lama dan sebagai
+> dasar pemilihan TTS (lihat ADR 0002, bagian TTS).
 
 ## Konteks
 Aplikasi butuh AI untuk tiga hal: analisis teks dan gambar produk, ide konten, dan generate status Threads dalam format JSON. Anggaran sangat kecil, dan kualitas bahasa Indonesia kasual penting. Sebelumnya dipertimbangkan MiMo (Xiaomi), DeepSeek, dan Gemini.

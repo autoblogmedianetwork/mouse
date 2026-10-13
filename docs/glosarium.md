@@ -45,7 +45,9 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 
 | Istilah (UI) | Nama kode | Tabel / tipe | Catatan |
 |---|---|---|---|
-| Provider chat | `AI_CHAT_PROVIDER` | env | Gemini utama, cadangan lain |
+| Provider chat | `AI_CHAT_PROVIDER` | env | OpenRouter utama (ADR 0006), bebas diganti |
+| Base URL provider AI | `AI_BASE_URL` | env | Endpoint kompatibel OpenAI |
+| Model provider AI | `AI_MODEL` | env | Nama model di `AI_BASE_URL` |
 | Provider visi | `AI_VISION_PROVIDER` | env | Membaca gambar produk |
 | Provider suara | `AI_TTS_PROVIDER` | env | Voice-over |
 | Provider transkripsi | `AI_TRANSCRIBE_PROVIDER` | env | Opsional |

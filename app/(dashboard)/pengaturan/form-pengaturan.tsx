@@ -118,14 +118,14 @@ export function FormPengaturan() {
 
       <Section
         judul="AI"
-        deskripsi="Model tunggal di MVP sesuai keputusan docs/ai-provider.md. API key tetap di server."
+        deskripsi="Provider chat bebas lewat AI_BASE_URL dan AI_MODEL di server (ADR 0006). API key tetap di server."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="p-model" className="mb-1 block text-sm font-medium">
               Model
             </label>
-            <input id="p-model" value="Gemini 2.5 Flash-Lite" readOnly className={`${inputClass} text-muted-foreground`} />
+            <input id="p-model" value="Sesuai env AI_MODEL (server)" readOnly className={`${inputClass} text-muted-foreground`} />
           </div>
           <div>
             <label htmlFor="p-batas" className="mb-1 block text-sm font-medium">

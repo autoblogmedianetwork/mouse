@@ -13,8 +13,8 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Dashboard", href: "/", group: "workspace", available: true },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", available: true },
   { label: "Antrian review", href: "/antrian", group: "workspace", available: true },
-  { label: "Akun sosial", href: "/akun", group: "workspace", available: false },
-  { label: "Kalender", href: "/kalender", group: "workspace", available: false },
+  { label: "Akun sosial", href: "/akun", group: "workspace", available: true },
+  { label: "Kalender", href: "/kalender", group: "workspace", available: true },
   { label: "Riwayat posting", href: "/riwayat", group: "workspace", available: true },
   // Tools group
   { label: "Analitik", href: "/analitik", group: "tools", available: true },

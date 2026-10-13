@@ -88,7 +88,7 @@ Menghindari analisis ulang produk yang sama (F-cache di PRD 15.1).
 | user_id | uuid | |
 | hash | text | sha256 dari deskripsi_bersih + varian + versi prompt |
 | hasil | jsonb | JSON hasil analisis |
-| model | text | misalnya gemini-2.5-flash-lite |
+| model | text | misalnya nvidia/nemotron-3-super-120b-a12b:free (ikut AI_MODEL) |
 | prompt_version | text | misalnya analisis-produk.v1 |
 | created_at | timestamptz | |
 
@@ -610,12 +610,19 @@ Catatan:
 
 ---
 
-## 9. Rencana migrasi berikutnya (draft, belum dibuat)
+## 9. Migrasi 0002: provider posting, carousel, akun Threads (file siap, belum dijalankan)
 
-Nomor yang sudah terpakai: `0001_init.sql` dan `0003_performa_affiliate.sql`. Dokumen fitur
-(`fitur-carousel.md`, `fitur-mode-kerja.md`) menyebut "migrasi 0002" untuk provider per fungsi dan
-tabel carousel; file dengan nomor itu belum pernah dibuat, jadi saat draft di bawah dijalankan
-nomornya mengikuti urutan berikutnya. Bagian ini **bukan** acuan yang sudah dijalankan.
+Status: file `supabase/migrations/0002_posting_carousel_threads.sql` sudah ada di repo
+(13 Oktober 2026) dan **belum dijalankan** di project Supabase. Cara menjalankan: tempel seluruh
+isi file ke Supabase → SQL Editor → Run.
+
+Nomor yang sudah terpakai: `0001_init.sql`, `0002_posting_carousel_threads.sql`, dan
+`0003_performa_affiliate.sql`. Bagian 9.1 sampai 9.4 di bawah adalah rancangan aslinya; selisih
+kecil antara rancangan dan file migrasi yang benar-benar ditulis dicatat di 9.7.
+
+Tidak ada tabel `provider_per_fungsi` di skema ini. ADR 0002 memutuskan provider dipilih lewat
+environment variable per fungsi, dan `docs/ai-provider.md` menegaskan kunci API hanya hidup di
+environment server, jadi tidak ada kolom kunci API di database mana pun.
 
 ### 9.1 Provider posting dan varian platform (ADR 0002)
 
@@ -732,3 +739,20 @@ diubah dari klien. Mode `penuh` tidak dibuat sebelum K12 diputuskan.
 
 - `posts`: riwayat pengiriman dan ID posting platform, ditambahkan saat Fase 7.
 - Tabel cache ide: belum ada di skema; analisis sudah punya `analysis_cache`.
+- Isi baris `platforms`: tabelnya dibuat kosong. Baris `threads` masuk bersama adapter platform
+  pertama, karena `batas_karakter` dan `aktif` harus dicek ke dokumentasi resmi dulu.
+
+### 9.7 Selisih antara rancangan 9.1-9.4 dan file migrasi
+
+Empat hal ini berbeda dari SQL di atas, semuanya disengaja:
+
+| Hal | Rancangan 9.1-9.4 | File `0002_posting_carousel_threads.sql` |
+|---|---|---|
+| `platforms` dan RLS | RLS hanya di `content_variants`, `carousel_slides`, `threads_accounts` | RLS juga diaktifkan di `platforms`, dengan policy select `using (true)` untuk `authenticated` dan tanpa policy tulis |
+| Index foreign key | Hanya `content_variants(content_id)` | Ditambah `content_variants_platform_idx` untuk foreign key `platform` |
+| Amannya tempel ulang | `create table` dan `create policy` polos | Semua `create` pakai `if not exists`, dan tiap policy didahului `drop policy if exists` |
+| Enum `ditolak` | `alter type ... add value if not exists` | Sama, tapi ditempatkan di dalam transaksi supaya ikut dibatalkan bila pernyataan berikutnya gagal |
+
+Alasan baris `platforms`: tabel tanpa RLS di Supabase bisa dibaca memakai anon key yang ikut
+terkirim ke peramban, padahal `platforms` tidak menyimpan data siapa pun. Karena itu tabel acuan
+ini dibuat baca-saja untuk user yang login, dan penulisan platform baru hanya lewat service role.

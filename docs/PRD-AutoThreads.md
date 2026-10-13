@@ -96,7 +96,7 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 
 ### F6. Akun & Pengaturan
 - Login (email atau Google).
-- Provider AI dipilih per fungsi di Pengaturan: chat, visi, TTS, dan transkripsi (ADR 0002). Default Gemini 2.5 Flash-Lite.
+- Provider AI dipilih per fungsi di Pengaturan: chat, visi, TTS, dan transkripsi (ADR 0002). Chat/JSON mengikuti `AI_BASE_URL` dan `AI_MODEL` di server (ADR 0006).
 - Opsi "Mulai di percakapan AI baru" (default aktif).
 - Paket Free dan Pro dihapus dari MVP. Fokus ke pemakaian pribadi.
 
@@ -250,7 +250,7 @@ Format JSON:
 
 | Layanan | Kegunaan | Catatan |
 |---|---|---|
-| Gemini 2.5 Flash-Lite API | Analisis, ide, generate | Model utama, API key disimpan di server |
+| API provider chat OpenAI-compatible (mis. OpenRouter) | Analisis, ide, generate | Bawaan `nvidia/nemotron-3-super-120b-a12b:free`, API key disimpan di server (ADR 0006) |
 | Shopee Open Platform | Tidak dipakai di MVP | Akses belum ada, input manual |
 | Playwright (opsional) | Baca halaman produk | Dipakai terbatas, ada risiko blokir |
 | Supabase | Database, auth, storage | Free tier cukup untuk MVP |
@@ -286,7 +286,7 @@ Format JSON:
 ## 15. Masukan Lanjutan
 
 ### 15.1 Arsitektur
-- **Abstraksi provider AI.** Bungkus pemanggilan model di satu layer (`generateJSON(prompt, schema)`). Jika harga atau kualitas Gemini berubah, ganti provider tanpa menyentuh fitur lain.
+- **Abstraksi provider AI.** Bungkus pemanggilan model di satu layer (`generateJSON(prompt, schema)`). Jika harga atau kualitas provider berubah, ganti provider tanpa menyentuh fitur lain.
 - **Antrian job untuk batch.** Generate 4 konten dijalankan sebagai job terpisah dengan status per konten. Satu konten gagal tidak menggagalkan yang lain, dan user bisa coba ulang per konten.
 - **Idempotency.** Klik "Generate" dua kali tidak membuat dua batch. Pakai kunci unik per request.
 - **Cache hasil analisis.** Simpan hasil analisis dengan hash deskripsi. Deskripsi yang sama tidak diproses ulang, sehingga biaya API turun.
@@ -315,6 +315,6 @@ Format JSON:
 
 ## 16. Pertanyaan Terbuka
 
-1. Endpoint dan format request Gemini 2.5 Flash-Lite (kompatibel OpenAI atau format sendiri)? Perlu dicek dari dokumentasi provider sebelum M1.
-2. Batas token dan biaya per 1 juta token untuk Gemini 2.5 Flash-Lite, untuk menghitung biaya per batch 4 konten.
+1. Endpoint dan format request provider chat (kompatibel OpenAI atau format sendiri)? Perlu dicek dari dokumentasi provider sebelum M1. Sudah dijawab ADR 0006: OpenAI-compatible.
+2. Batas token dan biaya per 1 juta token untuk model yang dipakai, untuk menghitung biaya per batch 4 konten.
 3. Apakah data produk manual cukup, atau perlu foto produk ikut dianalisis?

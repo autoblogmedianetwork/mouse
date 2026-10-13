@@ -14,7 +14,7 @@ Menghasilkan MVP yang bisa dipakai untuk akun affiliate pribadi: dari input prod
 
 **Masuk MVP (Fase 0 sampai 5):**
 - Input produk manual (scraping tetap default mati)
-- Analisis produk dan ide konten dengan Gemini 2.5 Flash-Lite
+- Analisis produk dan ide konten dengan provider chat lewat `AI_BASE_URL` / `AI_MODEL` (ADR 0006)
 - Generate status Threads dengan validasi 500 karakter
 - Preview Threads, checklist sebelum siap posting, salin utas
 - Pustaka konten, link affiliate, template deskripsi, pengaturan
@@ -34,14 +34,14 @@ Semua item ini harus selesai. Kalau belum, fase berikutnya ditunda.
 
 | No | Prasyarat | Cara verifikasi | Penanggung jawab |
 |---|---|---|---|
-| P1 | Endpoint, format request, dan harga Gemini 2.5 Flash-Lite | Baca dokumentasi resmi provider, catat di `docs/ai-provider.md` | Slamet |
+| P1 | Endpoint, format request, dan harga provider chat dicatat dari dokumentasi resmi | Baca dokumentasi resmi provider, catat di `docs/ai-provider.md` | Slamet |
 | P2 | Satu panggilan API uji berhasil dan mengembalikan JSON valid | Script kecil di terminal | Slamet |
 | P3 | Akun Supabase dan Vercel dibuat (tier gratis) | Login dan buat project kosong | Slamet |
 | P4 | Repository Git dibuat dan terhubung ke Vercel | Push commit pertama | Slamet |
 | P5 | Golden set: 10 produk uji dengan deskripsi dan hasil ideal ditulis manual | File `golden/produk-01.json` sampai `produk-10.json` | Slamet |
 | P6 | Keputusan terbuka di bagian 4 sudah dijawab | Dicatat di `docs/keputusan.md` | Slamet |
-| P7 | Foto produk bisa dikirim ke Gemini 2.5 Flash-Lite lewat API, dan respons JSON-nya valid | Satu panggilan uji dengan gambar | Slamet |
-| P8 | Harga dan kuota gratis Gemini (termasuk TTS) sudah dicek di halaman resmi | Catat tanggal pengecekan di `docs/ai-provider.md` | Slamet |
+| P7 | Foto produk bisa dikirim ke provider visi lewat API, dan respons JSON-nya valid | Satu panggilan uji dengan gambar | Slamet |
+| P8 | Harga dan kuota gratis provider chat dan TTS sudah dicek di halaman resmi | Catat tanggal pengecekan di `docs/ai-provider.md` | Slamet |
 | P9 | Cadangan sudah ditentukan (MiMo atau DeepSeek) dan diuji dengan golden set yang sama | Catatan hasil di `docs/penilaian.md` | Slamet |
 | P10 | Tools media yang diaktifkan sudah diuji di perangkat tujuan (rembg, HyperFrames, VoiceStudio, atau backend cloud) | Catatan di `docs/adr/0003-tools-media-opsional.md` bagian konfigurasi | Slamet |
 
@@ -220,7 +220,7 @@ Sebuah fitur dianggap selesai jika:
 
 **Biaya bulanan perkiraan:**
 - Supabase, Vercel: gratis (tier gratis, perlu dicek batasnya saat mulai).
-- API Gemini 2.5 Flash-Lite: perkiraan di bawah Rp 50 per batch 4 konten, berdasarkan harga Gemini 2.5 Flash-Lite yang ditemukan. Angka pasti harus dicek ulang setelah P1.
+- API provider chat: perkiraan di bawah Rp 50 per batch 4 konten untuk model gratis (OpenRouter `nvidia/nemotron-3-super-120b-a12b:free`). Angka pasti harus dicek ulang setelah P1.
 - Domain (opsional): sekitar Rp 150.000 per tahun.
 
 Estimasi ini belum memperhitungkan waktu belajar tools baru dan revisi desain.
@@ -231,7 +231,7 @@ Estimasi ini belum memperhitungkan waktu belajar tools baru dan revisi desain.
 
 | Risiko | Kemungkinan | Dampak | Mitigasi |
 |---|---|---|---|
-| Format API Gemini tidak sesuai dugaan | Sedang | Fase 2 tertunda | Selesaikan P1 dan P2 sebelum Fase 1, siapkan provider cadangan |
+| Format API provider chat tidak sesuai dugaan | Sedang | Fase 2 tertunda | Selesaikan P1 dan P2 sebelum Fase 1, siapkan provider cadangan |
 | Output AI sering tidak valid JSON | Tinggi | Alur terputus | Skema ketat, satu retry, prompt diuji di golden set |
 | Biaya API lebih tinggi dari perkiraan | Sedang | Anggaran terlampaui | Cache, batas biaya bulanan, dashboard biaya di Fase 5 |
 | Akses Threads API lama disetujui | Tinggi | Fase 7 tertunda | Mode manual tetap jadi jalur utama, Fase 7 tidak mengganggu MVP |
@@ -253,7 +253,7 @@ Estimasi ini belum memperhitungkan waktu belajar tools baru dan revisi desain.
 
 ## 11. Langkah Pertama Minggu Ini
 
-1. Selesaikan P1 dan P2: baca dokumentasi Gemini dan jalankan satu panggilan uji.
+1. Selesaikan P1 dan P2: baca dokumentasi provider chat dan jalankan satu panggilan uji.
 2. Jawab K1 sampai K7 dan catat di `docs/keputusan.md`.
 3. Buat repo, akun Supabase, dan Vercel (P3, P4).
 4. Tulis golden set 10 produk (P5).

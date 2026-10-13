@@ -2,7 +2,7 @@
  * Ide manual (PRD F1 "input manual selalu tersedia", AGENTS rule 5).
  *
  * Step 3 of Buat posting used to accept ideas only from the AI call, so when
- * GEMINI_API_KEY was missing the flow dead-locked behind "Pilih minimal satu
+ * the AI API key was missing the flow dead-locked behind "Pilih minimal satu
  * ide". This builds the same Ide shape the rest of the flow expects, validated
  * with Zod (AGENTS rule 9).
  */

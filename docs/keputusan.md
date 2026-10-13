@@ -25,21 +25,22 @@ Keputusan yang sudah diambil dicatat di `docs/adr/`. Dokumen ini berisi keputusa
 
 | ADR | Judul | Status |
 |---|---|---|
-| 0001 | Google Gemini sebagai provider AI utama | Diterima |
+| 0001 | Google Gemini sebagai provider AI utama | Digantikan sebagian oleh 0006 |
 | 0002 | Provider AI dan posting dipisah per fungsi | Diterima |
 | 0003 | Tools media tersedia dan diaktifkan per fitur | Diterima |
+| 0006 | Provider chat bebas lewat endpoint OpenAI-compatible | Diterima |
 
 ## 3. Prasyarat
 
 | No | Prasyarat | Status |
 |---|---|---|
-| P1 | Endpoint, format request, dan harga Gemini dicatat dari dokumentasi resmi | belum |
+| P1 | Endpoint, format request, dan harga provider chat dicatat dari dokumentasi resmi | belum |
 | P2 | Satu panggilan teks menghasilkan JSON valid | belum |
 | P3 | Akun Supabase dan Vercel dibuat | belum |
 | P4 | Repo Git dibuat dan terhubung ke Vercel | belum |
 | P5 | Golden set 10 produk ditulis manual | belum |
 | P6 | K1 sampai K7 dijawab | belum |
-| P7 | Foto produk berhasil dikirim ke Gemini dan JSON valid | belum |
+| P7 | Foto produk berhasil dikirim ke provider visi dan JSON valid | belum |
 | P8 | Harga dan kuota gratis provider yang dipakai dicek (chat, TTS, posting) | belum |
 | P9 | Provider cadangan untuk chat diuji dengan golden set yang sama | belum |
 | P10 | Tools media yang akan diaktifkan sudah diuji di perangkat tujuan | belum |
@@ -52,9 +53,9 @@ Keputusan yang sudah diambil dicatat di `docs/adr/`. Dokumen ini berisi keputusa
 | Frontend | Next.js (App Router), TypeScript, Tailwind, shadcn/ui |
 | Form dan validasi | React Hook Form, Zod |
 | Database, auth, storage | Supabase |
-| Provider chat (utama) | Gemini 2.5 Flash-Lite |
-| Provider chat (cadangan) | Groq, OpenRouter, DeepSeek, atau MiMo |
-| Provider suara | Gemini TTS, cadangan ElevenLabs atau VoiceStudio lokal |
+| Provider chat (utama) | Endpoint kompatibel OpenAI, default OpenRouter `nvidia/nemotron-3-super-120b-a12b:free` (ADR 0006) |
+| Provider chat (cadangan) | Model OpenRouter gratis lain, DeepSeek, Groq, Ollama, LM Studio — cukup ganti `AI_BASE_URL` dan `AI_MODEL` |
+| Provider suara | ElevenLabs, Edge TTS, atau VoiceStudio lokal (ADR 0001 untuk TTS masih berlaku) |
 | Provider posting | Manual (default), Threads API, Buffer atau Metricool, Postiz atau Mixpost |
 | Tools media | Kompresi di browser, rembg, HyperFrames, VoiceStudio (opsional, lihat ADR 0003) |
 | Hosting | Vercel |

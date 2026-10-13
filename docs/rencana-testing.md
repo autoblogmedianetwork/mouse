@@ -113,7 +113,7 @@ Lihat `golden/README.md` dan `golden/rubrik.md`.
 
 | Fase | Tes wajib | Exit criteria |
 |---|---|---|
-| 0 | Satu panggilan API Gemini (P2), satu panggilan dengan gambar (P7) | JSON valid dari keduanya |
+| 0 | Satu panggilan API provider chat (P2), satu panggilan dengan gambar (P7) | JSON valid dari keduanya |
 | 1 | Unit (dasar), RLS (tabel awal), login dua akun | Akun B tidak melihat data A |
 | 2 | Unit (cleaning, parser, cache), fixture, golden tahap 1 | Minimal 9 dari 10 produk JSON valid |
 | 3 | Unit (500 karakter, retry), integrasi generate, E2E manual salin | Tidak ada status di atas 500. Salin menghasilkan urutan benar |

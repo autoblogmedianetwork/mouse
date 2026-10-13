@@ -1,6 +1,6 @@
 /**
  * POST /api/analisis — Prompt 1 (analisis produk), server-side only.
- * GEMINI_API_KEY never leaves the server (AGENTS rule 8).
+ * The AI API key never leaves the server (AGENTS rule 11).
  */
 import { NextResponse } from "next/server";
 import { generateJSON } from "@/lib/ai/generate-json";
@@ -34,7 +34,10 @@ export async function POST(req: Request) {
   }
 
   const prompt = buildAnalisisProdukPrompt({ ...parsed.data, deskripsi });
-  const result = await generateJSON(prompt, analisisSkema, { retries: 1 });
+  const result = await generateJSON(prompt, analisisSkema, {
+    retries: 1,
+    timeoutMs: 120_000,
+  });
 
   return NextResponse.json(
     { ...result, prompt_version: PROMPT_VERSION },

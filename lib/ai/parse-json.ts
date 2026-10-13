@@ -1,6 +1,6 @@
 /**
  * Tolerant JSON parser for model output (PRD 10.3: parse JSON, retry once).
- * Gemini is prompted to answer with bare JSON, but models occasionally wrap
+ * The model is prompted to answer with bare JSON, but providers occasionally wrap
  * the payload in markdown fences or add a short preamble — both are stripped
  * here before parsing. Raw output is never shown to the user.
  */
