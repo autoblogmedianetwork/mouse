@@ -1,202 +1,224 @@
-import { PageHeader } from "@/components/page-header";
+"use client";
+
+/**
+ * Kalender (Fase 6, UI-Spec 3.4): week view + month table of scheduled content.
+ * Data is the real content bank ("terjadwal" status with jadwal_at), not mock
+ * days. Scheduling itself happens in Antrian review; this page only displays
+ * and links there. No auto-posting: Mode manual stays the main path (PRD).
+ */
 import Link from "next/link";
+import { useMemo } from "react";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
+import { hariMinggu, jadwalBulanIni, kelompokkanPerHari, kontenTerjadwal } from "@/lib/konten/kalender";
+import { useLocalState } from "@/lib/konten/use-local-state";
+import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Kalender" };
-
-type DayStatus = "done" | "pending" | "failed";
-
-const STATUS_CONFIG: Record<DayStatus, { label: string; className: string }> = {
-  done: {
-    label: "Selesai",
-    className: "bg-muted text-status-ready border-status-ready",
-  },
-  pending: {
-    label: "Jadwal",
-    className: "bg-muted text-status-scheduled border-status-scheduled",
-  },
-  failed: {
-    label: "Gagal",
-    className: "bg-muted text-status-failed border-status-failed",
-  },
+const STATUS_LABEL: Partial<Record<Konten["status"], string>> = {
+  terjadwal: "Terjadwal",
 };
 
-/** Contoh harian di Kalender (Fase 6). Data akan diambil dari antrian / jadwal*/
-const DAYS = [
-  { date: "Sen", label: "Sen, 13 Okt", status: "done" as DayStatus },
-  { date: "Sel", label: "Sel, 14 Okt", status: "pending" as DayStatus },
-  { date: "Rab", label: "Rab, 15 Okt", status: "pending" as DayStatus },
-  { date: "Kam", label: "Kam, 16 Okt", status: "pending" as DayStatus },
-  { date: "Jum", label: "Jum, 17 Okt", status: "failed" as DayStatus },
-  { date: "Sab", label: "Sab, 18 Okt", status: "pending" as DayStatus },
-  { date: "Min", label: "Min, 19 Okt", status: "pending" as DayStatus },
-];
+function formatJadwal(jadwalAt: string): string {
+  const d = new Date(jadwalAt);
+  return d.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+}
 
 export default function KalenderPage() {
+  const [raw, dimuat] = useLocalState<Konten[]>("autothreads-konten", []);
+  const konten = useMemo(() => {
+    if (!dimuat || !Array.isArray(raw)) return [];
+    return raw.flatMap((k) => {
+      const hasil = kontenSkema.safeParse(k);
+      return hasil.success ? [hasil.data] : [];
+    });
+  }, [raw, dimuat]);
+
+  const terjadwal = useMemo(() => kontenTerjadwal(konten), [konten]);
+  const hari = useMemo(() => hariMinggu(), []);
+  const perHari = useMemo(() => kelompokkanPerHari(konten, hari), [konten, hari]);
+  const bulan = useMemo(() => jadwalBulanIni(konten), [konten]);
+
+  // Render must be pure: derive the "now" boundary once inside the same
+  // hook ordering as the rest of the component, then pass it down.
+  const sekarang = useMemo(() => Date.now(), []);
+
+  if (!dimuat) {
+    return (
+      <div className="rounded-xl border border-surface-border bg-surface p-6 text-sm text-muted-foreground">
+        Memuat kalender…
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Kalender"
-        description="Jadwalkan konten siap posting (Fase 6). Hari ini: layout preview, data akan diisi saat jadwal tersedia."
+        description="Jadwal konten siap posting. Jadwalkan dari Antrian review (tab Disetujui, tombol Jadwalkan) dan muncul di sini. Mode manual tetap jalur utama sampai Fase 7."
       >
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            disabled
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+          <Link
+            href="/antrian"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-surface-border bg-background px-3 text-sm font-medium transition-colors hover:bg-muted"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" />
-            </svg>
-            Lihat minggu
-          </button>
-          <button
-            type="button"
-            disabled
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah jadwal
-          </button>
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-            Tanpa akun sosial
+            Jadwalkan dari Antrian
+          </Link>
+          <span className="text-muted-foreground rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium">
+            {terjadwal.length} terjadwal
           </span>
         </div>
       </PageHeader>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {DAYS.map((day) => (
-          <div
-            key={day.date}
-            className={cn(
-              "rounded-xl border p-4 transition-colors",
-              day.status === "done"
-                ? "border-status-ready bg-background"
-                : day.status === "pending"
-                  ? "border-border bg-background"
-                  : "border-status-failed bg-background",
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {day.date}
-              </p>
-              <span
-                className={cn(
-                  "inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
-                  STATUS_CONFIG[day.status].className,
-                )}
-              >
-                {STATUS_CONFIG[day.status].label}
-              </span>
-            </div>
-            <p className="mt-2 text-base font-semibold">{day.label}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {day.status === "done"
-                ? "Konten terkirim · lihat Riwayat"
-                : day.status === "pending"
-                  ? "Dijadwalkan · akan pada jam aktif"
-                  : "Gagal terkirim · coba lagi"}
-            </p>
-          </div>
-        ))}
-      </section>
-
-      <section className="rounded-xl border border-surface-border bg-surface p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">Jadwal konten</h2>
-          <span className="text-xs text-muted-foreground">
-            {DAYS.filter((d) => d.status === "pending").length} belum jadwal
-          </span>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Jadwal dipakai saat konten berstatus siap posting. Mode manual tetap jadi jalur utama sampai
-          Fase 6.
-        </p>
-
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[48rem] text-sm">
-            <caption className="sr-only">Jadwal konten bulan ini</caption>
-            <thead>
-              <tr className="border-b border-surface-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="py-2 pr-3 font-medium">Konten</th>
-                <th className="py-2 pr-3 font-medium">Tanggal</th>
-                <th className="py-2 pr-3 font-medium">Ide</th>
-                <th className="py-2 pr-3 font-medium">Status</th>
-                <th className="py-2 pr-3 font-medium">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {DAYS.map((day) => (
-                <tr
-                  key={day.date}
+      {terjadwal.length === 0 ? (
+        <EmptyState
+          title="Belum ada jadwal"
+          description="Tandai konten sebagai siap posting, lalu buka Antrian review dan klik Jadwalkan untuk memilih tanggal dan jam."
+          actionLabel="Buka Antrian review"
+          actionHref="/antrian"
+        />
+      ) : (
+        <>
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {hari.map((h) => {
+              const isi = perHari.get(h.kunci) ?? [];
+              const terlambat = isi.some((k) => new Date(k.jadwal_at ?? "").getTime() < sekarang);
+              return (
+                <div
+                  key={h.kunci}
                   className={cn(
-                    "border-b border-surface-border/60 transition-colors",
-                    day.status === "done" && "bg-muted/30",
+                    "rounded-xl border bg-background p-4 transition-colors",
+                    terlambat && isi.length > 0
+                      ? "border-status-failed"
+                      : isi.length > 0
+                        ? "border-status-scheduled bg-muted/20"
+                        : "border-border",
+                    h.hariIni && "ring-1 ring-primary/40",
                   )}
                 >
-                  <td className="py-2 pr-3 font-medium">{day.date}</td>
-                  <td className="py-2 pr-3 tabular-nums">{day.label}</td>
-                  <td className="py-2 pr-3 text-muted-foreground">—</td>
-                  <td className="py-2 pr-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+                      {h.label}
+                      {h.hariIni ? " · hari ini" : ""}
+                    </p>
                     <span
                       className={cn(
-                        "inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
-                        STATUS_CONFIG[day.status].className,
+                        "text-muted-foreground text-[11px] font-medium",
+                        isi.length > 0 && "text-foreground",
                       )}
                     >
-                      {STATUS_CONFIG[day.status].label}
+                      {isi.length > 0 ? `${isi.length} konten` : "—"}
                     </span>
-                  </td>
-                  <td className="py-2 pr-3 text-right">
-                    <button
-                      type="button"
-                      disabled
-                      className="rounded-md border border-input px-2 py-1 text-xs text-muted-foreground"
-                    >
-                      Jadwalkan
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
 
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link
-            href="/posting/baru"
-            className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-          >
-            Buat konten baru
-          </Link>
-          <Link
-            href="/antrian"
-            className="inline-flex h-9 items-center rounded-lg border border-surface-border px-4 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Lihat Antrian review
-          </Link>
-        </div>
-      </section>
+                  {isi.length === 0 ? (
+                    <p className="mt-2 text-xs text-muted-foreground">Tidak ada jadwal.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-2">
+                      {isi.map((k) => (
+                        <li key={k.id} className="rounded-lg border border-surface-border bg-surface p-2.5">
+                          <p className="truncate text-sm font-medium">{k.judul}</p>
+                          <p className="tabular-nums text-xs text-muted-foreground">
+                            {formatJadwal(k.jadwal_at ?? "")}
+                            {k.produk_nama ? ` · ${k.produk_nama}` : ""}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </section>
+
+          <section className="rounded-xl border border-surface-border bg-surface p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold">Jadwal bulan ini</h2>
+              <span className="text-muted-foreground text-xs">{bulan.length} konten</span>
+            </div>
+
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[48rem] text-sm">
+                <caption className="sr-only">Jadwal konten bulan ini</caption>
+                <thead>
+                  <tr className="border-surface-border text-muted-foreground border-b text-left text-xs uppercase tracking-wide">
+                    <th className="py-2 pr-3 font-medium">Konten</th>
+                    <th className="py-2 pr-3 font-medium">Jadwal</th>
+                    <th className="py-2 pr-3 font-medium">Ide</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
+                    <th className="py-2 pr-3 font-medium">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bulan.map((k) => {
+                    const lewat = new Date(k.jadwal_at ?? "").getTime() < sekarang;
+                    return (
+                      <tr key={k.id} className="border-surface-border/60 border-b transition-colors">
+                        <td className="py-2 pr-3 font-medium">{k.judul}</td>
+                        <td className="py-2 pr-3 tabular-nums">{formatJadwal(k.jadwal_at ?? "")}</td>
+                        <td className="text-muted-foreground py-2 pr-3">{k.ide_judul || "—"}</td>
+                        <td className="py-2 pr-3">
+                          <span
+                            className={cn(
+                              "inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide",
+                              lewat
+                                ? "border-status-failed bg-muted"
+                                : "border-status-scheduled bg-muted",
+                            )}
+                          >
+                            {STATUS_LABEL[k.status] ?? k.status}
+                            {lewat ? " · lewat" : ""}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3 text-right">
+                          <Link
+                            href="/antrian"
+                            className="text-primary text-xs underline-offset-2 hover:underline"
+                          >
+                            Batalkan di Antrian
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href="/posting/baru"
+                className="bg-primary text-primary-foreground hover:bg-primary-hover inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium transition-colors"
+              >
+                Buat konten baru
+              </Link>
+              <Link
+                href="/antrian"
+                className="hover:bg-muted inline-flex h-9 items-center rounded-lg border border-surface-border px-4 text-sm font-medium transition-colors"
+              >
+                Lihat Antrian review
+              </Link>
+            </div>
+          </section>
+        </>
+      )}
 
       <section className="rounded-xl border border-surface-border bg-surface p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold">Status fitur</h2>
-          <span className="text-xs text-muted-foreground">Fase 6, belum data jadwal</span>
+          <span className="text-muted-foreground text-xs">Fase 6</span>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {[
-            { label: "Tampilan kalender", desc: "Bulan, minggu, dan detail harian. Sampai ini sudah tampil." },
-            { label: "Jadwal konten siap posting", desc: "Filter dari Antrian review. Data diisi ketika jadwal tersedia." },
-            { label: "Analitik singkat", desc: "Klik, komisi, dan konversi per konten. Opsional di kalender." },
-            { label: "Status terkirim / retry", desc: "Butuh Thread API callback. Dipisah ke halaman yang lebih tepat." },
+            { label: "Tampilan kalender mingguan", desc: "Kartu Senin-Minggu dengan konten terjadwal." },
+            { label: "Jadwal dari Antrian", desc: "Tombol Jadwalkan aktif hanya untuk konten siap posting." },
+            { label: "Analitik singkat", desc: "Klik, komisi, dan konversi per konten ada di halaman Analitik." },
+            { label: "Status terkirim / retry", desc: "Butuh Threads API (Fase 7). Belum dilengkapi." },
           ].map((item) => (
-            <div key={item.label} className="rounded-xl border border-surface-border bg-background p-4">
+            <div key={item.label} className="border-surface-border bg-background rounded-xl border p-4">
               <p className="text-sm font-semibold">{item.label}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+              <p className="text-muted-foreground mt-1 text-xs">{item.desc}</p>
             </div>
           ))}
         </div>
