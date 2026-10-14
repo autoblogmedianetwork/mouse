@@ -309,8 +309,10 @@ Catatan pemulihan: pada 14 Oktober sempat tertulis log 5 baris yang menimpa 299 
 | Pemeriksaan | Perintah | Hasil |
 |---|---|---|
 | Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
-| Unit dan fixture | `npx vitest run` | 212 tes lulus di 20 berkas |
-| Lint berkas Fase 6 | `npx eslint app/(dashboard)/kalender/page.tsx lib/konten/kalender.ts ...` | Lulus setelah `Date.now()` dipindah ke efek (`react-hooks/purity`) |
+| Unit dan fixture | `npx vitest run` | 266 tes lulus di 24 berkas (212 di 20 berkas sebelum tes Fase 6 dan Fase 7 ditambahkan) |
+| Lint berkas Fase 6 | `npx eslint app/(dashboard)/kalender/page.tsx ...` | Lulus setelah `Date.now()` dipindah ke efek (`react-hooks/purity`) |
+| Lint seluruh repo | `npx eslint .` | Lulus, 0 temuan — aturan tidak dimatikan lagi |
+| Halaman jalan | `next dev` di port 3111 | `/kalender`, `/antrian`, `/analitik`, `/pengaturan` merespons 200 |
 
 Cara menguji manual (Fase 6):
 
@@ -342,8 +344,9 @@ Yang dikerjakan:
 |---|---|---|
 | Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
 | Unit posting | `npx vitest run lib/posting` | 39 tes lulus di 4 berkas |
-| Unit seluruh repo | `npx vitest run` | Lulus (lihat baris ringkasan di bawah) |
+| Unit seluruh repo | `npx vitest run` | 266 tes lulus di 24 berkas |
 | Lint | `npx eslint .` | Lulus, 0 temuan |
+| Rute kirim lewat HTTP | `curl -X POST /api/posting/kirim` | Draft ditolak, `threads_api` tanpa kredensial jatuh ke manual, batas harian dan jeda dan jadwal-belum-tiba ditolak dengan alasan masing-masing |
 
 Yang belum bisa diverifikasi dari sesi ini:
 
