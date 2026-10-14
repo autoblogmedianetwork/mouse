@@ -5,6 +5,7 @@ import type { Analisis, Ide, Pengaturan } from "@/lib/ai/schemas";
 import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { normalkanPersonaId } from "@/lib/ai/persona";
 import { salinKeClipboard, teksUtasLengkap } from "@/lib/konten/salin";
+import { TombolSuaraNarasi } from "./tombol-suara-narasi";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -895,6 +896,7 @@ export function AlurBuatPosting() {
                   {kontenAktif?.statuses.reduce((sum, s) => sum + charLength(s), 0) ?? 0} karakter
                   di {kontenAktif?.statuses.length ?? 0} status.
                 </p>
+                <TombolSuaraNarasi statuses={kontenAktif?.statuses ?? []} />
               </div>
             </div>
 
