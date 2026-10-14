@@ -6,6 +6,7 @@ import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { normalkanPersonaId } from "@/lib/ai/persona";
 import { salinKeClipboard, teksUtasLengkap } from "@/lib/konten/salin";
 import { TombolSuaraNarasi } from "./tombol-suara-narasi";
+import { PanduanFotoCandid } from "./panduan-foto-candid";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -897,6 +898,15 @@ export function AlurBuatPosting() {
                   di {kontenAktif?.statuses.length ?? 0} status.
                 </p>
                 <TombolSuaraNarasi statuses={kontenAktif?.statuses ?? []} />
+                <PanduanFotoCandid
+                  produk={{
+                    nama_internal: draft.produk?.nama_internal,
+                    nama: draft.produk?.nama ?? null,
+                    varian: draft.produk?.varian ?? null,
+                    fitur: draft.analisis?.fitur ?? null,
+                    target_audiens: draft.analisis?.target_audiens ?? null,
+                  }}
+                />
               </div>
             </div>
 
