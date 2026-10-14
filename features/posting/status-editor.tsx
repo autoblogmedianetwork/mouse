@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
 import { splitIntoStatuses } from "@/lib/statuses/pemisah";
+import { salinKeClipboard, teksStatus } from "@/lib/konten/salin";
 import { cn } from "@/lib/utils";
 
 /**
  * StatusEditor (UI-Spec 4): ordered list of statuses with per-status
- * character counter, inline editing, add/remove, and automatic splitting
- * when one status exceeds 500 characters.
+ * character counter, inline editing, add/remove, per-status copy (N-4), and
+ * automatic splitting when one status exceeds 500 characters.
  */
 export function StatusEditor({
   statuses,
@@ -16,6 +18,15 @@ export function StatusEditor({
   statuses: string[];
   onChange: (next: string[]) => void;
 }) {
+  const [hasilSalin, setHasilSalin] = useState<{ index: number; ok: boolean } | null>(null);
+
+  /** Salin satu status; kalau clipboard ditolak, teksnya tetap ada di editor. */
+  const salinStatus = async (index: number) => {
+    const ok = await salinKeClipboard(teksStatus(statuses[index] ?? ""));
+    setHasilSalin({ index, ok });
+    setTimeout(() => setHasilSalin(null), 2500);
+  };
+
   const update = (index: number, text: string) => {
     const next = [...statuses];
     next[index] = text;
@@ -72,6 +83,15 @@ export function StatusEditor({
                   >
                     {length} / {MAX_STATUS_LENGTH}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => void salinStatus(index)}
+                    disabled={teksStatus(status).length === 0}
+                    aria-label={`Salin status ${index + 1}`}
+                    className="rounded border border-surface-border px-2 py-0.5 text-xs hover:bg-muted disabled:opacity-40"
+                  >
+                    Salin
+                  </button>
                   {over ? (
                     <button
                       type="button"
@@ -91,6 +111,13 @@ export function StatusEditor({
                   </button>
                 </div>
               </div>
+              {hasilSalin?.index === index ? (
+                <p className="mb-2 text-xs text-muted-foreground" aria-live="polite">
+                  {hasilSalin.ok
+                    ? "Status disalin."
+                    : "Gagal menyalin. Salin manual dari kotak teks."}
+                </p>
+              ) : null}
               <textarea
                 value={status}
                 onChange={(e) => update(index, e.target.value)}

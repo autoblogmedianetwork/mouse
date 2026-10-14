@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Analisis, Ide, Pengaturan } from "@/lib/ai/schemas";
 import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { normalkanPersonaId } from "@/lib/ai/persona";
+import { salinKeClipboard, teksUtasLengkap } from "@/lib/konten/salin";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -421,22 +422,20 @@ export function AlurBuatPosting() {
 
   const salinUtas = async () => {
     if (!kontenAktif) return;
-    const teks = kontenAktif.statuses
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-      .join("\n\n");
-    try {
-      await navigator.clipboard.writeText(teks);
-      catatRiwayat({
-        konten_judul: kontenAktif.ide.judul,
-        mode: "manual",
-        status_akhir: draft.status === "siap_posting" ? "siap_posting" : "draft",
-        catatan: `Utas lengkap disalin (${kontenAktif.statuses.length} status)`,
-      });
-      setPesan(`Utas lengkap disalin (${kontenAktif.statuses.length} status).`);
-    } catch {
+    // Teks disusun dan disalin lewat helper bersama (lib/konten/salin.ts) supaya
+    // hasilnya sama dengan tombol salin per status.
+    const berhasil = await salinKeClipboard(teksUtasLengkap(kontenAktif.statuses));
+    if (!berhasil) {
       setPesan("Gagal menyalin. Izinkan akses clipboard lalu coba lagi.");
+      return;
     }
+    catatRiwayat({
+      konten_judul: kontenAktif.ide.judul,
+      mode: "manual",
+      status_akhir: draft.status === "siap_posting" ? "siap_posting" : "draft",
+      catatan: `Utas lengkap disalin (${kontenAktif.statuses.length} status)`,
+    });
+    setPesan(`Utas lengkap disalin (${kontenAktif.statuses.length} status).`);
   };
 
   /* --------------------------------- Render ---------------------------------- */
