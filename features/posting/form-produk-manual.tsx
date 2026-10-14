@@ -33,9 +33,15 @@ const errorClass = "mt-1 text-xs text-status-failed";
 
 export function FormProdukManual({
   onSaved,
+  nilaiAwal,
 }: {
   /** Called with the product the user just saved. */
   onSaved?: (product: SavedProduct) => void;
+  /**
+   * Isi awal form, mis. dari Quick Capture (N-8). User tetap harus memeriksa dan
+   * menekan "Simpan produk" sendiri; tidak ada penyimpanan otomatis.
+   */
+  nilaiAwal?: Partial<ProductFormValues>;
 }) {
   const [saved, setSaved] = useState<SavedProduct[]>([]);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
@@ -55,6 +61,7 @@ export function FormProdukManual({
       harga: "",
       deskripsi: "",
       url_referensi: "",
+      ...nilaiAwal,
     },
   });
 

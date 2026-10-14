@@ -97,4 +97,7 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Riwayat hasil terakhir | `RiwayatSupabase` | `contents` + `threads_statuses` | 15 konten terakhir, dari Supabase bukan localStorage |
 | Batas riwayat | `RIWAYAT_LIMIT` | `lib/konten/supabase-konten.ts` | 15 konten |
 | Pemetaan konten | `kontenKeBaris`, `barisKeKonten` | `lib/konten/supabase-konten.ts` | Pemetaan murni, tanpa jaringan |
+| Quick Capture | `bookmarkletQuickCapture` | `lib/impor/prefill.ts` | Bookmarklet, bukan ekstensi |
+| Prefill produk | `prefill`, `PrefillProduk` | parameter `/posting/baru` | Base64url JSON, deskripsi maks 1.000 karakter |
+| Batas deskripsi prefill | `MAKS_DESKRIPSI_PREFILL` | `lib/impor/prefill.ts` | 1.000 karakter |
 

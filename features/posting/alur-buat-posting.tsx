@@ -5,6 +5,8 @@ import type { Analisis, Ide, Pengaturan } from "@/lib/ai/schemas";
 import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { normalkanPersonaId } from "@/lib/ai/persona";
 import { salinKeClipboard, teksUtasLengkap } from "@/lib/konten/salin";
+import { decodePrefill, nilaiFormDariPrefill } from "@/lib/impor/prefill";
+import { KartuQuickCapture } from "./kartu-quick-capture";
 import { TombolSuaraNarasi } from "./tombol-suara-narasi";
 import { PanduanFotoCandid } from "./panduan-foto-candid";
 import type { ContentStatus } from "@/components/status-badge";
@@ -126,7 +128,15 @@ const primaryBtn =
 const ghostBtn =
   "inline-flex h-10 items-center rounded-lg border border-surface-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60";
 
-export function AlurBuatPosting() {
+export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) {
+  // Quick Capture (N-8): parameter `prefill` dibaca murni saat render. Nilai
+  // yang tidak valid menjadi null, jadi tidak ada isian setengah jadi.
+  const prefill = useMemo(() => decodePrefill(prefillKode), [prefillKode]);
+  const nilaiAwalProduk = useMemo(
+    () => (prefill ? nilaiFormDariPrefill(prefill) : undefined),
+    [prefill],
+  );
+
   const [draft, setDraft] = useState<DraftState>(DRAFT_AWAL);
   const [langkah, setLangkah] = useState<Langkah>("produk");
   const [busy, setBusy] = useState<string | null>(null);
@@ -145,14 +155,18 @@ export function AlurBuatPosting() {
     const d = loadDraft();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrasi draft dari localStorage harus terjadi setelah mount; init langsung di useState akan bikin hydration mismatch
     setDraft(d);
-    if (d.produk || d.analisis || d.konten.length > 0) {
+    if (prefill) {
+      // Quick Capture (N-8): user datang untuk meninjau hasil tangkapan, jadi
+      // mulai dari tahap produk walau ada draft tersimpan.
+      setLangkah("produk");
+    } else if (d.produk || d.analisis || d.konten.length > 0) {
       setLangkah(d.konten.length > 0 ? "preview" : d.produk ? "analisis" : "produk");
       if (d.updatedAt) {
         setTersimpanPukul(new Date(d.updatedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }));
       }
     }
     loadedRef.current = true;
-  }, []);
+  }, [prefill]);
 
   const update = useCallback((patch: Partial<DraftState>) => {
     setDraft((prev) => ({ ...prev, ...patch }));
@@ -497,13 +511,25 @@ export function AlurBuatPosting() {
       {/* ------------------------------ Tahap 1: produk --------------------------- */}
       {langkah === "produk" ? (
         <div className="space-y-6">
+          {prefill ? (
+            <div className="rounded-lg border border-primary/40 bg-primary/5 px-4 py-3 text-sm">
+              <p className="font-medium">Data dari Quick Capture</p>
+              <p className="mt-1 text-muted-foreground">
+                Isian di bawah diambil dari halaman yang Anda tandai
+                {prefill.sumber ? ` di ${prefill.sumber}` : ""}. Periksa dan lengkapi
+                dulu; produk baru tersimpan setelah Anda menekan “Simpan produk”.
+              </p>
+            </div>
+          ) : null}
           <FormProdukManual
+            nilaiAwal={nilaiAwalProduk}
             onSaved={(product) => {
               update({ produk: product, status: "draft" });
               setLangkah("analisis");
               setPesan("Produk tersimpan. Lanjut ke analisis.");
             }}
           />
+          <KartuQuickCapture />
           {draft.produk ? (
             <div className={cardClass}>
               <h2 className="text-sm font-semibold">Produk aktif</h2>
