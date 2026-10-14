@@ -299,3 +299,66 @@ Cara menguji manual:
 3. Isi produk + deskripsi, klik tombol "Analisis".
 4. Tunggu respons; kartu analisis di bawah form seharusnya terisi ringkasan, fitur, audiens, dan angle.
 5. Jika kartu tidak muncul, cek konsol + Network → `POST /api/analisis` (harus 200 bukan 502)."
+
+## 15 Oktober 2026 — perbaikan kalender + penutup Fase 6
+
+Fase: penutup Fase 6 (kalender, analitik, biaya AI).
+
+Catatan pemulihan: pada 14 Oktober sempat tertulis log 5 baris yang menimpa 299 baris catatan sebelumnya (kesalahan tulis file). Berkas dikembalikan dari `HEAD` (`git restore docs/test-log.md`) lalu ditambahi entri ini, jadi riwayat 12 Oktober 2026 dan sebelumnya utuh.
+
+| Pemeriksaan | Perintah | Hasil |
+|---|---|---|
+| Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
+| Unit dan fixture | `npx vitest run` | 212 tes lulus di 20 berkas |
+| Lint berkas Fase 6 | `npx eslint app/(dashboard)/kalender/page.tsx lib/konten/kalender.ts ...` | Lulus setelah `Date.now()` dipindah ke efek (`react-hooks/purity`) |
+
+Cara menguji manual (Fase 6):
+
+1. `npm run dev`, buka `/posting/baru`, selesaikan satu konten sampai checklist lengkap, klik "Tandai siap posting".
+2. Buka `/antrian` tab Disetujui, klik "Jadwalkan", pilih tanggal dan jam, simpan.
+3. Buka `/kalender`: konten muncul di kartu hari yang sesuai dan di tabel "Jadwal bulan ini"; jam yang sudah lewat ditandai "lewat".
+4. Batalkan jadwal dari tab Terjadwal; konten kembali ke siap posting dan hilang dari kalender.
+5. Buka `/analitik`: bagian performa per angle, per hook, dan per letak link terisi dari laporan yang diimpor.
+
+## 15 Oktober 2026 — Fase 7: adapter posting Threads
+
+Fase: Fase 7 (auto-posting Threads), tahap adapter + antrian. Pengirim otomatis penuh belum dibuat
+karena K12 belum disetujui (AGENTS aturan 4).
+
+Yang dikerjakan:
+
+- `lib/posting/` baru: `skema.ts` (kontrak + Zod), `antrian.ts` (gerbang kirim, jeda, batas harian,
+  panjang byte), `threads.ts` (container -> publish -> `reply_to_id`), `threads-oauth.ts` (URL
+  otorisasi, penukaran token, masa berlaku), `provider.ts` (registry + fallback manual),
+  `store.ts` (pengaturan dan riwayat kirim di klien), `catat-post.ts` (log ke tabel `posts`).
+- Rute baru: `POST /api/posting/kirim`, `GET /api/posting/ketersediaan`.
+- UI: tombol "Kirim sekarang" di Antrian review (tab Terjadwal dan Gagal posting) dan di dialog
+  Kalender, selalu lewat ConfirmDialog; baris status provider posting di header Antrian.
+- Migrasi `0006_posts.sql` (belum dijalankan di Supabase).
+- Dokumen: `adr/0007-threads-api-posting.md`, `provider-posting.md`, `skema-database.md` bagian 11,
+  `dependency.md` baris Threads API, `env.example` variabel Threads.
+
+| Pemeriksaan | Perintah | Hasil |
+|---|---|---|
+| Typecheck | `npx tsc --noEmit` | Lulus, 0 error |
+| Unit posting | `npx vitest run lib/posting` | 39 tes lulus di 4 berkas |
+| Unit seluruh repo | `npx vitest run` | Lulus (lihat baris ringkasan di bawah) |
+| Lint | `npx eslint .` | Lulus, 0 temuan |
+
+Yang belum bisa diverifikasi dari sesi ini:
+
+- Kirim nyata ke akun Threads uji: butuh app Meta, OAuth, dan token asli. Uji yang ada memakai fetch
+  tiruan pada `lib/posting/threads.test.ts` (urutan panggilan, `reply_to_id`, kegagalan di tengah).
+- Migrasi 0006 (dan 0002, 0003, 0004, 0005) belum dijalankan di project Supabase, jadi log `posts`
+  masih kosong dan rute memakai riwayat localStorage untuk kuota 24 jam.
+
+Cara menguji manual:
+
+1. `npm run dev`, buka `/antrian`. Tanpa kredensial Threads, baris status harus menulis "manual saja
+   (salin utas)" dan tab Terjadwal hanya menampilkan Salin utas / Batalkan jadwal.
+2. Isi `POSTING_PROVIDER=threads_api`, `THREADS_USER_ID`, `THREADS_ACCESS_TOKEN` di `.env.local`,
+   muat ulang `/antrian`: baris status berubah jadi "Threads API siap dipakai".
+3. Jadwalkan satu konten ke waktu yang sudah lewat, buka `/kalender`, klik bloknya, lalu "Kirim
+   sekarang" di dialog. Konfirmasi, dan periksa utas muncul di akun Threads serta konten pindah ke
+   tab Sudah posting.
+4. Matikan `THREADS_ACCESS_TOKEN` lalu ulangi: tombol kirim hilang dan salin manual tetap jalan.

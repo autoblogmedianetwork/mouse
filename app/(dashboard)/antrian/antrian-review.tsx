@@ -10,18 +10,17 @@
  * Data lives in localStorage until Supabase connects (P3); the shapes already
  * match `contents` in docs/skema-database.md.
  */
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { CostWidget } from "@/components/cost-widget";
 import { EmptyState } from "@/components/empty-state";
 import { ReviewTabs } from "@/components/review-tabs";
 import { StatusBadge } from "@/components/status-badge";
-import {
-  BATAS_BIAYA_USD_BAWAAN,
-  ringkasBiaya,
-  type CatatanBiaya,
-} from "@/lib/ai/biaya";
+import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
+import type { StatistikBiaya } from "@/lib/ai/statistik";
+import { usePosting } from "@/features/posting/use-posting";
 import { eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
+import { catatRiwayat } from "@/lib/konten/riwayat";
 import {
   TAB_REVIEW,
   bisaTandaiSiap,
@@ -31,7 +30,14 @@ import {
   type Konten,
   type TabReview,
 } from "@/lib/konten/skema";
-import { arsipkanKonten, duplikatKonten } from "@/lib/konten/store";
+import {
+  arsipkanKonten,
+  batalkanJadwal,
+  duplikatKonten,
+  jadwalkanKonten,
+  tandaiGagal,
+  tandaiTerkirim,
+} from "@/lib/konten/store";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { subIdDefault } from "@/lib/performa/atribusi";
 import { cn } from "@/lib/utils";
@@ -77,11 +83,49 @@ export function AntrianReview() {
   const [bukaId, setBukaId] = useState<string | null>(null);
   const [konfirmasi, setKonfirmasi] = useState<Konfirmasi | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
-  const [biayaLog] = useLocalState<CatatanBiaya[]>("autothreads-biaya", []);
+  const [jadwalTarget, setJadwalTarget] = useState<{ id: string; judul: string } | null>(null);
+  const [jadwalTanggal, setJadwalTanggal] = useState("");
+  /** Konten yang menunggu konfirmasi kirim (Fase 7, selalu lewat ConfirmDialog). */
+  const [kirimTarget, setKirimTarget] = useState<Konten | null>(null);
+  const [sedangKirim, setSedangKirim] = useState(false);
+  const posting = usePosting();
+  const [biaya, setBiaya] = useState<StatistikBiaya>({
+    hariIniUsd: null,
+    bulanIniUsd: null,
+    adaCatatan: false,
+    batasUsd: BATAS_BIAYA_USD_BAWAAN,
+    persenBulan: 0,
+    perFungsi: {},
+    totalTokens: 0,
+  });
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Cost lives in localStorage, read through the shared hydration hook.
-  const biaya = useMemo(() => ringkasBiaya(biayaLog), [biayaLog]);
+  // Cost source of truth: /api/biaya reads the `generations` table (Fase 5).
+  // Failure keeps the widget's "belum ada data" state instead of fake zeros.
+  useEffect(() => {
+    let hidup = true;
+    fetch("/api/biaya")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (hidup && d?.ok) {
+          setBiaya({
+            hariIniUsd: d.hariIniUsd ?? null,
+            bulanIniUsd: d.bulanIniUsd ?? null,
+            adaCatatan: Boolean(d.adaCatatan),
+            batasUsd: typeof d.batasUsd === "number" ? d.batasUsd : BATAS_BIAYA_USD_BAWAAN,
+            persenBulan: typeof d.persenBulan === "number" ? d.persenBulan : 0,
+            perFungsi: d.perFungsi ?? {},
+            totalTokens: typeof d.totalTokens === "number" ? d.totalTokens : 0,
+          });
+        }
+      })
+      .catch(() => {
+        // jaringan/API gagal: biarkan state kosong, tanpa angka rekayasa
+      });
+    return () => {
+      hidup = false;
+    };
+  }, []);
 
   const jumlah = useMemo(() => hitungTab(konten), [konten]);
   const hasil = useMemo(
@@ -207,6 +251,59 @@ export function AntrianReview() {
     setPesan(`Kode pelacak ${subIdDefault(id)} disalin.`);
   };
 
+  /**
+   * Kirim satu konten ke provider posting (Fase 7). Selalu dipicu aksi user:
+   * tombol -> konfirmasi -> rute server. Konten yang belum disetujui ditolak di
+   * sini dan sekali lagi di server (lib/posting/antrian.ts).
+   */
+  const mintaKirim = (k: Konten) => {
+    const izin = posting.izinKirim(k);
+    if (!izin.boleh) {
+      setPesan(`“${k.judul}” belum bisa dikirim: ${izin.alasan}`);
+      return;
+    }
+    setKirimTarget(k);
+  };
+
+  const jalankanKirim = async (k: Konten) => {
+    setSedangKirim(true);
+    const hasil = await posting.kirim(k);
+    setSedangKirim(false);
+    if (hasil.ok) {
+      lakukan((list) => tandaiTerkirim(list, k.id));
+      catatRiwayat({
+        konten_judul: k.judul,
+        mode: hasil.penyedia === "manual" ? "manual" : "auto",
+        status_akhir: "terkirim",
+        catatan:
+          hasil.penyedia === "manual"
+            ? "Dikirim lewat mode manual (salin utas)."
+            : `Terkirim ke Threads (${hasil.id_terkirim.length} status).`,
+      });
+      setPesan(
+        hasil.penyedia === "manual"
+          ? `Mode manual: utas “${k.judul}” siap disalin.`
+          : `“${k.judul}” terkirim ke Threads (${hasil.id_terkirim.length} status).`,
+      );
+      return;
+    }
+
+    // Gagal API bukan alasan menghapus konten: status jadi `gagal`, utas tetap
+    // utuh, dan user diarahkan ke salin manual (ADR 0002).
+    lakukan((list) => tandaiGagal(list, k.id));
+    catatRiwayat({
+      konten_judul: k.judul,
+      mode: "auto",
+      status_akhir: "gagal",
+      catatan: hasil.error ?? "Pengiriman gagal.",
+    });
+    setPesan(
+      hasil.jatuh_ke_manual
+        ? `${hasil.error} Konten tetap ada di pustaka dan bisa disalin manual.`
+        : (hasil.error ?? "Pengiriman tidak diizinkan."),
+    );
+  };
+
   const ekspor = (format: "json" | "txt") => {
     const stamp = new Date().toISOString().slice(0, 10);
     if (format === "json") {
@@ -252,10 +349,26 @@ export function AntrianReview() {
           hapus,
         ];
       case "siap_posting":
-        return [salin, kembaliDraft, { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) }, hapus];
+        return [
+          salin,
+          { label: "Jadwalkan", jalankan: (x: Konten) => setJadwalTarget({ id: x.id, judul: x.judul }) },
+          kembaliDraft,
+          { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) },
+          hapus,
+        ];
       case "terjadwal":
         return [
-          { label: "Batalkan jadwal", jalankan: (x: Konten) => kembaliDraft.jalankan(x) },
+          // Tombol kirim hanya muncul kalau provider posting siap (aturan 8).
+          ...(posting.bisaKirimApi
+            ? [{ label: "Kirim sekarang", jalankan: (x: Konten) => mintaKirim(x) }]
+            : []),
+          {
+            label: "Batalkan jadwal",
+            jalankan: (x: Konten) => {
+              lakukan((list) => batalkanJadwal(list, x.id));
+              setPesan("Jadwal dibatalkan. Konten kembali ke siap posting.");
+            },
+          },
           salin,
           hapus,
         ];
@@ -263,13 +376,9 @@ export function AntrianReview() {
         return [
           salin,
           kembaliDraft,
-          {
-            label: "Coba lagi",
-            jalankan: () =>
-              setPesan(
-                "Provider posting belum diatur, jadi kirim ulang belum bisa dijalankan. Salin utas dan posting manual dulu.",
-              ),
-          },
+          ...(posting.bisaKirimApi
+            ? [{ label: "Coba lagi", jalankan: (x: Konten) => mintaKirim(x) }]
+            : []),
           hapus,
         ];
       case "terkirim":
@@ -311,9 +420,24 @@ export function AntrianReview() {
           hariIniUsd={biaya.hariIniUsd}
           bulanIniUsd={biaya.bulanIniUsd}
           adaCatatan={biaya.adaCatatan}
-          batasUsd={BATAS_BIAYA_USD_BAWAAN}
+          batasUsd={biaya.batasUsd}
         />
       </div>
+
+      {/* Status provider posting (UI-Spec 3.8): jelas mode apa yang aktif sekarang. */}
+      {posting.siap ? (
+        <p className="text-xs text-muted-foreground">
+          Provider posting:{" "}
+          <span className="text-foreground font-medium">
+            {posting.bisaKirimApi ? "Threads API siap dipakai" : "manual saja (salin utas)"}
+          </span>
+          .{" "}
+          {posting.bisaKirimApi
+            ? "Tombol Kirim sekarang muncul di tab Terjadwal dan Gagal posting."
+            : posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
+              "Mode manual selalu tersedia tanpa API."}
+        </p>
+      ) : null}
 
       <ReviewTabs
         tabs={TAB_REVIEW.map((t) => ({
@@ -541,6 +665,95 @@ export function AntrianReview() {
         }}
         onBatal={() => setKonfirmasi(null)}
       />
+
+      {/* Konfirmasi kirim (Fase 7): tidak ada pengiriman tanpa aksi user. */}
+      <ConfirmDialog
+        open={kirimTarget !== null}
+        judul="Kirim ke Threads?"
+        pesan={
+          kirimTarget
+            ? `“${kirimTarget.judul}” akan dikirim sebagai utas ${kirimTarget.statuses.length} status, berurutan. Setelah terkirim, konten berpindah ke tab Sudah posting.`
+            : ""
+        }
+        labelKonfirmasi={sedangKirim ? "Mengirim…" : "Kirim sekarang"}
+        destructive={false}
+        onKonfirmasi={() => {
+          const target = kirimTarget;
+          setKirimTarget(null);
+          if (target) void jalankanKirim(target);
+        }}
+        onBatal={() => setKirimTarget(null)}
+      />
+
+      {/* Dialog jadwal (UI-Spec 2.5/3.4): hanya siap_posting, konfirmasi di dalam dialog. */}
+      {jadwalTarget !== null ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setJadwalTarget(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="jadwal-judul"
+            className="w-[min(94vw,26rem)] rounded-xl border border-surface-border bg-surface p-5"
+          >
+            <h2 id="jadwal-judul" className="text-base font-semibold">
+              Jadwalkan konten
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Hanya penanda jadwal di kalender (mode manual tetap jalur utama). Konten yang dijadwalkan
+              bisa dibatalkan kapan saja dari tab Terjadwal.
+            </p>
+            <p className="mt-3 text-sm font-medium">{jadwalTarget.judul}</p>
+            <label className="mt-3 block text-xs text-muted-foreground">
+              Tanggal dan jam
+              <input
+                type="datetime-local"
+                value={jadwalTanggal}
+                onChange={(e) => setJadwalTanggal(e.target.value)}
+                className={cn(inputClass, "mt-1")}
+              />
+            </label>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setJadwalTarget(null)}
+                className="h-9 rounded-lg border border-surface-border px-4 text-sm font-medium hover:bg-muted"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  // datetime-local has no zone: append local offset by parsing as local.
+                  const d = new Date(jadwalTanggal);
+                  const hasil = jadwalkanKonten(konten, jadwalTarget.id, d.toISOString());
+                  if (!hasil.ok) {
+                    setPesan(hasil.alasan ?? "Jadwal tidak bisa disimpan.");
+                    setJadwalTarget(null);
+                    return;
+                  }
+                  setKonten(hasil.list);
+                  setPesan(
+                    `Jadwal disimpan: ${d.toLocaleString("id-ID", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}. Buka /kalender untuk melihatnya.`,
+                  );
+                  setJadwalTarget(null);
+                }}
+                className="h-9 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+              >
+                Simpan jadwal
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

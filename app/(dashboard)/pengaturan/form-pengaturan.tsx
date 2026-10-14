@@ -1,11 +1,17 @@
 "use client";
 
 import { z } from "zod";
+import { usePosting } from "@/features/posting/use-posting";
 import { useLocalState } from "@/lib/konten/use-local-state";
+import {
+  PENGATURAN_POSTING_AWAL,
+  type PengaturanPosting,
+  type PenyediaPosting,
+} from "@/lib/posting/skema";
 
 /**
  * Pengaturan (UI-Spec 3.8 / PRD F6): profil, AI, scraping (default mati),
- * aturan konten, data (retensi 90 hari sesuai K3).
+ * aturan konten, provider posting, data (retensi 90 hari sesuai K3).
  * Saved locally until Supabase auth lands (P3).
  */
 
@@ -68,6 +74,97 @@ function Toggle({
         className="mt-1 h-4 w-4 accent-[var(--primary)] disabled:opacity-50"
       />
     </div>
+  );
+}
+
+/**
+ * Provider posting dan pengaman antrian (Fase 7, UI-Spec 3.8).
+ *
+ * Daftar provider datang dari server (`/api/posting/ketersediaan`), jadi pilihan
+ * yang belum siap tetap bisa dilihat tapi ditandai — provider yang tidak siap
+ * otomatis jatuh ke manual saat dipakai (ADR 0002).
+ */
+function BagianPosting() {
+  const [value, setValue] = useLocalState<PengaturanPosting>(
+    "autothreads-pengaturan-posting",
+    PENGATURAN_POSTING_AWAL,
+  );
+  const posting = usePosting();
+
+  const atur = (ubah: Partial<PengaturanPosting>) => setValue({ ...value, ...ubah });
+
+  return (
+    <Section
+      judul="Provider posting"
+      deskripsi="Cara konten terkirim. Mode manual selalu tersedia; provider API hanya dipakai kalau kredensialnya ada di server."
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="p-posting" className="mb-1 block text-sm font-medium">
+            Provider default
+          </label>
+          <select
+            id="p-posting"
+            value={value.penyedia}
+            onChange={(e) => atur({ penyedia: e.target.value as PenyediaPosting })}
+            className={inputClass}
+          >
+            {(posting.tersedia.length > 0
+              ? posting.tersedia
+              : [
+                  { id: "manual" as const, label: "Manual (salin utas)", tersedia: true },
+                  { id: "threads_api" as const, label: "Threads API", tersedia: false },
+                ]
+            ).map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+                {p.tersedia ? "" : " — belum siap"}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {posting.bisaKirimApi
+              ? "Threads API siap: tombol Kirim sekarang muncul di Antrian review dan Kalender."
+              : posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
+                "Menyiapkan status provider…"}
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="p-jeda" className="mb-1 block text-sm font-medium">
+            Jeda antar posting (detik)
+          </label>
+          <input
+            id="p-jeda"
+            type="number"
+            min={0}
+            step={5}
+            value={value.jeda_detik}
+            onChange={(e) => atur({ jeda_detik: Math.max(0, Number(e.target.value) || 0) })}
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="p-batas" className="mb-1 block text-sm font-medium">
+            Batas posting per 24 jam
+          </label>
+          <input
+            id="p-batas"
+            type="number"
+            min={1}
+            step={1}
+            value={value.batas_harian}
+            onChange={(e) => atur({ batas_harian: Math.max(1, Number(e.target.value) || 1) })}
+            className={inputClass}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Kuota resmi Threads 250 posting per 24 jam. Batas ini dijaga aplikasi supaya kuota
+            platform tidak pernah tersentuh dulu.
+          </p>
+        </div>
+      </div>
+    </Section>
   );
 }
 
@@ -212,6 +309,8 @@ export function FormPengaturan() {
           </div>
         </div>
       </Section>
+
+      <BagianPosting />
 
       <Section judul="Data" deskripsi="Periode retensi arsip. Penghapusan otomatis berjalan sebagai job terpisah (Fase 5).">
         <div className="max-w-xs">

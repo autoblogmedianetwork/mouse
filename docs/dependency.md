@@ -74,7 +74,7 @@ Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase.
 | Manual (salin utas) | Posting default | MVP | Aktif | Selalu tersedia (F8) |
 | Clipboard API | Salin utas | MVP | Aktif | Harus dipicu klik langsung, fallback disiapkan |
 | Threads Web / App | Tujuan posting manual | MVP | Aktif | Tidak ada fitur draft di aplikasi, jadi "Salin dari Bank Konten" |
-| Threads API (Meta Developer) | Auto-posting | Fase 7 | Ditunda | Butuh review Meta dan OAuth terpisah. Token disimpan di server |
+| Threads API (Meta Developer) | Auto-posting | Fase 7 | Aktif di kode, belum ada kredensial | Adapter `lib/posting/threads.ts` sudah ada; kirim nyata menunggu `THREADS_USER_ID`/`THREADS_ACCESS_TOKEN`. Token hanya di server (ADR 0007) |
 | Buffer atau Metricool | Scheduler hosted | Fase 6 | Opsional | Dicek dukungan Threads sebelum dipakai |
 | Postiz atau Mixpost | Scheduler self-host | Fase 6 | Opsional | Butuh VPS, Docker, database, dan Redis. Pilih salah satu |
 | social0-oss | Multi-platform API | - | Belum diverifikasi | Link tidak lengkap |
