@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Analisis, Ide, Pengaturan } from "@/lib/ai/schemas";
 import { FORMAT_LABELS, PENGATURAN_AWAL } from "@/lib/ai/schemas";
+import { normalkanPersonaId } from "@/lib/ai/persona";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -78,7 +79,19 @@ function loadDraft(): DraftState {
     const raw = window.localStorage.getItem(DRAFT_KEY);
     if (!raw) return DRAFT_AWAL;
     const parsed = JSON.parse(raw) as Partial<DraftState>;
-    return { ...DRAFT_AWAL, ...parsed, checklist: { ...CHECKLIST_AWAL, ...parsed.checklist } };
+    // Draf lama menyimpan label persona ("Bawaan", "Sahabat", "Ahli");
+    // normalkanPersonaId mengubahnya ke id supaya pilihan di form tidak kosong.
+    const pengaturan: Pengaturan = {
+      ...PENGATURAN_AWAL,
+      ...(parsed.pengaturan ?? {}),
+      persona: normalkanPersonaId(parsed.pengaturan?.persona),
+    };
+    return {
+      ...DRAFT_AWAL,
+      ...parsed,
+      pengaturan,
+      checklist: { ...CHECKLIST_AWAL, ...parsed.checklist },
+    };
   } catch {
     return DRAFT_AWAL;
   }

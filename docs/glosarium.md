@@ -79,3 +79,14 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Renderer carousel | `MEDIA_CAROUSEL_RENDER` | env | off, local, cloud |
 | Template carousel | template | `lib/carousel/templates/` | Template 1 sampai 3 |
 | Widget biaya | `CostWidget` | `generations` | Biaya hari ini dan bulan ini |
+
+## Istilah tambahan (persona dan prompt 03)
+
+| Istilah (UI) | Nama kode | Tabel / tipe | Catatan |
+|---|---|---|---|
+| Persona | `persona` | `lib/ai/persona.ts`, `Pengaturan.persona` | `bawaan` (default), `sahabat`, `ahli` |
+| Daftar persona | `PERSONA_LIST` | `lib/ai/persona.ts` | Data id, judul, deskripsi nada, ikon |
+| Deskripsi nada | `deskripsi_nada` | `Persona` | Teks arah nada; ikut ke prompt 03 v2 |
+| Prompt status v2 | `generate-status.v2` | `lib/ai/prompts/generate-status.v2.ts` | Menambah blok persona; v1 tidak diubah |
+| Prompt status v3 | `generate-status.v3` | - | Dipesan untuk format narasi 6 tahap (fitur 3) |
+

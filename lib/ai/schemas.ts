@@ -3,6 +3,7 @@
  * settings shared by the UI form and the API routes.
  */
 import { z } from "zod";
+import { PERSONA_BAWAAN, normalkanPersonaId } from "@/lib/ai/persona";
 import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
 
 export const FORMAT_LABELS = [
@@ -67,7 +68,9 @@ export const pengaturanSkema = z.object({
   panjang_status: z.enum(["singkat", "sedang", "panjang"]),
   instruksi: z.string(),
   anti_ai_slop: z.boolean(),
-  persona: z.string(),
+  // Persona id from lib/ai/persona.ts; legacy labels ("Bawaan", "Ahli") from
+  // drafts saved before that module existed are normalized to an id here.
+  persona: z.string().transform((nilai) => normalkanPersonaId(nilai)),
   gaya_hook: z.enum(["pertanyaan", "masalah_relatif", "pernyataan_mengejutkan", "bawaan"]),
   aturan_kepercayaan: z.boolean(),
   letak_link: z.enum(["status_terakhir", "balasan", "tanpa_link"]),
@@ -80,7 +83,7 @@ export const PENGATURAN_AWAL: Pengaturan = {
   panjang_status: "sedang",
   instruksi: "",
   anti_ai_slop: true,
-  persona: "Bawaan",
+  persona: PERSONA_BAWAAN.id,
   gaya_hook: "bawaan",
   aturan_kepercayaan: true,
   letak_link: "balasan",

@@ -2,6 +2,7 @@
 
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
+import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
 import { cn } from "@/lib/utils";
 
 /**
@@ -146,17 +147,22 @@ className={cn(
             { value: "pernyataan_mengejutkan", label: "Pernyataan mengejutkan" },
           ]}
         />
-        <SelectField
-          id="persona"
-          label="Persona (arah konten)"
-          value={value.persona}
-          onChange={(next) => set("persona", next)}
-          options={[
-            { value: "Bawaan", label: "Bawaan" },
-            { value: "Sahabat", label: "Sahabat (santai, satu lawan satu)" },
-            { value: "Ahli", label: "Ahli ( informatif, to the point )" },
-          ]}
-        />
+        <div>
+          <SelectField
+            id="persona"
+            label="Persona (arah konten)"
+            value={value.persona}
+            onChange={(next) => set("persona", next)}
+            // Pilihan datang dari data (lib/ai/persona.ts), bukan hardcode di sini.
+            options={PERSONA_LIST.map((persona) => ({
+              value: persona.id,
+              label: `${persona.ikon} ${persona.judul}`,
+            }))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {ambilPersona(value.persona).deskripsi_nada}
+          </p>
+        </div>
         <SelectField
           id="letak_link"
           label="Letak link affiliate"
