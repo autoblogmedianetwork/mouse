@@ -3,6 +3,12 @@
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
+import {
+  LABEL_PRESET_THREAD,
+  PRESET_THREAD_IDS,
+  presetThreadAktif,
+  terapkanPresetThread,
+} from "@/lib/ai/preset-thread";
 import { cn } from "@/lib/utils";
 
 /**
@@ -110,6 +116,37 @@ className={cn(
         >
           Kembalikan bawaan
         </button>
+      </div>
+
+      <div className="mt-4">
+        <span className={labelClass}>Panjang thread</span>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Panjang thread">
+          {PRESET_THREAD_IDS.map((preset) => {
+            const aktif = presetThreadAktif(value) === preset;
+            return (
+              <button
+                key={preset}
+                type="button"
+                disabled={disabled}
+                aria-pressed={aktif}
+                onClick={() => onChange(terapkanPresetThread(value, preset))}
+                className={cn(
+                  "h-9 rounded-lg border px-3 text-sm font-medium transition-colors disabled:opacity-50",
+                  aktif
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-surface-border bg-surface hover:border-primary",
+                )}
+              >
+                {LABEL_PRESET_THREAD[preset]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {presetThreadAktif(value)
+            ? "Preset ini mengatur jumlah status dan panjang per status di bawah."
+            : "Kustom: jumlah dan panjang status diatur sendiri di bawah."}
+        </p>
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
