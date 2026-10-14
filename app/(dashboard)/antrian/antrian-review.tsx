@@ -19,6 +19,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
 import type { StatistikBiaya } from "@/lib/ai/statistik";
 import { usePosting } from "@/features/posting/use-posting";
+import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
 import { eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import {
@@ -754,6 +755,9 @@ export function AntrianReview() {
           </div>
         </div>
       ) : null}
+
+      {/* Riwayat hasil terakhir dari tabel contents Supabase (N-5). */}
+      <RiwayatSupabase />
     </div>
   );
 }

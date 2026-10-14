@@ -90,3 +90,11 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Prompt status v2 | `generate-status.v2` | `lib/ai/prompts/generate-status.v2.ts` | Menambah blok persona; v1 tidak diubah |
 | Prompt status v3 | `generate-status.v3` | - | Dipesan untuk format narasi 6 tahap (fitur 3) |
 
+## Istilah tambahan (riwayat dari Supabase)
+
+| Istilah (UI) | Nama kode | Tabel / tipe | Catatan |
+|---|---|---|---|
+| Riwayat hasil terakhir | `RiwayatSupabase` | `contents` + `threads_statuses` | 15 konten terakhir, dari Supabase bukan localStorage |
+| Batas riwayat | `RIWAYAT_LIMIT` | `lib/konten/supabase-konten.ts` | 15 konten |
+| Pemetaan konten | `kontenKeBaris`, `barisKeKonten` | `lib/konten/supabase-konten.ts` | Pemetaan murni, tanpa jaringan |
+
