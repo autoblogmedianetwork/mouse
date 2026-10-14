@@ -114,6 +114,7 @@ Satu konten Threads (utas) hasil generate.
 | status | content_status | default 'draft' |
 | pengaturan | jsonb | jumlah status, panjang, instruksi, anti_ai_slop, persona |
 | letak_link | link_placement | default 'status_terakhir' |
+| gaya_hook | text | gaya hook pembuka yang dipakai saat generate (Fase 6, PRD F3a). Nilai: `pertanyaan`, `masalah_relatif`, `pernyataan_mengejutkan`, `bawaan` |
 | link_produk | text | |
 | tag | text[] | default '{}' |
 | klik_manual | integer | default 0 |
@@ -121,6 +122,7 @@ Satu konten Threads (utas) hasil generate.
 | versi | integer | default 1, bertambah saat regenerate |
 | prompt_version | text | |
 | model | text | |
+| jadwal_at | timestamptz | penanda jadwal kalender (Fase 6). Diisi hanya saat status `terjadwal` |
 | is_arsip | boolean | default false |
 | arsip_at | timestamptz | dipakai untuk retensi (K3) |
 | created_at, updated_at | timestamptz | |
@@ -756,3 +758,73 @@ Empat hal ini berbeda dari SQL di atas, semuanya disengaja:
 Alasan baris `platforms`: tabel tanpa RLS di Supabase bisa dibaca memakai anon key yang ikut
 terkirim ke peramban, padahal `platforms` tidak menyimpan data siapa pun. Karena itu tabel acuan
 ini dibuat baca-saja untuk user yang login, dan penulisan platform baru hanya lewat service role.
+
+---
+
+## 10. Migrasi 0004 dan 0005: kolom Fase 6 pada `contents`
+
+Dua kolom ditambahkan lewat migrasi terpisah supaya `0001_init.sql` tetap jadi catatan sejarah
+skema awal dan tidak ada migrasi lama yang diedit (aturan repo nomor 12). Keduanya:
+
+| Migrasi | Objek | Ringkasan |
+|---|---|---|
+| `0004_jadwal_konten.sql` | `contents.jadwal_at` + `contents_user_jadwal_idx` | Penanda jadwal kalender (Fase 6). Diisi hanya saat status `terjadwal`; dibatalkan kembali ke `siap_posting` dengan kolom ini dinull-kan |
+| `0005_gaya_hook_konten.sql` | `contents.gaya_hook` + `contents_user_hook_idx` | Gaya hook pembuka yang dipakai saat generate, dipakai analitik per hook (Fase 6) |
+
+Catatan implementasi:
+
+- Keduanya memakai `add column if not exists` dan `create index if not exists`, jadi aman ditempel
+  ulang ke SQL Editor.
+- `gaya_hook` bertipe `text` dengan default `'bawaan'`, bukan enum. Daftar gaya hook (lihat
+  `Pengaturan`) masih bisa bertambah tanpa migrasi tipe, dan nilai tak dikenal cukup diabaikan
+  aplikasi.
+- Aplikasi sudah memakai kedua field di localStorage dengan nama yang sama (`jadwal_at`,
+  `gaya_hook`), jadi saat konten disalin ke `contents` tidak ada pemetaan nama lagi.
+- Prefiks `user_id` di kedua index mengikuti aturan RLS: semua query aplikasi selalu difilter
+  pemiliknya, dan index tanpa `user_id` di depan tidak akan terpakai.
+
+---
+
+## 11. Migrasi 0006: tabel `posts` (log pengiriman, Fase 7)
+
+Status: file `supabase/migrations/0006_posts.sql` sudah ada di repo (15 Oktober 2026) dan **belum
+dijalankan** di project Supabase. Cara menjalankan: tempel seluruh isi file ke Supabase → SQL
+Editor → Run. Sumber keputusan: ADR 0007.
+
+Setiap percobaan kirim ditulis satu baris — berhasil maupun gagal — supaya exit criteria Fase 7
+("posting berhasil dan status tercatat") punya bukti, dan supaya kuota 24 jam bisa dihitung dari
+sumber yang tidak bisa dipalsukan klien.
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid | cascade delete |
+| content_id | text | **tanpa** foreign key: pustaka konten masih di localStorage, jadi id-nya belum tentu ada di `contents`. FK ditambahkan bersamaan dengan migrasi pustaka |
+| judul | text | disalin saat kirim supaya log tetap terbaca kalau konten dihapus |
+| platform | text | `threads` (K8) |
+| penyedia | text | `manual` atau `threads_api`, sejajar `lib/posting/skema.ts` |
+| status | text | `terkirim` atau `gagal` |
+| id_platform | text | ID postingan akar di Threads; null untuk mode manual |
+| jumlah_terkirim | integer | berapa status yang benar-benar terbit (bisa kurang dari jumlah_status kalau gagal di tengah) |
+| jumlah_status | integer | panjang utas yang dicoba dikirim |
+| mode | text | `manual` atau `auto`; pengirim otomatis penuh menunggu K12 |
+| error | text | pesan gagal, dipotong 500 karakter |
+| created_at | timestamptz | dasar jendela kuota 24 jam |
+
+| Index | Kolom |
+|---|---|
+| `posts_user_created_idx` | `(user_id, created_at desc)` — dipakai query kuota 24 jam |
+| `posts_content_idx` | `(user_id, content_id)` — riwayat per konten |
+
+RLS: `owner_all` untuk `authenticated` dengan `(select auth.uid()) = user_id`, sama seperti tabel
+lain. Tidak ada policy untuk `anon`.
+
+Catatan implementasi:
+
+- Penulisan log bersifat best-effort (`lib/posting/catat-post.ts`): kegagalan insert muncul di log
+  proses, bukan membatalkan kiriman yang sudah terjadi di Threads.
+- Kalau tabel ini belum ada atau belum ada barisnya, rute kirim memakai riwayat localStorage yang
+  dikirim klien untuk memeriksa jeda dan batas harian. Batasan ini tercatat di
+  `docs/provider-posting.md`.
+- Tabel `threads_accounts` (migrasi 0002) sudah menyediakan tempat token; kolom `status_koneksi`
+  bernilai sama dengan hasil `statusKoneksi()` di `lib/posting/threads-oauth.ts`.

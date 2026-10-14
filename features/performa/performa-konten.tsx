@@ -10,7 +10,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
-import type { RingkasanKontenPerforma } from "@/lib/performa/atribusi";
+import { LABEL_GAYA_HOOK, LABEL_LETAK_LINK } from "@/lib/konten/skema";
+import { cn } from "@/lib/utils";
+import type {
+  RingkasanAngle,
+  RingkasanDimensi,
+  RingkasanKontenPerforma,
+} from "@/lib/performa/atribusi";
 import { useAtribusi } from "./use-atribusi";
 
 const inputClass =
@@ -25,6 +31,96 @@ function Bar({ nilai, maks }: { nilai: number; maks: number }) {
     <div className="h-2 w-full rounded-full bg-muted">
       <div className="h-2 rounded-full bg-primary" style={{ width: `${lebar}%` }} />
     </div>
+  );
+}
+
+/** RingkasanAngle has the angle in its key; flatten it to the shared shape. */
+function dariAngle(a: RingkasanAngle): RingkasanDimensi {
+  return {
+    kunci: a.angle,
+    label: a.angle,
+    konten: a.konten,
+    komisi: a.komisi,
+    komisi_cair: a.komisi_cair,
+    pesanan: a.pesanan,
+    klik: a.klik,
+    konversi: a.konversi,
+  };
+}
+
+/**
+ * One recap block per content variable (angle, hook, letak link). The sort
+ * toggle exists because Fase 6 asks two different questions of the same data:
+ * which variable earns the most, and which one brings the most clicks.
+ */
+function BagianDimensi({
+  judul,
+  keterangan,
+  satuan,
+  daftar,
+}: {
+  judul: string;
+  keterangan: string;
+  /** Name of the variable in the row count line, e.g. "angle" or "hook". */
+  satuan: string;
+  daftar: RingkasanDimensi[];
+}) {
+  const [urut, setUrut] = useState<"komisi" | "klik">("komisi");
+  if (daftar.length === 0) return null;
+
+  const terurut = [...daftar].sort((a, b) =>
+    urut === "klik" ? b.klik - a.klik || b.komisi - a.komisi : b.komisi - a.komisi || a.label.localeCompare(b.label),
+  );
+  const maks = Math.max(...terurut.map((d) => Math.abs(urut === "klik" ? d.klik : d.komisi)), 1);
+
+  return (
+    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold">{judul}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">{keterangan}</p>
+        </div>
+        <div className="flex gap-1" role="group" aria-label={`Urutkan ${judul}`}>
+          {(
+            [
+              { value: "komisi", label: "Komisi" },
+              { value: "klik", label: "Klik" },
+            ] as const
+          ).map((p) => (
+            <button
+              key={p.value}
+              type="button"
+              aria-pressed={urut === p.value}
+              onClick={() => setUrut(p.value)}
+              className={cn(
+                "rounded-lg border border-surface-border px-2.5 py-1 text-xs font-medium transition-colors",
+                urut === p.value ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <ul className="mt-4 space-y-4">
+        {terurut.map((d) => (
+          <li key={d.kunci} className="space-y-1.5">
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="min-w-0 truncate font-medium">{d.label}</span>
+              <span className="shrink-0 tabular-nums text-muted-foreground">
+                {formatRupiah(d.komisi)} · {d.konversi.toFixed(1)}%
+              </span>
+            </div>
+            <Bar nilai={urut === "klik" ? d.klik : d.komisi} maks={maks} />
+            <p className="text-xs text-muted-foreground">
+              {formatAngka(d.konten)} konten ({satuan}) · {formatAngka(d.klik)} klik ·{" "}
+              {formatAngka(d.pesanan)} pesanan
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -83,7 +179,6 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
     return null;
   }
 
-  const maksAngle = Math.max(...hasil.per_angle.map((a) => Math.abs(a.komisi)), 1);
   const belumDipetakan = hasil.belum_terpetakan.length;
 
   if (!lengkap) {
@@ -144,6 +239,10 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
                       <p className="truncate text-xs text-muted-foreground">
                         {k.angle || "Tanpa angle"} · {k.produk_nama || "tanpa produk"}
                       </p>
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        Hook: {LABEL_GAYA_HOOK[k.gaya_hook] ?? k.gaya_hook} · Link:{" "}
+                        {LABEL_LETAK_LINK[k.letak_link] ?? k.letak_link}
+                      </p>
                     </td>
                     <td className="py-2 pr-3 font-mono text-xs text-muted-foreground">
                       {k.sub_ids.join(", ") || "—"}
@@ -184,32 +283,25 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
         </div>
       </section>
 
-      {/* Per angle */}
-      {hasil.per_angle.length > 0 ? (
-        <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-          <h2 className="text-base font-semibold">Performa per angle</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Angle diambil dari ide konten yang Anda pilih saat membuat utas.
-          </p>
-          <ul className="mt-4 space-y-4">
-            {hasil.per_angle.map((a) => (
-              <li key={a.angle} className="space-y-1.5">
-                <div className="flex items-baseline justify-between gap-3 text-sm">
-                  <span className="min-w-0 truncate font-medium">{a.angle}</span>
-                  <span className="shrink-0 tabular-nums text-muted-foreground">
-                    {formatRupiah(a.komisi)} · {a.konversi.toFixed(1)}%
-                  </span>
-                </div>
-                <Bar nilai={a.komisi} maks={maksAngle} />
-                <p className="text-xs text-muted-foreground">
-                  {formatAngka(a.konten)} konten · {formatAngka(a.klik)} klik ·{" "}
-                  {formatAngka(a.pesanan)} pesanan
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      {/* A/B per variabel (Fase 6): angle, gaya hook, letak link */}
+      <BagianDimensi
+        judul="Performa per angle"
+        satuan="angle"
+        keterangan="Angle diambil dari ide konten yang Anda pilih saat membuat utas."
+        daftar={hasil.per_angle.map(dariAngle)}
+      />
+      <BagianDimensi
+        judul="Performa per gaya hook"
+        satuan="hook"
+        keterangan="Gaya hook pembuka yang dipakai saat generate (Pengaturan generate). Ubah untuk A/B."
+        daftar={hasil.per_hook}
+      />
+      <BagianDimensi
+        judul="Performa per letak link"
+        satuan="letak link"
+        keterangan="Posisi link affiliate di dalam utas: status terakhir, balasan terpisah, atau tanpa link."
+        daftar={hasil.per_letak_link}
+      />
 
       {/* Pemetaan sub_id */}
       {belumDipetakan > 0 ? (

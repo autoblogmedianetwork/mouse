@@ -13,11 +13,21 @@
 import { z } from "zod";
 import { parseModelJson } from "./parse-json";
 
+export interface UsageAI {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
 export interface GenerateJSONResult<T> {
   ok: boolean;
   data?: T;
   error?: string;
   attempts: number;
+  /** Model actually used (self-reported back to routes, so generations.model is accurate). */
+  model?: string;
+  /** Token usage summed across every attempt (each attempt costs tokens). */
+  usage?: UsageAI;
 }
 
 export interface GenerateJSONOptions {
@@ -73,6 +83,12 @@ export function resolveApiKey(): string | undefined {
 
 interface ChatCompletionsResponse {
   choices?: Array<{ message?: { content?: string | null } }>;
+  /** Provider usage block (OpenAI-compatible); absent on some errors. */
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
   error?: { message?: string };
 }
 
@@ -109,6 +125,8 @@ export async function generateJSON<T>(
   if (controller) setTimeout(() => controller.abort(), options.timeoutMs);
 
   let lastError: unknown;
+  const usageTotal: UsageAI = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+  let adaUsage = false;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
       const response = await fetch(`${baseURL}/chat/completions`, {
@@ -136,6 +154,14 @@ export async function generateJSON<T>(
       }
 
       const payload = (await response.json()) as ChatCompletionsResponse;
+      // Sum usage on every successful HTTP response, even when the answer is
+      // invalid JSON: the user pays for those attempts too (PRD F10 logging).
+      if (payload.usage && typeof payload.usage === "object") {
+        usageTotal.promptTokens += payload.usage.prompt_tokens ?? 0;
+        usageTotal.completionTokens += payload.usage.completion_tokens ?? 0;
+        usageTotal.totalTokens += payload.usage.total_tokens ?? payload.usage.prompt_tokens ?? payload.usage.completion_tokens ?? 0;
+        adaUsage = true;
+      }
       const text = extractText(payload);
       if (!text) {
         lastError = new Error("Provider mengembalikan teks kosong.");
@@ -156,7 +182,7 @@ export async function generateJSON<T>(
         continue;
       }
 
-      return { ok: true, data: parsed.data as T, error: undefined, attempts: attempt + 1 };
+      return { ok: true, data: parsed.data as T, error: undefined, attempts: attempt + 1, model, ...(adaUsage ? { usage: { ...usageTotal } } : {}) };
     } catch (err) {
       // AbortError / jaringan: retry sampai habis, lalu tampilkan pesan ringkas.
       const isAbort = err instanceof DOMException && err.name === "AbortError";
@@ -182,5 +208,7 @@ export async function generateJSON<T>(
     ok: false,
     error: `${message} (${retryLabel})`,
     attempts: retries + 1,
+    model,
+    ...(adaUsage ? { usage: { ...usageTotal } } : {}),
   };
 }

@@ -55,6 +55,91 @@ export function duplikatKonten(k: Konten): Konten {
   };
 }
 
+/**
+ * Schedule a ready-to-post content (Fase 6, UI-Spec 2.5/3.4): only siap_posting
+ * can be scheduled, per Workflow "terjadwal dapat dibatalkan sebelum waktunya".
+ * The checklist stays intact; cancel returns the content to siap_posting.
+ */
+export function jadwalkanKonten(
+  list: Konten[],
+  id: string,
+  jadwalAt: string,
+): { list: Konten[]; ok: boolean; alasan?: string } {
+  if (!Number.isFinite(Date.parse(jadwalAt))) {
+    return { list, ok: false, alasan: "Tanggal jadwal tidak valid." };
+  }
+  const target = list.find((k) => k.id === id);
+  if (!target) return { list, ok: false, alasan: "Konten tidak ditemukan." };
+  if (target.status !== "siap_posting") {
+    return { list, ok: false, alasan: "Hanya konten berstatus siap posting yang bisa dijadwalkan." };
+  }
+  const now = new Date().toISOString();
+  return {
+    ok: true,
+    list: list.map((k) =>
+      k.id === id ? { ...k, status: "terjadwal", jadwal_at: jadwalAt, updated_at: now } : k,
+    ),
+  };
+}
+
+/**
+ * Move an already scheduled content to another date/time (Fase 6, UI-Spec 3.4
+ * "drag untuk memindah jadwal, dengan konfirmasi"). Only content whose status
+ * is already `terjadwal` can move; everything else is returned untouched so a
+ * drag can never skip the checklist gate (PRD F0).
+ */
+export function pindahJadwal(
+  list: Konten[],
+  id: string,
+  jadwalAt: string,
+): { list: Konten[]; ok: boolean; alasan?: string } {
+  if (!Number.isFinite(Date.parse(jadwalAt))) {
+    return { list, ok: false, alasan: "Tanggal jadwal tidak valid." };
+  }
+  const target = list.find((k) => k.id === id);
+  if (!target) return { list, ok: false, alasan: "Konten tidak ditemukan." };
+  if (target.status !== "terjadwal") {
+    return { list, ok: false, alasan: "Hanya konten terjadwal yang bisa dipindah jadwalnya." };
+  }
+  const now = new Date().toISOString();
+  return {
+    ok: true,
+    list: list.map((k) =>
+      k.id === id ? { ...k, jadwal_at: jadwalAt, updated_at: now } : k,
+    ),
+  };
+}
+
+/** Cancel the schedule: back to siap_posting, schedule field cleared. */
+export function batalkanJadwal(list: Konten[], id: string): Konten[] {
+  const now = new Date().toISOString();
+  return list.map((k) =>
+    k.id === id && k.status === "terjadwal"
+      ? { ...k, status: "siap_posting", jadwal_at: null, updated_at: now }
+      : k,
+  );
+}
+
+/**
+ * Mark a content as published (Fase 7). The schedule marker is kept on purpose:
+ * it is the record of when the post was planned, and Riwayat already stores the
+ * exact send time.
+ */
+export function tandaiTerkirim(list: Konten[], id: string): Konten[] {
+  const now = new Date().toISOString();
+  return list.map((k) => (k.id === id ? { ...k, status: "terkirim", updated_at: now } : k));
+}
+
+/**
+ * Mark a content as failed (Fase 7). The content stays in the bank with all of
+ * its statuses so the user can retry or copy it manually — a failed API call
+ * must never remove content from the library (exit criteria Fase 7).
+ */
+export function tandaiGagal(list: Konten[], id: string): Konten[] {
+  const now = new Date().toISOString();
+  return list.map((k) => (k.id === id ? { ...k, status: "gagal", updated_at: now } : k));
+}
+
 /** Archive/unarchive (retention K3 counts from arsip_at). */
 export function arsipkanKonten(list: Konten[], id: string, arsip: boolean): Konten[] {
   return list.map((k) =>

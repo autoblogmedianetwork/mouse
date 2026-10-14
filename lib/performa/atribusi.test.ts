@@ -15,10 +15,12 @@ function konten(ubah: Partial<Konten>): Konten {
     statuses: ["Halo"],
     status: "terkirim",
     letak_link: "balasan",
+    gaya_hook: "bawaan",
     link_produk: "",
     arsip: false,
     arsip_at: null,
     skor: null,
+    jadwal_at: null,
     otomatis: false,
     checklist: {},
     klik_manual: 0,
@@ -181,6 +183,69 @@ describe("hitungAtribusi", () => {
     expect(kosong.per_konten).toEqual([]);
     expect(kosong.teratas).toEqual([]);
     expect(kosong.total.komisi).toBe(0);
+  });
+});
+
+describe("per hook dan per letak link (Fase 6, PRD F11)", () => {
+  const pertanyaan = konten({ id: "h1", judul: "Hook pertanyaan", gaya_hook: "pertanyaan" });
+  const mengejutkan = konten({
+    id: "h2",
+    judul: "Hook mengejutkan",
+    ide_judul: "Angle lain",
+    gaya_hook: "pernyataan_mengejutkan",
+    letak_link: "tanpa_link",
+  });
+  const belumAda = konten({ id: "h3", judul: "Belum diposting", gaya_hook: "pertanyaan" });
+
+  const data = [
+    baris({ id_pesanan: "H1", sub_id: subIdDefault("h1"), komisi: 10_000, klik: 100 }),
+    baris({ id_pesanan: "H2", sub_id: subIdDefault("h2"), komisi: 4_000, klik: 200 }),
+  ];
+  const hasil = hitungAtribusi(data, [pertanyaan, mengejutkan, belumAda], {});
+
+  it("mengelompokkan klik, komisi, dan konversi per gaya hook", () => {
+    const hook = hasil.per_hook.find((h) => h.kunci === "pertanyaan")!;
+    expect(hook.label).toBe("Pertanyaan");
+    expect(hook.konten).toBe(1);
+    expect(hook.klik).toBe(100);
+    expect(hook.komisi).toBe(10_000);
+    expect(hook.konversi).toBeCloseTo(1, 4); // 1 pesanan / 100 klik
+  });
+
+  it("mengurutkan hook dari komisi terbesar", () => {
+    expect(hasil.per_hook.map((h) => h.kunci)).toEqual(["pertanyaan", "pernyataan_mengejutkan"]);
+  });
+
+  it("memisahkan letak link dari gaya hook", () => {
+    const tanpaLink = hasil.per_letak_link.find((l) => l.kunci === "tanpa_link")!;
+    expect(tanpaLink.label).toBe("Tanpa link");
+    expect(tanpaLink.komisi).toBe(4_000);
+    expect(tanpaLink.klik).toBe(200);
+    const balasan = hasil.per_letak_link.find((l) => l.kunci === "balasan")!;
+    expect(balasan.komisi).toBe(10_000);
+  });
+
+  it("tidak menghitung konten tanpa data sama sekali", () => {
+    // Tiga konten, satu belum punya baris laporan maupun klik manual.
+    expect(hasil.konten_tanpa_data).toBe(1);
+    const totalHook = hasil.per_hook.reduce((n, h) => n + h.konten, 0);
+    const totalLetak = hasil.per_letak_link.reduce((n, l) => n + l.konten, 0);
+    expect(totalHook).toBe(2);
+    expect(totalLetak).toBe(2);
+  });
+
+  it("memakai klik manual saat laporan tidak memuat klik", () => {
+    const manual = konten({ id: "h4", judul: "Manual", gaya_hook: "bawaan", klik_manual: 25 });
+    const dengan = hitungAtribusi([], [manual], {});
+    const hook = dengan.per_hook.find((h) => h.kunci === "bawaan")!;
+    expect(hook.klik).toBe(25);
+    expect(hook.komisi).toBe(0);
+  });
+
+  it("aman saat daftar kosong", () => {
+    const kosong = hitungAtribusi([], [], {});
+    expect(kosong.per_hook).toEqual([]);
+    expect(kosong.per_letak_link).toEqual([]);
   });
 });
 

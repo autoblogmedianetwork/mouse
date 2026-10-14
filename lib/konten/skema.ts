@@ -8,6 +8,36 @@ import type { ContentStatus } from "@/components/status-badge";
 import { MAX_STATUS_LENGTH, charLength, validateStatusList } from "@/lib/statuses/validator-500";
 import { checklistLengkap } from "./checklist";
 
+/**
+ * Hook styles offered in Pengaturan generate (PRD F3a). Declared as a tuple so
+ * the Zod enum and the analytics labels stay in sync from one source.
+ */
+export const GAYA_HOOK = [
+  "pertanyaan",
+  "masalah_relatif",
+  "pernyataan_mengejutkan",
+  "bawaan",
+] as const;
+export type GayaHook = (typeof GAYA_HOOK)[number];
+
+/** Human labels for the hook style (used by the analytics tables). */
+export const LABEL_GAYA_HOOK: Record<GayaHook, string> = {
+  pertanyaan: "Pertanyaan",
+  masalah_relatif: "Masalah relatable",
+  pernyataan_mengejutkan: "Pernyataan mengejutkan",
+  bawaan: "Bawaan",
+};
+
+/** Human labels for the link placement (F3a, used by the analytics tables). */
+export const LABEL_LETAK_LINK: Record<
+  "status_terakhir" | "balasan" | "tanpa_link",
+  string
+> = {
+  status_terakhir: "Status terakhir",
+  balasan: "Balasan terpisah",
+  tanpa_link: "Tanpa link",
+};
+
 export const kontenSkema = z.object({
   id: z.string().min(1),
   /** Internal title, shown in the library grid. */
@@ -24,6 +54,12 @@ export const kontenSkema = z.object({
     .min(1),
   status: z.enum(["draft", "siap_posting", "terjadwal", "terkirim", "gagal", "ditolak"]),
   letak_link: z.enum(["status_terakhir", "balasan", "tanpa_link"]),
+  /**
+   * Hook style used when this content was generated (F3a). Stored per content so
+   * Analitik can answer "gaya hook mana yang paling banyak klik" (Fase 6).
+   * Older rows have no value and fall back to "bawaan".
+   */
+  gaya_hook: z.enum(GAYA_HOOK).default("bawaan"),
   link_produk: z.string().default(""),
   arsip: z.boolean().default(false),
   arsip_at: z.string().nullable().default(null),
@@ -33,6 +69,8 @@ export const kontenSkema = z.object({
   otomatis: z.boolean().default(false),
   /** Checklist answers ticked in Buat posting, needed by bulk "tandai siap". */
   checklist: z.record(z.string(), z.boolean()).default({}),
+  /** Schedule date/time; non-null only for the terjadwal status (Fase 6, UI-Spec 3.4). */
+  jadwal_at: z.string().nullable().default(null),
   /** Manual click/commission notes (F5, no auto tracking in MVP). */
   klik_manual: z.number().int().min(0).default(0),
   komisi_manual: z.number().min(0).default(0),

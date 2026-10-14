@@ -11,7 +11,7 @@
  */
 import type { BarisPerforma } from "@/lib/impor/skema";
 import { buatIdBaris } from "@/lib/impor/performa";
-import type { Konten } from "@/lib/konten/skema";
+import { LABEL_GAYA_HOOK, LABEL_LETAK_LINK, type Konten } from "@/lib/konten/skema";
 import { normalkanSubId, type PetaAtribusi } from "./skema";
 
 /**
@@ -28,6 +28,9 @@ export interface RingkasanKontenPerforma {
   judul: string;
   /** Ide/angle yang dipilih saat konten dibuat (PRD F2). */
   angle: string;
+  /** Hook style and link placement, so A/B per variable can be read (PRD F11). */
+  gaya_hook: Konten["gaya_hook"];
+  letak_link: Konten["letak_link"];
   produk_nama: string;
   status: Konten["status"];
   sub_ids: string[];
@@ -63,9 +66,30 @@ export interface RingkasanAngle {
   konversi: number;
 }
 
+/**
+ * One row of a per-variable recap (hook style, link placement). Same shape for
+ * every A/B dimension so the UI can render them with one component.
+ */
+export interface RingkasanDimensi {
+  /** Raw stored value, e.g. "pertanyaan" or "balasan". */
+  kunci: string;
+  /** Human label; unknown values fall back to the raw value, never hidden. */
+  label: string;
+  konten: number;
+  komisi: number;
+  komisi_cair: number;
+  pesanan: number;
+  klik: number;
+  konversi: number;
+}
+
 export interface HasilAtribusi {
   per_konten: RingkasanKontenPerforma[];
   per_angle: RingkasanAngle[];
+  /** A/B per gaya hook (Fase 6, PRD F11). */
+  per_hook: RingkasanDimensi[];
+  /** A/B per letak link (Fase 6, PRD F11). */
+  per_letak_link: RingkasanDimensi[];
   belum_terpetakan: SubIdBelumTerpetakan[];
   /** Baris laporan yang tidak punya sub_id sama sekali. */
   tanpa_subid: { baris: number; komisi: number; klik: number };
@@ -121,6 +145,50 @@ function kontenRelevan(k: RingkasanKontenPerforma): boolean {
   return k.baris > 0 || k.klik_manual > 0;
 }
 
+/**
+ * Group the mapped contents by one variable and total it up. Used for angle,
+ * gaya hook, and letak link so "variabel mana yang paling banyak klik" is
+ * answered with the same numbers everywhere (Fase 6, exit criteria). Content
+ * with no data is filtered out by the caller before grouping.
+ */
+function kelompokkanDimensi(
+  daftar: RingkasanKontenPerforma[],
+  ambil: (k: RingkasanKontenPerforma) => { kunci: string; label: string },
+): RingkasanDimensi[] {
+  const mapa = new Map<
+    string,
+    { label: string; konten: Set<string>; komisi: number; komisiCair: number; pesanan: number; klik: number }
+  >();
+
+  for (const k of daftar) {
+    const { kunci, label } = ambil(k);
+    const akum =
+      mapa.get(kunci) ??
+      { label, konten: new Set<string>(), komisi: 0, komisiCair: 0, pesanan: 0, klik: 0 };
+    // Nilai tak dikenal tetap dibawa apa adanya supaya tidak ada data yang hilang.
+    if (!akum.label.trim()) akum.label = label;
+    akum.konten.add(k.konten_id);
+    akum.komisi += k.komisi;
+    akum.komisiCair += k.komisi_cair;
+    akum.pesanan += k.pesanan;
+    akum.klik += k.klik_dipakai;
+    mapa.set(kunci, akum);
+  }
+
+  return [...mapa.entries()]
+    .map(([kunci, a]) => ({
+      kunci,
+      label: a.label,
+      konten: a.konten.size,
+      komisi: a.komisi,
+      komisi_cair: a.komisiCair,
+      pesanan: a.pesanan,
+      klik: a.klik,
+      konversi: a.klik > 0 ? (a.pesanan / a.klik) * 100 : 0,
+    }))
+    .sort((a, b) => b.komisi - a.komisi || a.label.localeCompare(b.label));
+}
+
 export function hitungAtribusi(
   baris: BarisPerforma[],
   konten: Konten[],
@@ -152,6 +220,8 @@ export function hitungAtribusi(
       konten_id: k.id,
       judul: k.judul,
       angle: k.ide_judul,
+      gaya_hook: k.gaya_hook,
+      letak_link: k.letak_link,
       produk_nama: k.produk_nama,
       status: k.status,
       sub_ids: [...akum.sub_ids].sort(),
@@ -176,28 +246,29 @@ export function hitungAtribusi(
 
   // Group per angle: konten yang memakai ide sama digabung supaya pola
   // "angle mana yang paling menghasilkan" bisa dibaca.
-  const perAngle = new Map<string, { konten: Set<string>; komisi: number; komisiCair: number; pesanan: number; klik: number }>();
-  for (const k of per_konten) {
-    const label = k.angle.trim() === "" ? "(tanpa angle)" : k.angle.trim();
-    const akum = perAngle.get(label) ?? { konten: new Set<string>(), komisi: 0, komisiCair: 0, pesanan: 0, klik: 0 };
-    akum.konten.add(k.konten_id);
-    akum.komisi += k.komisi;
-    akum.komisiCair += k.komisi_cair;
-    akum.pesanan += k.pesanan;
-    akum.klik += k.klik_dipakai;
-    perAngle.set(label, akum);
-  }
-  const per_angle: RingkasanAngle[] = [...perAngle.entries()]
-    .map(([angle, a]) => ({
-      angle,
-      konten: a.konten.size,
-      komisi: a.komisi,
-      komisi_cair: a.komisiCair,
-      pesanan: a.pesanan,
-      klik: a.klik,
-      konversi: a.klik > 0 ? (a.pesanan / a.klik) * 100 : 0,
-    }))
-    .sort((a, b) => b.komisi - a.komisi);
+  const per_angle: RingkasanAngle[] = kelompokkanDimensi(per_konten, (k) => ({
+    kunci: k.angle.trim() === "" ? "(tanpa angle)" : k.angle.trim(),
+    label: k.angle.trim() === "" ? "(tanpa angle)" : k.angle.trim(),
+  })).map((d) => ({
+    angle: d.label,
+    konten: d.konten,
+    komisi: d.komisi,
+    komisi_cair: d.komisi_cair,
+    pesanan: d.pesanan,
+    klik: d.klik,
+    konversi: d.konversi,
+  }));
+
+  // A/B hook dan letak link (PRD F11): variabel yang sama, dihitung dari
+  // konten yang sudah punya data saja supaya rata-rata tidak tertarik ke nol.
+  const per_hook = kelompokkanDimensi(per_konten, (k) => ({
+    kunci: k.gaya_hook,
+    label: LABEL_GAYA_HOOK[k.gaya_hook] ?? k.gaya_hook,
+  }));
+  const per_letak_link = kelompokkanDimensi(per_konten, (k) => ({
+    kunci: k.letak_link,
+    label: LABEL_LETAK_LINK[k.letak_link] ?? k.letak_link,
+  }));
 
   const belum_terpetakan: SubIdBelumTerpetakan[] = [...belum.entries()]
     .map(([sub_id, a]) => ({
@@ -212,6 +283,8 @@ export function hitungAtribusi(
   return {
     per_konten,
     per_angle,
+    per_hook,
+    per_letak_link,
     belum_terpetakan,
     tanpa_subid: { baris: tanpa.baris, komisi: tanpa.komisi, klik: tanpa.klik },
     konten_tanpa_data,

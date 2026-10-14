@@ -2,7 +2,7 @@
  * POST /api/ide — Prompt 2 (10 ide konten), server-side only.
  */
 import { NextResponse } from "next/server";
-import { generateJSON } from "@/lib/ai/generate-json";
+import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { ideRequestSkema, ideSkema } from "@/lib/ai/schemas";
 import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v1";
 
@@ -23,7 +23,17 @@ export async function POST(req: Request) {
   }
 
   const prompt = buildIdeKontenPrompt(parsed.data);
-  const result = await generateJSON(prompt, ideSkema, { retries: 1 });
+  const { result, berhenti } = await jalankanAI<unknown>({
+    jenis: "ide",
+    promptVersion: PROMPT_VERSION,
+    prompt,
+    schema: ideSkema,
+    retries: 1,
+  });
+
+  if (berhenti) {
+    return NextResponse.json({ ok: false, error: result.error }, { status: 429 });
+  }
 
   return NextResponse.json(
     { ...result, prompt_version: PROMPT_VERSION },
