@@ -33,7 +33,7 @@ Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase.
 | `lib/cleaning/` | Pembersih deskripsi | MVP | Aktif | Custom |
 | `lib/affiliate/detect.ts` | Deteksi marketplace dari domain | MVP | Aktif | Custom, Shopee dan generik |
 | `lib/affiliate/rules.ts` | Aturan konten per marketplace | MVP | Aktif | Dipakai checklist |
-| `lib/platforms/threads.ts` | Validasi karakter Threads | MVP | Aktif | Batas 500 karakter |
+| `lib/platforms/batas.ts` | Batas karakter per platform output | MVP | Aktif | Threads 500, X 280; di kode (ADR 0008). Menggantikan rencana `lib/platforms/threads.ts` |
 | Hook `useCharCount` | Penghitung karakter | MVP | Aktif | Custom |
 | Autosave (debounce 10 detik) | Simpan otomatis | MVP | Aktif | UI Spec 5.3 |
 | TipTap | Editor kaya | - | Ditunda | Textarea untuk MVP |

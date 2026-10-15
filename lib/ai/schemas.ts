@@ -5,6 +5,7 @@
 import { z } from "zod";
 import { PERSONA_BAWAAN, normalkanPersonaId } from "@/lib/ai/persona";
 import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
+import { MODE_OUTPUT_IDS } from "@/lib/platforms/batas";
 
 export const FORMAT_LABELS = [
   "Listicle",
@@ -64,6 +65,10 @@ export const BATAS_JUMLAH = {
 } as const;
 
 export const pengaturanSkema = z.object({
+  // Mode output (fitur 9): Threads (500 karakter), X (280), atau naskah video
+  // (prompt 09, dienerate lewat /api/naskah-video). Draf lama tanpa kolom ini
+  // otomatis mendapat "threads".
+  mode_output: z.enum(MODE_OUTPUT_IDS).default("threads"),
   jumlah_status: z.enum(["pendek", "menengah", "panjang"]),
   panjang_status: z.enum(["singkat", "sedang", "panjang"]),
   instruksi: z.string(),
@@ -79,6 +84,7 @@ export const pengaturanSkema = z.object({
 export type Pengaturan = z.infer<typeof pengaturanSkema>;
 
 export const PENGATURAN_AWAL: Pengaturan = {
+  mode_output: "threads",
   jumlah_status: "menengah",
   panjang_status: "sedang",
   instruksi: "",
@@ -90,23 +96,59 @@ export const PENGATURAN_AWAL: Pengaturan = {
 };
 
 /**
- * Schema for one generated content. Enforces the hard 500-character limit
- * (AGENTS rule 7) and the requested status count so a bad answer triggers
- * the automatic retry inside generateJSON before it ever reaches the UI.
+ * Schema for one generated content. Enforces the hard character limit
+ * (AGENTS rule 7: 500 for Threads, 280 for X — fitur 9) and the requested
+ * status count so a bad answer triggers the automatic retry inside
+ * generateJSON before it ever reaches the UI.
  */
-export function statusesSkema(batas: { min: number; max: number }) {
+export function statusesSkema(
+  batas: { min: number; max: number },
+  batasKarakter: number = MAX_STATUS_LENGTH,
+) {
   return z.object({
     statuses: z
       .array(
         z
           .string()
           .refine((s) => s.trim().length > 0, "ada status kosong")
-          .refine((s) => charLength(s) <= MAX_STATUS_LENGTH, "status melebihi 500 karakter"),
+          .refine(
+            (s) => charLength(s) <= batasKarakter,
+            `status melebihi ${batasKarakter} karakter`,
+          ),
       )
       .min(batas.min, `minimal ${batas.min} status`)
       .max(batas.max, `maksimal ${batas.max} status`),
   });
 }
+
+/* --------------------------- Prompt 9: naskah video -------------------------- */
+
+/**
+ * Output prompt 09 (naskah video tiga bagian, PRD F7 dan fitur mode naskah
+ * video): hook visual 3 detik pertama, fungsi produk, lalu CTA. Durasi total
+ * dijaga di kode supaya jawaban yang tidak realistis langsung di-retry.
+ */
+const bagianNaskah = (nama: string) =>
+  z
+    .string()
+    .min(1, `${nama} wajib diisi`)
+    .refine(
+      (s) => charLength(s) <= MAX_STATUS_LENGTH,
+      `${nama} melebihi ${MAX_STATUS_LENGTH} karakter`,
+    );
+
+export const naskahVideoSkema = z.object({
+  hook_visual: bagianNaskah("hook visual"),
+  fungsi_produk: bagianNaskah("fungsi produk"),
+  cta: bagianNaskah("CTA"),
+  durasi_total_detik: z
+    .number()
+    .int("durasi harus bilangan bulat")
+    .min(30, "minimal 30 detik")
+    .max(60, "maksimal 60 detik"),
+});
+
+export type NaskahVideo = z.infer<typeof naskahVideoSkema>;
 
 /* --------------------------- Request bodies (API) ----------------------------- */
 

@@ -150,7 +150,7 @@ Log setiap panggilan AI. Dipakai untuk dashboard biaya (Fase 5) dan debugging.
 | id | uuid pk | |
 | user_id | uuid | |
 | content_id | uuid | nullable, karena analisis produk tidak terkait konten |
-| jenis | text | analisis, ide, generate, storyboard, foto_ke_video |
+| jenis | text | analisis, ide, generate, storyboard, foto_ke_video, naskah_video (migrasi 0007) |
 | status | generation_status | |
 | attempts | integer | jumlah percobaan |
 | model | text | |
@@ -828,3 +828,19 @@ Catatan implementasi:
   `docs/provider-posting.md`.
 - Tabel `threads_accounts` (migrasi 0002) sudah menyediakan tempat token; kolom `status_koneksi`
   bernilai sama dengan hasil `statusKoneksi()` di `lib/posting/threads-oauth.ts`.
+
+## 12. Migrasi 0007: jenis `naskah_video` di `generations`
+
+Status: file `supabase/migrations/0007_jenis_naskah_video.sql` sudah ada di repo (15 Oktober 2026)
+dan **belum dijalankan** di project Supabase. Jalankan setelah migrasi 0006 (berurutan) di SQL
+Editor.
+
+Mode naskah video (prompt 09, `/api/naskah-video`) mencatat generasi dengan jenis sendiri
+`naskah_video` supaya Widget biaya bisa memisahkannya dari generate status. Perubahan hanya pada
+check constraint `generations.jenis_check`: daftar nilai bertambah `naskah_video`. Tidak ada kolom
+atau tabel baru, dan `lib/ai/statistik.ts` tidak perlu diubah karena sudah mengelompokkan per jenis
+apa pun yang datang.
+
+Jika migrasi belum dijalankan, insert ke `generations` dari rute naskah video akan ditolak
+constraint; dampaknya hanya catatan biaya yang hilang (respons AI ke user tetap terkirim), karena
+pencatatan generasi bersifat best-effort (`lib/ai/catat-generation.ts`).

@@ -12,11 +12,14 @@ export function ThreadsPreview({
   akun = "draft.kamu",
   linkProduk,
   letakLink = "balasan",
+  batas = MAX_STATUS_LENGTH,
 }: {
   statuses: string[];
   akun?: string;
   linkProduk?: string;
   letakLink?: "status_terakhir" | "balasan" | "tanpa_link";
+  /** Batas karakter per status; 500 Threads, 280 X (fitur 9). */
+  batas?: number;
 }) {
   const showLinkOnLast =
     letakLink === "status_terakhir" && linkProduk ? linkProduk : undefined;
@@ -37,7 +40,7 @@ export function ThreadsPreview({
 
         {statuses.map((status, index) => {
           const length = charLength(status);
-          const over = length > MAX_STATUS_LENGTH;
+          const over = length > batas;
           const isLast = index === statuses.length - 1;
           const text = isLast && showLinkOnLast ? `${status}\n${showLinkOnLast}` : status;
 
@@ -61,7 +64,7 @@ export function ThreadsPreview({
                   <span
                     className={cn("tabular-nums", over && "font-semibold text-red-400")}
                   >
-                    {length}/{MAX_STATUS_LENGTH}
+                    {length}/{batas}
                   </span>
                   <span>♡</span>
                   <span>💬</span>

@@ -88,7 +88,19 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Daftar persona | `PERSONA_LIST` | `lib/ai/persona.ts` | Data id, judul, deskripsi nada, ikon |
 | Deskripsi nada | `deskripsi_nada` | `Persona` | Teks arah nada; ikut ke prompt 03 v2 |
 | Prompt status v2 | `generate-status.v2` | `lib/ai/prompts/generate-status.v2.ts` | Menambah blok persona; v1 tidak diubah |
-| Prompt status v3 | `generate-status.v3` | - | Dipesan untuk format narasi 6 tahap (fitur 3) |
+| Prompt status v3 | `generate-status.v3` | `lib/ai/prompts/generate-status.v3.ts` | Menambah parameter platform: batas 500 (Threads) atau 280 (X); fitur 9 |
+| Prompt status v4 | `generate-status.v4` | - | Dipesan untuk format narasi 6 tahap (fitur 3) |
+
+## Istilah tambahan (mode output platform, fitur 9)
+
+| Istilah (UI) | Nama kode | Tabel / tipe | Catatan |
+|---|---|---|---|
+| Mode output | `mode_output` | `Pengaturan.mode_output` | `threads` (bawaan), `x`, `naskah_video` |
+| Batas platform | `BATAS_PLATFORM` | `lib/platforms/batas.ts` | Threads 500, X 280; di kode (ADR 0008) |
+| Batas mode | `batasKarakterMode` | `lib/platforms/batas.ts` | Dipakai editor, preview, dan validasi alur |
+| Naskah video | naskah video | `naskahVideoSkema` | Tiga bagian (hook visual, fungsi produk, CTA), durasi 30 sampai 60 detik |
+| Prompt naskah video | `naskah-video.v1` | `lib/ai/prompts/naskah-video.v1.ts` | Prompt 09; rute `/api/naskah-video` |
+| Jenis generasi naskah video | `generations.jenis = 'naskah_video'` | migrasi 0007 | Memisah biaya di Widget biaya |
 
 ## Istilah tambahan (riwayat dari Supabase)
 

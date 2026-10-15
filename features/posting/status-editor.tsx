@@ -14,9 +14,12 @@ import { cn } from "@/lib/utils";
 export function StatusEditor({
   statuses,
   onChange,
+  batas = MAX_STATUS_LENGTH,
 }: {
   statuses: string[];
   onChange: (next: string[]) => void;
+  /** Batas karakter per status; 500 Threads, 280 X (fitur 9). */
+  batas?: number;
 }) {
   const [hasilSalin, setHasilSalin] = useState<{ index: number; ok: boolean } | null>(null);
 
@@ -38,7 +41,7 @@ export function StatusEditor({
   const add = () => onChange([...statuses, ""]);
 
   const split = (index: number) => {
-    const parts = splitIntoStatuses(statuses[index]);
+    const parts = splitIntoStatuses(statuses[index], batas);
     if (parts.length <= 1) return;
     const next = [...statuses];
     next.splice(index, 1, ...parts);
@@ -59,14 +62,14 @@ export function StatusEditor({
       </div>
 
       <p className="mt-1 text-xs text-muted-foreground">
-        Maksimal {MAX_STATUS_LENGTH} karakter per status (aturan #7). Teks yang
+        Maksimal {batas} karakter per status (aturan #7). Teks yang
         kepanjangan bisa dipecah otomatis di batas paragraf/kalimat.
       </p>
 
       <ol className="mt-4 space-y-4">
         {statuses.map((status, index) => {
           const length = charLength(status);
-          const over = length > MAX_STATUS_LENGTH;
+          const over = length > batas;
           return (
             <li key={index} className="rounded-lg border border-surface-border p-3">
               <div className="mb-2 flex items-center justify-between">
@@ -81,7 +84,7 @@ export function StatusEditor({
                     )}
                     aria-live="polite"
                   >
-                    {length} / {MAX_STATUS_LENGTH}
+                    {length} / {batas}
                   </span>
                   <button
                     type="button"

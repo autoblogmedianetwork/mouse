@@ -43,9 +43,39 @@ describe("validateStatusList", () => {
   });
 });
 
+describe("custom limit (fitur 9: X 280)", () => {
+  it("validateStatus honours a custom limit", () => {
+    expect(validateStatus("a".repeat(280), 280).ok).toBe(true);
+    const over = validateStatus("a".repeat(281), 280);
+    expect(over.ok).toBe(false);
+    expect(over.error).toContain("280");
+  });
+
+  it("validateStatusList honours a custom limit", () => {
+    const result = validateStatusList(["ok", "x".repeat(281)], 280);
+    expect(result.ok).toBe(false);
+    expect(result.invalidIndexes).toEqual([1]);
+  });
+
+  it("default limit stays 500", () => {
+    expect(validateStatus("a".repeat(500)).ok).toBe(true);
+    expect(validateStatus("a".repeat(501)).ok).toBe(false);
+  });
+});
+
 describe("splitIntoStatuses", () => {
   it("returns a single status for short text", () => {
     expect(splitIntoStatuses("Pesan pendek.")).toEqual(["Pesan pendek."]);
+  });
+
+  it("splits to a custom limit when given one (fitur 9)", () => {
+    const text = "Kalimat contoh yang cukup panjang untuk dipecah. ".repeat(20).trim();
+    const statuses = splitIntoStatuses(text, 280);
+    expect(statuses.length).toBeGreaterThan(1);
+    for (const status of statuses) {
+      expect(charLength(status)).toBeLessThanOrEqual(280);
+    }
+    expect(statuses.join(" ")).toBe(text);
   });
 
   it("returns empty array for empty input", () => {

@@ -3,6 +3,7 @@
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
+import { LABEL_MODE_OUTPUT, MODE_OUTPUT_IDS, batasPlatform } from "@/lib/platforms/batas";
 import {
   LABEL_PRESET_THREAD,
   PRESET_THREAD_IDS,
@@ -116,6 +117,37 @@ className={cn(
         >
           Kembalikan bawaan
         </button>
+      </div>
+
+      <div className="mt-4">
+        <span className={labelClass}>Mode output</span>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Mode output">
+          {MODE_OUTPUT_IDS.map((mode) => {
+            const aktif = value.mode_output === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                disabled={disabled}
+                aria-pressed={aktif}
+                onClick={() => set("mode_output", mode)}
+                className={cn(
+                  "h-9 rounded-lg border px-3 text-sm font-medium transition-colors disabled:opacity-50",
+                  aktif
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-surface-border bg-surface hover:border-primary",
+                )}
+              >
+                {LABEL_MODE_OUTPUT[mode]}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {value.mode_output === "naskah_video"
+            ? "Naskah video: tiga bagian (hook visual 3 detik, fungsi produk, CTA), durasi 30 sampai 60 detik. Pengaturan jumlah dan panjang status tidak dipakai."
+            : `Batas ${batasPlatform(value.mode_output)} karakter per status.`}
+        </p>
       </div>
 
       <div className="mt-4">

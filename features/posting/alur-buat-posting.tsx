@@ -19,6 +19,7 @@ import { ThreadsPreview } from "./threads-preview";
 import { ChecklistGate, type ChecklistId } from "./checklist-gate";
 import { ActionBar } from "./action-bar";
 import { charLength, validateStatusList } from "@/lib/statuses/validator-500";
+import { batasKarakterMode } from "@/lib/platforms/batas";
 import { muatKonten, simpanKonten, upsertKonten } from "@/lib/konten/store";
 import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
@@ -354,17 +355,36 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
     const kontenBaru: Array<{ ide: Ide; statuses: string[] }> = [];
     const gagal: string[] = [];
+    // Mode naskah video (prompt 09) memakai rute dan skema sendiri; hasilnya
+    // tiga bagian yang disimpan sebagai tiga status supaya alur edit, checklist,
+    // dan salin tetap berjalan tanpa jalur UI terpisah.
+    const naskahVideo = draft.pengaturan.mode_output === "naskah_video";
 
     // Satu job per ide terpilih; satu gagal tidak menghentikan yang lain (PRD 15.1).
     for (const ide of terpilih) {
-      const result = await postJson<{ statuses: string[] }>("/api/generate", {
+      const body = {
         namaProduk: draft.produk?.nama_internal ?? "Produk",
         ringkasan,
         fitur: draft.analisis?.fitur ?? [],
         ide,
         pengaturan: draft.pengaturan,
         link: draft.produk?.url_referensi || undefined,
-      });
+      };
+      if (naskahVideo) {
+        const result = await postJson<{
+          hook_visual: string;
+          fungsi_produk: string;
+          cta: string;
+        }>("/api/naskah-video", body);
+        if (result.ok && result.data) {
+          const { hook_visual, fungsi_produk, cta } = result.data;
+          kontenBaru.push({ ide, statuses: [hook_visual, fungsi_produk, cta] });
+        } else {
+          gagal.push(ide.judul);
+        }
+        continue;
+      }
+      const result = await postJson<{ statuses: string[] }>("/api/generate", body);
       if (result.ok && result.data) {
         kontenBaru.push({ ide, statuses: result.data.statuses });
       } else {
@@ -406,12 +426,16 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     update({ konten, status: draft.status === "siap_posting" ? "draft" : draft.status });
   };
 
+  // Batas karakter mengikuti mode output: 500 untuk Threads, 280 untuk X,
+  // dan 500 untuk naskah video (mengikuti constraint database).
+  const batasKarakter = batasKarakterMode(draft.pengaturan.mode_output);
+
   const semuaValid = useMemo(() => {
     if (!kontenAktif || kontenAktif.statuses.length === 0) return false;
     const cleaned = kontenAktif.statuses.map((s) => s.trim()).filter((s) => s.length > 0);
     if (cleaned.length !== kontenAktif.statuses.length) return false;
-    return validateStatusList(kontenAktif.statuses).ok;
-  }, [kontenAktif]);
+    return validateStatusList(kontenAktif.statuses, batasKarakter).ok;
+  }, [kontenAktif, batasKarakter]);
 
   const semuaChecklist = useMemo(() => {
     const items = draft.pengaturan.aturan_kepercayaan
@@ -828,6 +852,13 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               Akan membuat <strong className="text-foreground">{draft.ideDipilih.length}</strong>{" "}
               konten (satu per ide terpilih). Semua hasil berstatus draft.
             </p>
+            {draft.pengaturan.mode_output === "naskah_video" ? (
+              <p className="mt-2 rounded-lg border border-surface-border p-3 text-xs text-muted-foreground">
+                Mode naskah video: tiap konten berisi tiga bagian — hook visual
+                (3 detik), fungsi produk, dan CTA — dengan durasi total 30 sampai
+                60 detik.
+              </p>
+            ) : null}
             <div className="mt-4 flex gap-3">
               <button
                 type="button"
@@ -903,6 +934,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 <StatusEditor
                   statuses={kontenAktif?.statuses ?? []}
                   onChange={setKontenAktif}
+                  batas={batasKarakter}
                 />
                 <ChecklistGate
                   nilai={draft.checklist}
@@ -917,6 +949,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   statuses={kontenAktif?.statuses ?? []}
                   linkProduk={draft.produk?.url_referensi || undefined}
                   letakLink={draft.pengaturan.letak_link}
+                  batas={batasKarakter}
                 />
                 <p className="mt-3 text-xs text-muted-foreground">
                   Total{" "}

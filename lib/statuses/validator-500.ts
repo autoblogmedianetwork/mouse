@@ -18,16 +18,19 @@ export interface StatusValidation {
   length: number;
 }
 
-/** Validate a single Threads status. */
-export function validateStatus(text: string): StatusValidation {
+/**
+ * Validate a single status. `batas` defaults to the Threads limit; callers
+ * targeting X pass 280 (fitur 9, `batasKarakterMode`).
+ */
+export function validateStatus(text: string, batas: number = MAX_STATUS_LENGTH): StatusValidation {
   const length = charLength(text);
   if (text.trim().length === 0) {
     return { ok: false, error: "Status kosong", length };
   }
-  if (length > MAX_STATUS_LENGTH) {
+  if (length > batas) {
     return {
       ok: false,
-      error: `Melebihi ${MAX_STATUS_LENGTH} karakter (${length})`,
+      error: `Melebihi ${batas} karakter (${length})`,
       length,
     };
   }
@@ -42,10 +45,13 @@ export interface StatusListValidation {
 }
 
 /** Validate a whole thread (ordered list of statuses). */
-export function validateStatusList(texts: string[]): StatusListValidation {
+export function validateStatusList(
+  texts: string[],
+  batas: number = MAX_STATUS_LENGTH,
+): StatusListValidation {
   const errors: Array<{ index: number; error: string }> = [];
   texts.forEach((text, index) => {
-    const result = validateStatus(text);
+    const result = validateStatus(text, batas);
     if (!result.ok) {
       errors.push({ index, error: result.error ?? "Tidak valid" });
     }

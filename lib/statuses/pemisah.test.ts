@@ -70,4 +70,21 @@ describe("splitIntoStatuses", () => {
       expect(status).not.toContain("\uFFFD");
     }
   });
+
+  it("splits to a custom limit (fitur 9: X 280)", () => {
+    const paragraph = "Ini adalah kalimat contoh yang cukup panjang. ".repeat(20).trim();
+    const statuses = splitIntoStatuses(paragraph, 280);
+    expect(statuses.length).toBeGreaterThan(1);
+    for (const status of statuses) {
+      expect(charLength(status)).toBeLessThanOrEqual(280);
+    }
+    expect(statuses.join(" ")).toBe(paragraph);
+  });
+
+  it("hard-splits a long token to a custom limit", () => {
+    const longWord = "b".repeat(700);
+    const statuses = splitIntoStatuses(longWord, 280);
+    expect(statuses).toHaveLength(3);
+    expect(statuses.join("")).toBe(longWord);
+  });
 });
