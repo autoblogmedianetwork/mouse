@@ -84,6 +84,19 @@ body {
   color: var(--foreground);
 }
 
+/*
+ * Swiss Industrial Print (docs/UI-Spec-Heaviliate.md bagian 6 disesuaikan
+ * ADR 0009): semua sudut 90 derajat — border-radius global 0, tanpa bayangan
+ * lembut. Komponen tertentu yang butuh bentuk lain harus menimpanya
+ * eksplisit, bukan diam-diam.
+ */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 /* Focus ring visible on all interactive elements (UI-Spec section 8) */
 :focus-visible {
   outline: 2px solid var(--ring);

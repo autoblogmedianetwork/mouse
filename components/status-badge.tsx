@@ -49,9 +49,11 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+        // Segi empat tegas (tanpa radius, token global) dengan label monospace:
+        // penanda status seperti ticker di terminal.
+        "inline-flex items-center border-2 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.06em]",
         config.className,
-        className
+        className,
       )}
     >
       {config.label}
