@@ -31,6 +31,8 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Pengingat | reminder | `lib/konten/pengingat.ts` | Jadwal hari ini/lewat/minggu ini + draft terbengkalai di dashboard |
 | Jadwal lewat | overdue schedule | jenis `jadwal_lewat` | Jadwal terjadwal yang waktunya sudah berlalu |
 | Draft terbengkalai | stale draft | `BATAS_DRAFT_HARI = 3` | Draft/siap posting tidak diubah ≥ 3 hari |
+| Produk belum diposting | unposted product | `lib/produk/status-posting.ts` | Produk tanpa konten terkirim atau usia kirim terakhir ≥ batas hari |
+| Terkirim terakhir | last sent | `updated_at` konten terkirim | Sumber waktu kirim terakhir per produk |
 | Biaya AI | ai cost | `generations.biaya_usd` | Dipakai untuk batas bulanan |
 | Mode manual | manual mode | `posting_mode = 'manual'` | Default, salin utas |
 | Mode auto | auto mode | `posting_mode = 'auto'` | Fase 7 (M6) |

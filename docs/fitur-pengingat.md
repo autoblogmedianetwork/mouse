@@ -46,7 +46,7 @@ sesuai K3.
 
 ## Setelahnya
 
-- Daftar produk yang lama tidak diposting (feedback Claude #4/Sedang) —
-  sambung dari pengingat yang sama, sumbernya riwayat `terkirim` di pustaka.
+- Daftar produk yang lama tidak diposting: **sudah ada** — lihat
+  `docs/daftar-produk-belum-diposting.md`, dipasang di halaman Analitik.
 - Email atau notifikasi harian terjadwal menunggu infrastruktur pengirim
   (mis. cron server); disimpan di keputusan, bukan bagian MVP ini.

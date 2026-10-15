@@ -278,7 +278,7 @@ Konten yang sudah terkirim tidak bisa diedit langsung. Pilih "Duplikat" untuk me
 - AppShell, Dashboard, Buat posting (manual input, generate, preview, simpan draft), Pustaka konten, Link affiliate, Template, Pengaturan.
 
 **Setelah M3:**
-- Kalender, detail Riwayat posting, Analitik.
+- Kalender, detail Riwayat posting, Analitik. Halaman Analitik berisi ringkasan laporan yang diimpor **plus daftar produk yang lama tidak diposting** dengan filter jarak waktu sejak terkirim terakhir (aturan di `docs/daftar-produk-belum-diposting.md`).
 
 **M6:**
 - Akun sosial, mode auto-posting, jadwal aktif, status terkirim dari API.
