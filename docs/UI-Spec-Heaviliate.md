@@ -1,7 +1,7 @@
-# UI Spec: AutoThreads Dashboard
+# UI Spec: Heaviliate Dashboard
 
 **Versi:** 0.1
-**Acuan:** `PRD-AutoThreads.md` (F0 sampai F8)
+**Acuan:** `PRD-Heaviliate.md` (F0 sampai F8)
 **Referensi visual:** screenshot dashboard "Affiliate Post Manager" dari thread. Yang diambil adalah struktur layout dan alur, bukan branding, ikon, atau teks. Semua elemen visual dibuat ulang sendiri.
 
 ---

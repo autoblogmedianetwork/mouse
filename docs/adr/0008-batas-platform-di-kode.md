@@ -11,7 +11,7 @@ kedua dengan batas 280 karakter, dan prompt 03 harus tahu batas platform yang
 dipilih (prompt v3, lihat `lib/ai/prompts/generate-status.v3.ts`).
 
 Tabel `platforms` (migrasi 0002) sudah punya kolom `batas_karakter`, dan
-`docs/Workflow-AutoThreads.md` bagian multi-platform menulis bahwa batas
+`docs/Workflow-Heaviliate.md` bagian multi-platform menulis bahwa batas
 disimpan di tabel, bukan di kode. Tapi baris `platforms` sengaja kosong di
 migrasi, RLS-nya baca-saja untuk `authenticated`, dan membaca DB hanya untuk
 menampilkan angka batas di form menambah latensi dan kegagalan baru (form

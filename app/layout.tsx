@@ -9,8 +9,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "AutoThreads",
-    template: "%s · AutoThreads",
+    default: "Heaviliate",
+    template: "%s · Heaviliate",
   },
   description:
     "Dashboard pribadi untuk membuat konten Threads dari produk affiliate Shopee.",

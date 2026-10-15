@@ -56,7 +56,7 @@ export function KartuQuickCapture() {
             className="inline-flex h-9 cursor-grab items-center rounded-lg border border-primary bg-primary/10 px-4 text-sm font-medium text-primary"
             title="Seret saya ke bilah bookmark"
           >
-            Quick Capture → AutoThreads
+            Quick Capture → Heaviliate
           </a>
           <button
             type="button"

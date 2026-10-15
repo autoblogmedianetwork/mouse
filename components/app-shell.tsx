@@ -47,7 +47,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           A
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold leading-tight text-foreground">AutoThreads</p>
+          <p className="truncate text-sm font-bold leading-tight text-foreground">Heaviliate</p>
           <p className="truncate text-xs text-muted-foreground">Ruang kerja pribadi</p>
         </div>
       </div>
@@ -115,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
               A
             </span>
-            <span className="hidden sm:inline">AutoThreads</span>
+            <span className="hidden sm:inline">Heaviliate</span>
           </Link>
           <p className="text-xs text-muted-foreground">Workspace › {undefined}</p>
         </header>

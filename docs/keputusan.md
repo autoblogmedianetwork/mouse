@@ -1,4 +1,4 @@
-# Keputusan Proyek: AutoThreads
+# Keputusan Proyek: Heaviliate
 
 Keputusan yang sudah diambil dicatat di `docs/adr/`. Dokumen ini berisi keputusan yang masih menunggu konfirmasi dan ringkasan status prasyarat.
 
@@ -14,7 +14,7 @@ Keputusan yang sudah diambil dicatat di `docs/adr/`. Dokumen ini berisi keputusa
 | K6 | Batas biaya AI per bulan? | Batas keras di Pengaturan, angka awal ditentukan setelah P8 | [ ] |
 | K7 | Foto produk dianalisis AI? | Ya, jika P7 lolos | [ ] |
 | K8 | Arah produk: MVP Threads-only dengan arsitektur multi-platform | Ya | [ ] |
-| K9 | Nama produk | AutoThreads tetap, atau ganti (AutoAffiliate, AffiliateHub) | [ ] |
+| K9 | Nama produk | Heaviliate tetap, atau ganti (AutoAffiliate, AffiliateHub) | [ ] |
 | K10 | Platform tahap kedua | Instagram dan Facebook (satu API Meta) | [ ] |
 | K11 | Marketplace tahap pertama | Shopee, dengan input generik untuk lainnya | [ ] |
 | K12 | Mode otomatis penuh: opsi A (persetujuan sekali per produk atau batch, lalu kirim otomatis untuk konten yang lolos checklist) atau opsi B (tidak dibuat) | Opsi A, sesuai `docs/fitur-mode-kerja.md` bagian 1.2 | [ ] |

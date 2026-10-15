@@ -1,4 +1,4 @@
-# PRD: AutoThreads
+# PRD: Heaviliate
 
 **Versi:** 0.1 (draft MVP)
 **Tanggal:** 8 Oktober 2026
@@ -8,7 +8,7 @@
 
 ## 1. Ringkasan
 
-AutoThreads membantu affiliate Shopee menyusun konten Threads dari link produk. User memasukkan link Shopee, AI menganalisis produk, user memilih ide konten, lalu sistem men-generate status Threads yang siap disalin dan diposting.
+Heaviliate membantu affiliate Shopee menyusun konten Threads dari link produk. User memasukkan link Shopee, AI menganalisis produk, user memilih ide konten, lalu sistem men-generate status Threads yang siap disalin dan diposting.
 
 ## 2. Masalah
 
@@ -103,7 +103,7 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 ### F7. Modul Video Affiliate (Produk Global)
 - Mode input: user memilih produk dari daftar produk yang sudah dianalisis (F1), bukan dari link. Ini memungkinkan satu template dipakai untuk produk apa pun.
 - Alur: ide angle, hook, storyboard, JSON scene, lalu panduan generate di Google Flow. Mengikuti `Template-Video-Affiliate.md`.
-- Output: storyboard dan JSON bisa diunduh atau disalin. Video tidak dibuat oleh AutoThreads. User generate sendiri di Google Flow lalu upload.
+- Output: storyboard dan JSON bisa diunduh atau disalin. Video tidak dibuat oleh Heaviliate. User generate sendiri di Google Flow lalu upload.
 - Validasi di kode: JSON harus valid dan memiliki semua field skema. Durasi total scene harus sama dengan durasi video.
 - Larangan wajib: tidak ada harga atau klaim yang tidak ada di listing. Checklist akurasi produk ditampilkan sebelum export.
 - Disclosure otomatis: teks "link affiliate" atau "#iklan" bisa ditambahkan ke caption dengan satu klik. User bisa mengedit.
@@ -162,7 +162,7 @@ Affiliate menghabiskan waktu untuk mencari produk, menentukan angle, menulis hoo
 6. Sistem menampilkan hasil per konten. User mengedit bila perlu.
 7. User klik **Salin Utas Lengkap** dan posting manual di Threads.
 
-Detail alur ada di `Workflow-AutoThreads.md`.
+Detail alur ada di `Workflow-Heaviliate.md`.
 
 ## 8. Requirement Non-Fungsional
 

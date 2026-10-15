@@ -1,4 +1,4 @@
-# Skema Database: AutoThreads (Supabase)
+# Skema Database: Heaviliate (Supabase)
 
 **Sumber kebenaran untuk struktur data.** Jika ada perbedaan dengan PRD, file ini yang dipakai, lalu PRD diperbarui.
 **Migrasi pertama:** `supabase/migrations/0001_init.sql` (isi SQL di bagian 6).
@@ -220,7 +220,7 @@ Satu bucket privat: `product-media`.
 
 ```sql
 -- ============================================================
--- AutoThreads: skema awal
+-- Heaviliate: skema awal
 -- ============================================================
 
 -- Enum

@@ -1,5 +1,5 @@
 /**
- * Description cleaner per PRD-AutoThreads.md section 10.1.
+ * Description cleaner per PRD-Heaviliate.md section 10.1.
  * Descriptions copied from Shopee listings must be cleaned before they
  * are sent to the AI prompt:
  * - remove links

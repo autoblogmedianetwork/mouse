@@ -1,4 +1,4 @@
-# AI Provider: AutoThreads
+# AI Provider: Heaviliate
 
 **Status:** chat/JSON sudah lepas dari Gemini (ADR 0006, 13 Okt 2026). TTS dan visi menunggu verifikasi P7 dan P8.
 **Terakhir diperiksa:** 13 Oktober 2026, daftar model OpenRouter lewat `https://openrouter.ai/api/v1/models`. Harga provider lain di bawah masih perkiraan aggregator.

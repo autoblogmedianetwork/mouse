@@ -1,6 +1,6 @@
-# Rencana Testing: AutoThreads
+# Rencana Testing: Heaviliate
 
-Dokumen ini merinci strategi testing dari bagian 6 dan 7 di `Rencana-Pengembangan-AutoThreads.md`. Tidak mengubah rencana utama.
+Dokumen ini merinci strategi testing dari bagian 6 dan 7 di `Rencana-Pengembangan-Heaviliate.md`. Tidak mengubah rencana utama.
 
 ## 1. Tujuan
 

@@ -1,4 +1,4 @@
-# Dependency dan Tool: AutoThreads
+# Dependency dan Tool: Heaviliate
 
 Ringkasan semua tool, library, dan layanan dari diskusi, dengan status dan fase. Dokumen ini tidak menggantikan ADR. Keputusan teknis tetap di `docs/adr/`.
 

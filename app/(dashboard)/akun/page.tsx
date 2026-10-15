@@ -45,7 +45,7 @@ export default function AkunPage() {
     <div className="space-y-6">
       <PageHeader
         title="Akun sosial"
-        description="Hubungkan Threads (dan platform lain nanti) supaya konten bisa terkirim dari AutoThreads."
+        description="Hubungkan Threads (dan platform lain nanti) supaya konten bisa terkirim dari Heaviliate."
       >
         <button
           type="button"

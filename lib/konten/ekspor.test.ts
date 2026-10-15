@@ -39,8 +39,8 @@ describe("eksporJSON → imporJSON", () => {
     expect(hasil[0]).toEqual(k);
   });
 
-  it("menolak file bukan cadangan AutoThreads", () => {
-    expect(() => imporJSON('{"foo": 1}')).toThrow(/cadangan AutoThreads/);
+  it("menolak file bukan cadangan Heaviliate", () => {
+    expect(() => imporJSON('{"foo": 1}')).toThrow(/cadangan Heaviliate/);
     expect(() => imporJSON("bukan json")).toThrow(/JSON valid/);
   });
 

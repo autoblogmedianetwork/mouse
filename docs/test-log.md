@@ -1,4 +1,4 @@
-# Test Log: AutoThreads
+# Test Log: Heaviliate
 
 Catatan hasil tes per tanggal. Rincian lapisan tes ada di `docs/rencana-testing.md`.
 

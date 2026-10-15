@@ -135,7 +135,7 @@ export async function generateJSON<T>(
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
           "HTTP-Referer": "https://autothreads.app",
-          "X-Title": "AutoThreads",
+          "X-Title": "Heaviliate",
         },
         body: JSON.stringify({
           model,

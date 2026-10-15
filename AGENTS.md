@@ -8,13 +8,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# AGENTS.md: AutoThreads
+# AGENTS.md: Heaviliate
 
 Dashboard pribadi untuk membuat konten affiliate dari produk marketplace, dengan Threads sebagai platform aktif di MVP. Bahasa antarmuka: Indonesia. Kode dan komentar: Inggris.
 
 **Stack:** Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Supabase, Zod, React Hook Form, Vitest.
 
-**Sumber kebenaran:** docs/PRD-AutoThreads.md (fitur), docs/UI-Spec-AutoThreads.md (UI), docs/Workflow-AutoThreads.md (alur), docs/Rencana-Pengembangan-AutoThreads.md (fase), docs/skema-database.md (data), docs/ai-provider.md (provider), docs/adr/ (keputusan teknis), docs/glosarium.md (nama).
+**Sumber kebenaran:** docs/PRD-Heaviliate.md (fitur), docs/UI-Spec-Heaviliate.md (UI), docs/Workflow-Heaviliate.md (alur), docs/Rencana-Pengembangan-Heaviliate.md (fase), docs/skema-database.md (data), docs/ai-provider.md (provider), docs/adr/ (keputusan teknis), docs/glosarium.md (nama).
 
 **Aturan:**
 1. Baca dokumen yang relevan sebelum coding, dan sebutkan yang sudah dibaca.

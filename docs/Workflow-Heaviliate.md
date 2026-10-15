@@ -1,7 +1,7 @@
-# Workflow AutoThreads
+# Workflow Heaviliate
 
 **Versi:** 0.3
-**Acuan:** PRD-AutoThreads.md, UI-Spec-AutoThreads.md, Rencana-Pengembangan-AutoThreads.md, ADR 0001 sampai 0003
+**Acuan:** PRD-Heaviliate.md, UI-Spec-Heaviliate.md, Rencana-Pengembangan-Heaviliate.md, ADR 0001 sampai 0003
 **Menggantikan:** Workflow v0.1 dan v0.2
 
 ---

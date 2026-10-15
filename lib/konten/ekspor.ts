@@ -38,7 +38,7 @@ export function imporJSON(raw: string): Konten[] {
 
   const obj = parsed as { app?: unknown; konten?: unknown };
   if (obj?.app !== "autothreads" || !Array.isArray(obj.konten)) {
-    throw new Error("Bukan cadangan AutoThreads (field app/konten tidak dikenali).");
+    throw new Error("Bukan cadangan Heaviliate (field app/konten tidak dikenali).");
   }
 
   const hasil: Konten[] = [];

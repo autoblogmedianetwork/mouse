@@ -1,6 +1,6 @@
-# Rencana Pengembangan AutoThreads
+# Rencana Pengembangan Heaviliate
 
-**Acuan:** `PRD-AutoThreads.md`, `Workflow-AutoThreads.md`, `UI-Spec-AutoThreads.md`, `Template-Video-Affiliate.md`
+**Acuan:** `PRD-Heaviliate.md`, `Workflow-Heaviliate.md`, `UI-Spec-Heaviliate.md`, `Template-Video-Affiliate.md`
 **Pengembang:** Slamet (satu orang, paruh waktu)
 **Status:** rencana, belum mulai coding
 
@@ -204,7 +204,7 @@ Bisa dikerjakan setelah Fase 3, tidak wajib untuk M3. Tools media (rembg, HyperF
 ## 7. Definisi Selesai (Definition of Done)
 
 Sebuah fitur dianggap selesai jika:
-- Berfungsi di desktop dan mobile sesuai `UI-Spec-AutoThreads.md`.
+- Berfungsi di desktop dan mobile sesuai `UI-Spec-Heaviliate.md`.
 - Input manual tersedia untuk fitur yang menerima data produk.
 - Output AI selalu berstatus draft sampai checkpoint disetujui.
 - Ada pesan error yang jelas untuk setiap kegagalan yang mungkin.

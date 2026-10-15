@@ -141,4 +141,4 @@ Data disimpan di tabel `threads_accounts` (rencana migrasi 0002): kolom `token_k
 | Fase 5 | Mode semi-otomatis dengan job terjadwal, setelah pemakaian pribadi stabil |
 | Fase 7 | Masa berlaku token, dan mode otomatis penuh jika K12 memilih opsi A |
 
-Tiap fitur mengikuti Definition of Done di `docs/Rencana-Pengembangan-AutoThreads.md` bagian 7.
+Tiap fitur mengikuti Definition of Done di `docs/Rencana-Pengembangan-Heaviliate.md` bagian 7.

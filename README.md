@@ -1,4 +1,4 @@
-# AutoThreads
+# Heaviliate
 
 Dashboard pribadi untuk membuat konten affiliate. MVP mengaktifkan Threads, dengan arsitektur yang disiapkan untuk platform dan marketplace lain. Hasil AI selalu berstatus draft sampai kamu menandainya siap.
 
@@ -7,10 +7,10 @@ Dashboard pribadi untuk membuat konten affiliate. MVP mengaktifkan Threads, deng
 | Berkas | Isi |
 |---|---|
 | AGENTS.md | Aturan untuk AI coding assistant |
-| docs/PRD-AutoThreads.md | Fitur dan aturan |
-| docs/UI-Spec-AutoThreads.md | Layout, komponen, status |
-| docs/Workflow-AutoThreads.md | Alur user dan state |
-| docs/Rencana-Pengembangan-AutoThreads.md | Fase, exit criteria, testing |
+| docs/PRD-Heaviliate.md | Fitur dan aturan |
+| docs/UI-Spec-Heaviliate.md | Layout, komponen, status |
+| docs/Workflow-Heaviliate.md | Alur user dan state |
+| docs/Rencana-Pengembangan-Heaviliate.md | Fase, exit criteria, testing |
 | docs/Template-Video-Affiliate.md | Acuan modul video |
 | docs/keputusan.md | Keputusan yang menunggu konfirmasi dan prasyarat |
 | docs/ai-provider.md | Provider AI per fungsi, harga, endpoint |

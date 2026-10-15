@@ -1,4 +1,4 @@
-// Menu structure per UI-Spec-AutoThreads.md section 2.1.
+// Menu structure per UI-Spec-Heaviliate.md section 2.1.
 // "Segera" menus are shown but not clickable until their phase ships.
 
 export interface MenuItem {

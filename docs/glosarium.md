@@ -1,4 +1,4 @@
-# Glosarium: AutoThreads
+# Glosarium: Heaviliate
 
 Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di semua file. Jangan mencampur bentuk lain seperti `statusList` atau `utas_status`.
 
