@@ -18,6 +18,7 @@ Dashboard pribadi untuk membuat konten affiliate. MVP mengaktifkan Threads, deng
 | docs/glosarium.md | Istilah Indonesia ke nama kode |
 | docs/fitur-pengingat.md | Aturan pengingat jadwal & draft terbengkalai di dashboard |
 | docs/daftar-produk-belum-diposting.md | Daftar produk lama tidak diposting di Analitik |
+| docs/alur-aplikasi.md | Panduan alur proses dan penjelasan fitur |
 | docs/adr/ | Keputusan teknis (0001 sampai 0003) |
 | prompts/ | Prompt AI bernomor versi |
 | golden/ | Produk uji untuk regresi kualitas |
