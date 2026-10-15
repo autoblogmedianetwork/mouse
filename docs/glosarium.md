@@ -28,6 +28,9 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Pembersihan deskripsi | clean description | `products.deskripsi_bersih` | Maks 3.000 karakter |
 | Foto referensi seller | seller reference | `product_media.is_referensi_seller` | Hanya referensi internal |
 | Generate log | generation log | `generations` | Satu baris per panggilan AI |
+| Pengingat | reminder | `lib/konten/pengingat.ts` | Jadwal hari ini/lewat/minggu ini + draft terbengkalai di dashboard |
+| Jadwal lewat | overdue schedule | jenis `jadwal_lewat` | Jadwal terjadwal yang waktunya sudah berlalu |
+| Draft terbengkalai | stale draft | `BATAS_DRAFT_HARI = 3` | Draft/siap posting tidak diubah ≥ 3 hari |
 | Biaya AI | ai cost | `generations.biaya_usd` | Dipakai untuk batas bulanan |
 | Mode manual | manual mode | `posting_mode = 'manual'` | Default, salin utas |
 | Mode auto | auto mode | `posting_mode = 'auto'` | Fase 7 (M6) |

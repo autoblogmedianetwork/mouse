@@ -11,6 +11,7 @@ import { ringkasPerforma } from "@/lib/impor/performa";
 import { PerformaRingkas } from "@/features/impor/performa-ringkas";
 import { usePerforma } from "@/features/impor/use-performa";
 import { BagianPerformaKonten } from "@/features/performa/performa-konten";
+import { PanelPengingat } from "@/features/pengingat/panel-pengingat";
 
 interface DraftRingkas {
   updatedAt?: string;
@@ -41,6 +42,7 @@ export function RingkasanDashboard() {
   if (konten.length === 0 && !adaDraft && !adaPerforma) {
     return (
       <div className="space-y-4">
+        <PanelPengingat />
         <EmptyState
           title="Belum ada konten"
           description="Mulai dari produk pertama: tempel link Shopee atau isi manual, lalu buat utas Threads dari hasilnya. Semua output berstatus draft sampai Anda menandainya siap posting."
@@ -60,6 +62,8 @@ export function RingkasanDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Pengingat di paling atas; panel menyembunyikan dirinya bila kosong. */}
+      <PanelPengingat />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Konten total" nilai={ringkas.total} catatan="Tidak termasuk arsip" />
         <StatCard label="Draft" nilai={ringkas.draft} tone="draft" catatan="Sedang dikerjakan" />

@@ -66,6 +66,7 @@ Komponen:
 - **Lanjutkan draft:** daftar 3 draft terakhir dengan judul, produk, dan waktu edit terakhir.
 - **Aksi cepat:** tombol "Buat posting baru" dan "Analisis produk baru".
 - **Konten terbaru:** tabel ringkas 5 konten terakhir dengan status.
+- **Pengingat:** panel di atas kartu ringkasan, memakai aturan di `docs/fitur-pengingat.md`. Item jadwal lewat > hari ini > minggu ini > draft terbengkalai; tiap item punya tutup (kembali besok) dan tombol aksi ke halaman tujuan. Panel hanya tampil saat ada isian.
 
 State kosong: ilustrasi sederhana dan tombol "Mulai dari produk pertama".
 
