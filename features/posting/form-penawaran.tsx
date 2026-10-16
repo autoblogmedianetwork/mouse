@@ -24,6 +24,7 @@ export interface PenawaranSaved extends SavedProduct {
   kategori_penawaran?: KategoriPenawaran;
   fitur_keunggulan?: string;
   gambar_url?: string;
+  catatan_aturan?: string;
 }
 
 export function FormPenawaran({
@@ -41,6 +42,7 @@ export function FormPenawaran({
     link_affiliate: "",
     harga: "",
     fitur: "",
+    catatan_aturan: "",
     kategori: "hosting" as KategoriPenawaran,
     gambar: "",
   });
@@ -55,6 +57,7 @@ export function FormPenawaran({
     link_affiliate: "",
     harga: "",
     deskripsi: "",
+    catatan_aturan: "",
     kategori: "saas" as KategoriPenawaran,
     gambar: "",
   });
@@ -91,6 +94,7 @@ export function FormPenawaran({
       kategori_penawaran: kategori,
       fitur_keunggulan: fitur,
       gambar_url: gambar || undefined,
+      catatan_aturan: manualForm.catatan_aturan.trim() || undefined,
     };
 
     onSaved?.(penawaran);
@@ -185,6 +189,7 @@ export function FormPenawaran({
       kategori_penawaran: kategori,
       fitur_keunggulan: deskripsi,
       gambar_url: gambar || undefined,
+      catatan_aturan: linkForm.catatan_aturan.trim() || undefined,
     };
 
     onSaved?.(penawaran);
@@ -320,6 +325,22 @@ export function FormPenawaran({
                   placeholder="Tuliskan keunggulan utama (misal: Gratis domain 1 tahun, garansi 30 hari uang kembali, uptime 99.9%, diskon 75% pakai kode promo)."
                   className={inputClass}
                 />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className={labelClass}>Catatan Aturan Program (Opsional)</label>
+                <textarea
+                  rows={2}
+                  value={manualForm.catatan_aturan}
+                  onChange={(e) =>
+                    setManualForm({ ...manualForm, catatan_aturan: e.target.value })
+                  }
+                  placeholder="misal: Dilarang sebut nama brand di headline; wajib cantumkan kupon diskon 20%."
+                  className={inputClass}
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground font-mono">
+                  Aturan ini akan muncul sebagai banner pengingat saat Anda menyusun ide dan konten posting.
+                </p>
               </div>
 
               <div className="sm:col-span-2">
@@ -470,6 +491,22 @@ export function FormPenawaran({
                     placeholder="Deskripsi atau fitur utama yang diekstrak dari halaman."
                     className={inputClass}
                   />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>Catatan Aturan Program (Opsional)</label>
+                  <textarea
+                    rows={2}
+                    value={linkForm.catatan_aturan}
+                    onChange={(e) =>
+                      setLinkForm({ ...linkForm, catatan_aturan: e.target.value })
+                    }
+                    placeholder="misal: Dilarang sebut nama brand di headline; wajib cantumkan kupon diskon 20%."
+                    className={inputClass}
+                  />
+                  <p className="mt-1 text-[11px] text-muted-foreground font-mono">
+                    Aturan ini akan muncul sebagai banner pengingat saat Anda menyusun ide dan konten posting.
+                  </p>
                 </div>
 
                 <div className="sm:col-span-2">

@@ -79,6 +79,7 @@ export const pengaturanSkema = z.object({
   gaya_hook: z.enum(["pertanyaan", "masalah_relatif", "pernyataan_mengejutkan", "bawaan"]),
   aturan_kepercayaan: z.boolean(),
   letak_link: z.enum(["status_terakhir", "balasan", "tanpa_link"]),
+  sertakan_disclosure: z.boolean().default(true),
 });
 
 export type Pengaturan = z.infer<typeof pengaturanSkema>;
@@ -93,6 +94,7 @@ export const PENGATURAN_AWAL: Pengaturan = {
   gaya_hook: "bawaan",
   aturan_kepercayaan: true,
   letak_link: "balasan",
+  sertakan_disclosure: true,
 };
 
 /**

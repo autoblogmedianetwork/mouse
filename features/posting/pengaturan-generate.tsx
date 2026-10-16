@@ -271,6 +271,15 @@ className={cn(
             checked={value.aturan_kepercayaan}
             onChange={(next) => set("aturan_kepercayaan", next)}
           />
+          <div className="sm:col-span-2">
+            <ToggleField
+              id="sertakan_disclosure"
+              label="Sertakan disclosure affiliate (#iklan / #affiliate)"
+              description="Otomatis menambahkan tag disclosure di status terakhir untuk transparansi kepatuhan affiliate, tetap dalam batas karakter."
+              checked={value.sertakan_disclosure ?? true}
+              onChange={(next) => set("sertakan_disclosure", next)}
+            />
+          </div>
         </div>
       </div>
     </section>

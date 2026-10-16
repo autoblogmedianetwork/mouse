@@ -26,6 +26,9 @@ import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import { buatIdeManual } from "@/lib/konten/ide-manual";
+import { useLocalState } from "@/lib/konten/use-local-state";
+import { terapkanDisclosureUtas } from "@/lib/konten/disclosure";
+import { cariAturanBerdasarkanUrl, type ProgramAffiliate } from "@/lib/program-affiliate/skema";
 
 /**
  * Alur bertahap Buat posting (PRD F0 checkpoint per tahap):
@@ -145,6 +148,25 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
   const [error, setError] = useState<string | null>(null);
   const [tersimpanPukul, setTersimpanPukul] = useState<string | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [programs] = useLocalState<ProgramAffiliate[]>("autothreads-link-programs", []);
+
+  const catatanAturan = useMemo(() => {
+    const dariProduk = (draft.produk as PenawaranSaved)?.catatan_aturan?.trim();
+    if (dariProduk) return dariProduk;
+    return cariAturanBerdasarkanUrl(programs, draft.produk?.url_referensi);
+  }, [draft.produk, programs]);
+
+  const bannerAturan = catatanAturan ? (
+    <div className="flex items-start gap-3 rounded-none border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-700 dark:text-amber-300 font-mono">
+      <span className="text-base leading-none">⚠️</span>
+      <div>
+        <p className="font-semibold uppercase tracking-wider">
+          Pengingat Aturan Program Affiliate:
+        </p>
+        <p className="mt-1 leading-relaxed">{catatanAturan}</p>
+      </div>
+    </div>
+  ) : null;
   // Form ide manual (PRD F1): selalu tersedia walau panggilan AI gagal.
   const [judulManual, setJudulManual] = useState("");
   const [deskripsiManual, setDeskripsiManual] = useState("");
@@ -410,7 +432,14 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       }
       const result = await postJson<{ statuses: string[] }>("/api/generate", body);
       if (result.ok && result.data) {
-        kontenBaru.push({ ide, statuses: result.data.statuses });
+        const statusesHasil = draft.pengaturan.sertakan_disclosure
+          ? terapkanDisclosureUtas(
+              result.data.statuses,
+              batasKarakterMode(draft.pengaturan.mode_output),
+              true,
+            )
+          : result.data.statuses;
+        kontenBaru.push({ ide, statuses: statusesHasil });
       } else {
         gagal.push(ide.judul);
       }
@@ -771,6 +800,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {/* ------------------------------- Tahap 3: ide ----------------------------- */}
       {langkah === "ide" ? (
         <div className="space-y-6">
+          {bannerAturan}
           <section className={cardClass}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -928,6 +958,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {/* ----------------------------- Tahap 4: generate -------------------------- */}
       {langkah === "generate" ? (
         <div className="space-y-6">
+          {bannerAturan}
           <PengaturanGenerate
             value={draft.pengaturan}
             onChange={(pengaturan) => update({ pengaturan })}
@@ -995,6 +1026,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
           </div>
         ) : (
           <div className="space-y-6">
+            {bannerAturan}
             {/* Tab konten bila ada lebih dari satu */}
             {draft.konten.length > 1 ? (
               <div className="flex flex-wrap gap-2">
