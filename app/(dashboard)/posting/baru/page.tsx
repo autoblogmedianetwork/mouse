@@ -19,7 +19,7 @@ export default async function BuatPostingPage({
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
         title="Buat posting"
-        description="Alur bertahap: produk → analisis → ide → generate → preview & salin. Berhenti di tiap checkpoint sampai Anda menyetujui hasilnya."
+        description="Alur bertahap: penawaran → analisis → ide → generate → preview & salin. Berhenti di tiap checkpoint sampai Anda menyetujui hasilnya."
       />
       <AlurBuatPosting prefillKode={prefill} />
     </div>

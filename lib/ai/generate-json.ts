@@ -49,24 +49,50 @@ export const DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
  * Trailing slash dibuang supaya URL jadi `{base}/chat/completions` tanpa
  * ganda `//` yang bikin beberapa provider menjawab 404.
  */
-export function resolveBaseURL(explicit?: string, envValue?: string): string {
+export function resolveBaseURL(explicit?: string, envValue?: string, envModel?: string): string {
   const dariOpsi = explicit?.trim();
+  if (dariOpsi) return dariOpsi.replace(/\/+$/, "");
+
   const dariEnv = envValue?.trim();
-  return (dariOpsi || dariEnv || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const modelEnv = envModel?.trim();
+
+  // Bila AI_MODEL berisi URL dan AI_BASE_URL bukan URL (tertukar)
+  if (dariEnv && !/^https?:\/\//i.test(dariEnv) && modelEnv && /^https?:\/\//i.test(modelEnv)) {
+    return modelEnv.replace(/\/+$/, "");
+  }
+
+  return (dariEnv || DEFAULT_BASE_URL).replace(/\/+$/, "");
 }
 
 /**
  * Model yang dipakai, berurut dari yang paling diutamakan:
  * opsi eksplisit -> `AI_MODEL` -> `DEFAULT_MODEL`.
  *
- * Nilai di-trim karena satu spasi tak sengaja di environment variable berubah
- * jadi nama model yang ditolak provider dengan pesan membingungkan.
+ * Bila AI_MODEL tidak sengaja berisi URL (misalnya tertukar dengan AI_BASE_URL),
+ * sistem secara cerdas mendeteksi isi model dari AI_BASE_URL atau jatuh ke DEFAULT_MODEL.
  */
-export function resolveModel(explicit?: string, envValue?: string): string {
+export function resolveModel(explicit?: string, envValue?: string, envBaseUrl?: string): string {
   const dariOpsi = explicit?.trim();
-  if (dariOpsi) return dariOpsi;
+  if (dariOpsi && !/^https?:\/\//i.test(dariOpsi)) return dariOpsi;
+
   const dariEnv = envValue?.trim();
+  const baseUrlEnv = envBaseUrl?.trim();
+
+  // Jika envValue ternyata sebuah URL (tertukar dengan base URL)
+  if (dariEnv && /^https?:\/\//i.test(dariEnv)) {
+    if (baseUrlEnv && !/^https?:\/\//i.test(baseUrlEnv)) {
+      return baseUrlEnv;
+    }
+    return DEFAULT_MODEL;
+  }
+
   if (dariEnv) return dariEnv;
+
+  // Jika envValue kosong tapi baseUrlEnv berisi nama model
+  if (baseUrlEnv && !/^https?:\/\//i.test(baseUrlEnv)) {
+    return baseUrlEnv;
+  }
+
   return DEFAULT_MODEL;
 }
 
@@ -108,8 +134,8 @@ export async function generateJSON<T>(
   options: GenerateJSONOptions = {},
 ): Promise<GenerateJSONResult<T>> {
   const retries = Math.max(0, options.retries ?? 1);
-  const model = resolveModel(options.model, process.env.AI_MODEL);
-  const baseURL = resolveBaseURL(undefined, process.env.AI_BASE_URL);
+  const model = resolveModel(options.model, process.env.AI_MODEL, process.env.AI_BASE_URL);
+  const baseURL = resolveBaseURL(undefined, process.env.AI_BASE_URL, process.env.AI_MODEL);
 
   // Server-only: kunci AI tidak pernah sampai ke klien (AGENTS rule 11).
   const apiKey = resolveApiKey();

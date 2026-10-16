@@ -5,4 +5,5 @@ export interface AnalisisInput {
   nama?: string;
   varian?: string;
   harga?: string;
+  kategori?: string;
 }

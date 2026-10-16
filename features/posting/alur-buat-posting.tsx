@@ -12,7 +12,8 @@ import { PanduanFotoCandid } from "./panduan-foto-candid";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
-import { FormProdukManual, type SavedProduct } from "./form-produk-manual";
+import { FormPenawaran, type PenawaranSaved } from "./form-penawaran";
+import { type SavedProduct } from "./form-produk-manual";
 import { PengaturanGenerate } from "./pengaturan-generate";
 import { StatusEditor } from "./status-editor";
 import { ThreadsPreview } from "./threads-preview";
@@ -28,14 +29,14 @@ import { buatIdeManual } from "@/lib/konten/ide-manual";
 
 /**
  * Alur bertahap Buat posting (PRD F0 checkpoint per tahap):
- * Produk → Analisis → Ide → Generate → Preview/Edit/Salin.
+ * Penawaran → Analisis → Ide → Generate → Preview/Edit/Salin.
  * Semua output berstatus draft sampai user menekan "Tandai siap posting".
  */
 
 type Langkah = "produk" | "analisis" | "ide" | "generate" | "preview";
 
 const LANGKAH_LIST: Array<{ id: Langkah; label: string }> = [
-  { id: "produk", label: "1. Produk" },
+  { id: "produk", label: "1. Penawaran" },
   { id: "analisis", label: "2. Analisis" },
   { id: "ide", label: "3. Ide" },
   { id: "generate", label: "4. Generate" },
@@ -215,8 +216,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
   const ringkasan = useMemo(() => {
     if (draft.analisis?.ringkasan) return draft.analisis.ringkasan;
-    return draft.analisisManual;
-  }, [draft.analisis, draft.analisisManual]);
+    if (draft.analisisManual) return draft.analisisManual;
+    return draft.produk?.deskripsi_bersih || draft.produk?.deskripsi || "";
+  }, [draft.analisis, draft.analisisManual, draft.produk]);
 
   /**
    * Sinkronkan konten kerja ke Pustaka (bank konten). Returns the updated
@@ -272,6 +274,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       nama: draft.produk.nama || draft.produk.nama_internal,
       varian: draft.produk.varian,
       harga: draft.produk.harga,
+      kategori: (draft.produk as PenawaranSaved)?.kategori_penawaran,
     });
     setBusy(null);
     if (result.ok && result.data) {
@@ -291,10 +294,20 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     }
     setBusy("ide");
     setError(null);
+    const fiturList =
+      draft.analisis?.fitur && draft.analisis.fitur.length > 0
+        ? draft.analisis.fitur
+        : (draft.produk as PenawaranSaved)?.fitur_keunggulan
+          ? (draft.produk as PenawaranSaved)
+              .fitur_keunggulan!.split(/[\n;]+/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
+
     const result = await postJson<{ ide: Ide[] }>("/api/ide", {
-      namaProduk: draft.produk?.nama_internal ?? "Produk",
+      namaProduk: draft.produk?.nama_internal ?? "Penawaran",
       ringkasan,
-      fitur: draft.analisis?.fitur ?? [],
+      fitur: fiturList,
       target_audiens: draft.analisis?.target_audiens ?? [],
       angle: draft.analisis?.angle ?? [],
     });
@@ -305,7 +318,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
         ideDipilih: result.data.ide.slice(0, 1).map((i) => i.judul),
       });
     } else {
-      setError(result.error ?? "Generate ide gagal.");
+      setError("AI sedang tidak tersedia. Silakan tulis ide manual.");
     }
   };
 
@@ -362,13 +375,24 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
     // Satu job per ide terpilih; satu gagal tidak menghentikan yang lain (PRD 15.1).
     for (const ide of terpilih) {
+      const fiturList =
+        draft.analisis?.fitur && draft.analisis.fitur.length > 0
+          ? draft.analisis.fitur
+          : (draft.produk as PenawaranSaved)?.fitur_keunggulan
+            ? (draft.produk as PenawaranSaved)
+                .fitur_keunggulan!.split(/[\n;]+/)
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : [];
+
       const body = {
-        namaProduk: draft.produk?.nama_internal ?? "Produk",
+        namaProduk: draft.produk?.nama_internal ?? "Penawaran",
         ringkasan,
-        fitur: draft.analisis?.fitur ?? [],
+        fitur: fiturList,
         ide,
         pengaturan: draft.pengaturan,
         link: draft.produk?.url_referensi || undefined,
+        kategori: (draft.produk as PenawaranSaved)?.kategori_penawaran,
       };
       if (naskahVideo) {
         const result = await postJson<{
@@ -488,7 +512,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       <nav aria-label="Tahap" className="flex flex-wrap gap-2">
         {LANGKAH_LIST.map((l, i) => {
           const aktif = l.id === langkah;
-          const bisaKe = i <= indexLangkah;
+          const bisaKe =
+            i <= indexLangkah ||
+            (Boolean(draft.produk) && (l.id === "analisis" || l.id === "ide"));
           return (
             <button
               key={l.id}
@@ -496,9 +522,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               disabled={!bisaKe}
               onClick={() => bisaKe && setLangkah(l.id)}
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm",
+                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm font-mono",
                 aktif
-                  ? "border-primary bg-primary text-primary-foreground"
+                  ? "border-primary bg-primary text-primary-foreground font-semibold"
                   : bisaKe
                     ? "border-surface-border bg-surface hover:bg-muted"
                     : "border-surface-border bg-surface text-muted-foreground opacity-50",
@@ -513,60 +539,96 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {error ? (
         <div
           role="alert"
-          className="flex items-center justify-between gap-3 rounded-lg border border-status-failed/40 bg-status-failed/10 px-4 py-3 text-sm"
+          className="flex items-center justify-between gap-3 rounded-none border border-status-failed/40 bg-status-failed/10 px-4 py-3 text-sm font-mono"
         >
           <span>{error}</span>
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-xs underline-offset-2 hover:underline"
+            className="text-xs underline-offset-2 hover:underline uppercase"
           >
-            Tutup
+            [ Tutup ]
           </button>
         </div>
       ) : null}
 
       {pesan ? (
-        <p className="text-sm text-status-ready" aria-live="polite">
+        <p className="text-sm font-mono text-status-ready" aria-live="polite">
           {pesan}
         </p>
       ) : null}
 
-      {/* ------------------------------ Tahap 1: produk --------------------------- */}
+      {/* ------------------------------ Tahap 1: penawaran --------------------------- */}
       {langkah === "produk" ? (
         <div className="space-y-6">
           {prefill ? (
-            <div className="rounded-lg border border-primary/40 bg-primary/5 px-4 py-3 text-sm">
-              <p className="font-medium">Data dari Quick Capture</p>
-              <p className="mt-1 text-muted-foreground">
+            <div className="border border-primary/40 bg-primary/5 px-4 py-3 text-sm font-mono">
+              <p className="font-medium text-xs uppercase">[ DATA DARI QUICK CAPTURE ]</p>
+              <p className="mt-1 text-muted-foreground text-xs">
                 Isian di bawah diambil dari halaman yang Anda tandai
                 {prefill.sumber ? ` di ${prefill.sumber}` : ""}. Periksa dan lengkapi
-                dulu; produk baru tersimpan setelah Anda menekan “Simpan produk”.
+                dulu; penawaran baru tersimpan setelah Anda menekan “Simpan penawaran”.
               </p>
             </div>
           ) : null}
-          <FormProdukManual
+          <FormPenawaran
             nilaiAwal={nilaiAwalProduk}
-            onSaved={(product) => {
-              update({ produk: product, status: "draft" });
-              setLangkah("analisis");
-              setPesan("Produk tersimpan. Lanjut ke analisis.");
+            onSaved={(penawaran) => {
+              update({
+                produk: penawaran,
+                analisisManual:
+                  penawaran.deskripsi_bersih || penawaran.deskripsi || penawaran.nama_internal,
+                status: "draft",
+              });
+              setPesan("Penawaran tersimpan. Silakan pilih 'Lanjut ke analisis' atau 'Lewati ke ide'.");
             }}
           />
           <KartuQuickCapture />
           {draft.produk ? (
             <div className={cardClass}>
-              <h2 className="text-sm font-semibold">Produk aktif</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {draft.produk.nama_internal} —{" "}
-                <button
-                  type="button"
-                  className="underline-offset-2 hover:underline"
-                  onClick={() => setLangkah("analisis")}
-                >
-                  Lanjut ke analisis
-                </button>
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                    [ PENAWARAN AKTIF ]
+                  </h2>
+                  <p className="mt-1 text-sm font-medium">
+                    {draft.produk.nama_internal}
+                    {draft.produk.harga ? ` (${draft.produk.harga})` : ""}
+                  </p>
+                  {draft.produk.url_referensi ? (
+                    <p className="text-xs font-mono text-muted-foreground truncate max-w-md mt-0.5">
+                      {draft.produk.url_referensi}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="h-9 px-4 border border-surface-border bg-muted/60 hover:bg-muted text-xs font-mono uppercase font-medium transition-colors"
+                    onClick={() => {
+                      if (!draft.analisisManual) {
+                        update({
+                          analisisManual:
+                            draft.produk?.deskripsi_bersih ||
+                            draft.produk?.deskripsi ||
+                            draft.produk?.nama_internal ||
+                            "",
+                        });
+                      }
+                      setLangkah("ide");
+                    }}
+                  >
+                    Lewati ke ide &gt;&gt;
+                  </button>
+                  <button
+                    type="button"
+                    className="h-9 px-4 bg-primary text-primary-foreground text-xs font-mono uppercase font-semibold hover:bg-primary-hover transition-colors"
+                    onClick={() => setLangkah("analisis")}
+                  >
+                    Lanjut ke analisis &gt;&gt;
+                  </button>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
@@ -576,7 +638,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {langkah === "analisis" ? (
         <div className="space-y-6">
           <section className={cardClass}>
-            <h2 className="text-base font-semibold">Analisis produk</h2>
+            <h2 className="text-base font-semibold">Analisis penawaran</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Hasil AI bersifat draft dan bisa dikoreksi sebelum lanjut (PRD 10.3).
             </p>
@@ -588,7 +650,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 disabled={busy !== null || !draft.produk}
                 className={primaryBtn}
               >
-                {busy === "analisis" ? "Menganalisis…" : "Analisis produk"}
+                {busy === "analisis" ? "Menganalisis…" : "Analisis penawaran"}
               </button>
               {busy === "analisis" ? (
                 <button type="button" onClick={() => setBusy(null)} className={ghostBtn}>
@@ -599,7 +661,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
             {!draft.produk ? (
               <p className="mt-3 text-sm text-status-failed">
-                Isi produk di tahap 1 dulu.
+                Isi penawaran di tahap 1 dulu.
               </p>
             ) : null}
           </section>
@@ -659,23 +721,48 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
             />
           </section>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => setLangkah("produk")} className={ghostBtn}>
               Kembali
             </button>
             <button
               type="button"
               onClick={() => {
+                if (!draft.analisisManual && draft.produk) {
+                  update({
+                    analisisManual:
+                      draft.produk.deskripsi_bersih ||
+                      draft.produk.deskripsi ||
+                      draft.produk.nama_internal,
+                  });
+                }
+                setError(null);
+                setLangkah("ide");
+              }}
+              className={ghostBtn}
+            >
+              Lewati analisis &gt;&gt;
+            </button>
+            <button
+              type="button"
+              onClick={() => {
                 if (!ringkasan.trim()) {
-                  setError("Isi ringkasan dulu sebelum lanjut ke ide.");
-                  return;
+                  if (draft.produk?.deskripsi_bersih || draft.produk?.deskripsi) {
+                    update({
+                      analisisManual:
+                        draft.produk.deskripsi_bersih || draft.produk.deskripsi,
+                    });
+                  } else {
+                    setError("Isi ringkasan penawaran dulu sebelum lanjut ke ide.");
+                    return;
+                  }
                 }
                 setError(null);
                 setLangkah("ide");
               }}
               className={primaryBtn}
             >
-              Lanjut ke ide konten
+              Lanjut ke ide konten &gt;&gt;
             </button>
           </div>
         </div>

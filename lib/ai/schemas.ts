@@ -157,6 +157,7 @@ export const analisisRequestSkema = z.object({
   nama: z.string().optional(),
   varian: z.string().optional(),
   harga: z.string().optional(),
+  kategori: z.string().optional(),
 });
 
 export const ideRequestSkema = z.object({
@@ -174,4 +175,5 @@ export const generateRequestSkema = z.object({
   ide: ideItemSkema,
   pengaturan: pengaturanSkema,
   link: z.string().optional(),
+  kategori: z.string().optional(),
 });

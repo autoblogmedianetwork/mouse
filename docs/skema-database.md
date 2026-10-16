@@ -844,3 +844,28 @@ apa pun yang datang.
 Jika migrasi belum dijalankan, insert ke `generations` dari rute naskah video akan ditolak
 constraint; dampaknya hanya catatan biaya yang hilang (respons AI ke user tetap terkirim), karena
 pencatatan generasi bersifat best-effort (`lib/ai/catat-generation.ts`).
+
+## 13. Migrasi 0008: tabel `offers` (Penawaran Marketplace & Non-Marketplace)
+
+Status: file `supabase/migrations/0008_offers.sql` ditambahkan (17 Oktober 2026).
+
+Menampung penawaran affiliate dari berbagai sumber:
+- `source_type`: `marketplace`, `manual`, `link`.
+- `category`: `hosting`, `saas`, `course`, `marketplace`, `other`.
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | default `gen_random_uuid()` |
+| user_id | uuid | referensi `auth.users(id)` cascade delete |
+| source_type | text | `marketplace`, `manual`, `link` |
+| category | text | `hosting`, `saas`, `course`, `marketplace`, `other` |
+| name | text | nama penawaran / produk |
+| affiliate_url | text | link affiliate tujuan |
+| price | text | harga (opsional untuk non-marketplace) |
+| features | text | fitur utama / keunggulan (textarea) |
+| image_url | text | URL foto produk/penawaran (opsional) |
+| marketplace_data | jsonb | data spesifik marketplace (varian, rating, toko, dll.) |
+| created_at, updated_at | timestamptz | default `now()` |
+
+RLS: `owner_all` untuk `authenticated` dengan `(select auth.uid()) = user_id`.
+

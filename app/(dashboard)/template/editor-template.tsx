@@ -5,6 +5,7 @@ import { z } from "zod";
 import { EmptyState } from "@/components/empty-state";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useLocalState } from "@/lib/konten/use-local-state";
+import { cn } from "@/lib/utils";
 
 /**
  * Template Deskripsi (UI-Spec 3.7): list with name, category, usage count;
@@ -13,6 +14,15 @@ import { useLocalState } from "@/lib/konten/use-local-state";
  */
 
 export const PLACEHOLDERS = ["{{NAMA_PRODUK}}", "{{MANFAAT}}", "{{KEKURANGAN}}"] as const;
+
+export const KATEGORI_TEMPLATE = [
+  "Marketplace",
+  "Hosting/SaaS",
+  "Kursus",
+  "Lainnya",
+] as const;
+
+export type KategoriTemplate = (typeof KATEGORI_TEMPLATE)[number];
 
 const templateSkema = z.object({
   id: z.string().min(1),
@@ -48,26 +58,38 @@ export function isiTemplateDenganContoh(isi: string): string {
 export function EditorTemplate() {
   const [template, setTemplate] = useLocalState<Template[]>("autothreads-template", []);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ nama: "", kategori: "Umum", isi: "" });
+  const [form, setForm] = useState({ nama: "", kategori: "Marketplace" as string, customKategori: "", isi: "" });
   const [error, setError] = useState<string | null>(null);
   const [hapusId, setHapusId] = useState<string | null>(null);
+  const [filterKategori, setFilterKategori] = useState<string>("Semua");
 
   const mulaiEdit = (t?: Template) => {
     if (t) {
       setEditId(t.id);
-      setForm({ nama: t.nama, kategori: t.kategori, isi: t.isi });
+      const isPredefined = (KATEGORI_TEMPLATE as readonly string[]).includes(t.kategori);
+      setForm({
+        nama: t.nama,
+        kategori: isPredefined ? t.kategori : "Lainnya",
+        customKategori: isPredefined ? "" : t.kategori,
+        isi: t.isi,
+      });
     } else {
       setEditId(null);
-      setForm({ nama: "", kategori: "Umum", isi: "" });
+      setForm({ nama: "", kategori: "Marketplace", customKategori: "", isi: "" });
     }
     setError(null);
   };
 
   const simpan = () => {
+    const finalKategori =
+      form.kategori === "Lainnya" && form.customKategori.trim()
+        ? form.customKategori.trim()
+        : form.kategori;
+
     const hasil = templateSkema.safeParse({
       id: editId ?? crypto.randomUUID(),
       nama: form.nama,
-      kategori: form.kategori,
+      kategori: finalKategori,
       isi: form.isi,
       dipakai: editId ? (template.find((t) => t.id === editId)?.dipakai ?? 0) : 0,
       updated_at: new Date().toISOString(),
@@ -85,6 +107,11 @@ export function EditorTemplate() {
     });
     mulaiEdit();
   };
+
+  const daftarTampil =
+    filterKategori === "Semua"
+      ? template
+      : template.filter((t) => t.kategori === filterKategori);
 
   return (
     <div className="space-y-6">
@@ -121,7 +148,7 @@ export function EditorTemplate() {
               id="t-nama"
               value={form.nama}
               onChange={(e) => setForm({ ...form, nama: e.target.value })}
-              placeholder="mis. Deskripsi santai"
+              placeholder="mis. Review hosting atau Komparasi spesifikasi"
               className={inputClass}
             />
           </div>
@@ -129,13 +156,27 @@ export function EditorTemplate() {
             <label htmlFor="t-kategori" className="mb-1 block text-sm font-medium">
               Kategori <span className="text-status-failed">*</span>
             </label>
-            <input
+            <select
               id="t-kategori"
               value={form.kategori}
               onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-              placeholder="mis. Fashion, Rumah tangga"
               className={inputClass}
-            />
+            >
+              {KATEGORI_TEMPLATE.map((kat) => (
+                <option key={kat} value={kat}>
+                  {kat}
+                </option>
+              ))}
+            </select>
+            {form.kategori === "Lainnya" && (
+              <input
+                id="t-custom-kategori"
+                value={form.customKategori}
+                onChange={(e) => setForm({ ...form, customKategori: e.target.value })}
+                placeholder="Tulis nama kategori kustom..."
+                className={cn(inputClass, "mt-2")}
+              />
+            )}
           </div>
           <div className="sm:col-span-2">
             <label htmlFor="t-isi" className="mb-1 block text-sm font-medium">
@@ -190,15 +231,42 @@ export function EditorTemplate() {
         </div>
       </section>
 
-      {/* Daftar */}
-      {template.length === 0 ? (
+      {/* Filter Kategori Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-mono uppercase text-muted-foreground mr-1">Filter:</span>
+        {["Semua", ...KATEGORI_TEMPLATE].map((kat) => {
+          const aktif = filterKategori === kat;
+          return (
+            <button
+              key={kat}
+              type="button"
+              onClick={() => setFilterKategori(kat)}
+              className={cn(
+                "rounded-md border px-3 py-1 text-xs font-medium transition-colors",
+                aktif
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-surface-border bg-surface text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              {kat}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Daftar Template */}
+      {daftarTampil.length === 0 ? (
         <EmptyState
-          title="Belum ada template"
-          description="Template gaya dan struktur bisa dipakai ulang untuk deskripsi produk berikutnya."
+          title={template.length === 0 ? "Belum ada template" : "Tidak ada template di kategori ini"}
+          description={
+            template.length === 0
+              ? "Template gaya dan struktur bisa dipakai ulang untuk penawaran produk atau layanan berikutnya."
+              : `Pilih filter lain atau tambahkan template baru untuk kategori "${filterKategori}".`
+          }
         />
       ) : (
         <ul className="space-y-3">
-          {template.map((t) => (
+          {daftarTampil.map((t) => (
             <li
               key={t.id}
               className="flex flex-col gap-3 rounded-xl border border-surface-border bg-surface p-4 sm:flex-row sm:items-start sm:justify-between"

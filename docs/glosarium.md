@@ -93,8 +93,7 @@ Pemetaan istilah Indonesia (UI dan dokumen) ke nama kode. Pakai nama kode ini di
 | Daftar persona | `PERSONA_LIST` | `lib/ai/persona.ts` | Data id, judul, deskripsi nada, ikon |
 | Deskripsi nada | `deskripsi_nada` | `Persona` | Teks arah nada; ikut ke prompt 03 v2 |
 | Prompt status v2 | `generate-status.v2` | `lib/ai/prompts/generate-status.v2.ts` | Menambah blok persona; v1 tidak diubah |
-| Prompt status v3 | `generate-status.v3` | `lib/ai/prompts/generate-status.v3.ts` | Menambah parameter platform: batas 500 (Threads) atau 280 (X); fitur 9 |
-| Prompt status v4 | `generate-status.v4` | - | Dipesan untuk format narasi 6 tahap (fitur 3) |
+| Prompt status v4 | `generate-status.v4` | `lib/ai/prompts/generate-status.v4.ts` | Menambah kesadaran kategori penawaran (Hosting/SaaS, Kursus, Marketplace) |
 
 ## Istilah tambahan (mode output platform, fitur 9)
 

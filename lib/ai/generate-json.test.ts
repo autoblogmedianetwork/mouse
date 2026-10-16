@@ -54,9 +54,19 @@ describe("resolveModel", () => {
   it("mengabaikan nilai yang hanya berisi spasi", () => {
     expect(resolveModel("   ", "  ")).toBe(DEFAULT_MODEL);
   });
+
+  it("mendeteksi jika AI_MODEL berisi URL dan menukarnya dengan base URL bila sesuai", () => {
+    expect(resolveModel(undefined, "https://openrouter.ai/api/v1", "nvidia/nemotron")).toBe("nvidia/nemotron");
+    expect(resolveModel(undefined, "https://openrouter.ai/api/v1")).toBe(DEFAULT_MODEL);
+  });
 });
 
 describe("resolveBaseURL", () => {
+  it("mendeteksi jika AI_BASE_URL bukan URL tapi AI_MODEL berisi URL", () => {
+    expect(resolveBaseURL(undefined, "nvidia/nemotron", "https://openrouter.ai/api/v1")).toBe(
+      "https://openrouter.ai/api/v1",
+    );
+  });
   it("memakai AI_BASE_URL bila diisi", () => {
     expect(resolveBaseURL(undefined, "https://api.deepseek.com/v1")).toBe(
       "https://api.deepseek.com/v1",

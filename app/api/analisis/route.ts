@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { analisisRequestSkema, analisisSkema } from "@/lib/ai/schemas";
-import { buildAnalisisProdukPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/analisis-produk.v1";
+import { buildAnalisisPenawaranPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/analisis-penawaran.v2";
 import { cleanDescription } from "@/lib/produk/bersihkan-deskripsi";
 
 export async function POST(req: Request) {
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const prompt = buildAnalisisProdukPrompt({ ...parsed.data, deskripsi });
+  const prompt = buildAnalisisPenawaranPrompt({ ...parsed.data, deskripsi });
   const { result, berhenti } = await jalankanAI<unknown>({
     jenis: "analisis",
     promptVersion: PROMPT_VERSION,
