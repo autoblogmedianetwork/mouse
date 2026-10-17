@@ -8,6 +8,7 @@ import { salinKeClipboard, teksUtasLengkap } from "@/lib/konten/salin";
 import { decodePrefill, nilaiFormDariPrefill } from "@/lib/impor/prefill";
 import { KartuQuickCapture } from "./kartu-quick-capture";
 import { TombolSuaraNarasi } from "./tombol-suara-narasi";
+import { TombolRenderVideo } from "./tombol-render-video";
 import { PanduanFotoCandid } from "./panduan-foto-candid";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
@@ -1076,6 +1077,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   di {kontenAktif?.statuses.length ?? 0} status.
                 </p>
                 <TombolSuaraNarasi statuses={kontenAktif?.statuses ?? []} />
+                <TombolRenderVideo
+                  statuses={kontenAktif?.statuses ?? []}
+                  produkNama={draft.produk?.nama || draft.produk?.nama_internal || "Produk Pilihan"}
+                  fotoUrl={draft.produk?.foto_urls?.[0]}
+                />
                 <PanduanFotoCandid
                   produk={{
                     nama_internal: draft.produk?.nama_internal,
