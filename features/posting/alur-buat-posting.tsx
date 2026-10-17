@@ -1080,7 +1080,6 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 <TombolRenderVideo
                   statuses={kontenAktif?.statuses ?? []}
                   produkNama={draft.produk?.nama || draft.produk?.nama_internal || "Produk Pilihan"}
-                  fotoUrl={draft.produk?.foto_urls?.[0]}
                 />
                 <PanduanFotoCandid
                   produk={{
