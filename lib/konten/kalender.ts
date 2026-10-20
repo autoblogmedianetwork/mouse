@@ -31,12 +31,19 @@ export function mulaiMinggu(now = new Date()): Date {
   return d;
 }
 
-/** The seven cards of the week view (UI-Spec 3.4), Monday..Sunday. */
-export function hariMinggu(mulai = mulaiMinggu(), now = new Date()): HariMinggu[] {
+/**
+ * The seven cards of the week view (UI-Spec 3.4), Monday..Sunday.
+ *
+ * When `mulai` is omitted it is derived from `now` itself, never from the real
+ * today: a default parameter cannot see `now`, so calling `hariMinggu(undefined,
+ * NOW)` must not silently build the week of the machine's current date.
+ */
+export function hariMinggu(mulai?: Date, now = new Date()): HariMinggu[] {
+  const basis = mulai ?? mulaiMinggu(now);
   const kunciHariIni = kunciHari(now);
   const hasil: HariMinggu[] = [];
   for (let i = 0; i < 7; i += 1) {
-    const d = new Date(mulai);
+    const d = new Date(basis);
     d.setDate(d.getDate() + i);
     const kunci = kunciHari(d);
     const labelBulan = d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
