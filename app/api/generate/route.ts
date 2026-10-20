@@ -35,6 +35,12 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  if (pengaturan.mode_output === "carousel") {
+    return NextResponse.json(
+      { ok: false, error: "Mode carousel diproses di /api/carousel, bukan di sini." },
+      { status: 400 },
+    );
+  }
   const platform: PlatformId = pengaturan.mode_output;
   const batas = batasPlatform(platform);
   const prompt = buildGenerateStatusPrompt({ ...parsed.data, platform });

@@ -74,4 +74,27 @@ describe("prompt 03 v4", () => {
     const promptV3 = buildV3(input("threads"));
     expect(promptV3).toContain("kreator konten affiliate Shopee");
   });
+
+  it("mendukung formula hook baru: curiosity_gap, before_after, contrarian", () => {
+    const promptCuriosity = buildGenerateStatusPrompt(
+      input("threads", "marketplace", { gaya_hook: "curiosity_gap" }),
+    );
+    expect(promptCuriosity).toContain("CURIOSITY GAP");
+
+    const promptBeforeAfter = buildGenerateStatusPrompt(
+      input("threads", "marketplace", { gaya_hook: "before_after" }),
+    );
+    expect(promptBeforeAfter).toContain("BEFORE-AFTER");
+
+    const promptContrarian = buildGenerateStatusPrompt(
+      input("threads", "marketplace", { gaya_hook: "contrarian" }),
+    );
+    expect(promptContrarian).toContain("CONTRARIAN");
+  });
+
+  it("menyertakan deskripsi persona dan instruksi kategori", () => {
+    const prompt = buildGenerateStatusPrompt(input("threads", "hosting"));
+    expect(prompt).toContain(ambilPersona("ahli").deskripsi_nada);
+    expect(instruksiKategori("hosting")).toContain("Hosting / SaaS");
+  });
 });

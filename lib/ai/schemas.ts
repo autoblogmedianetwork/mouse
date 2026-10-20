@@ -76,7 +76,15 @@ export const pengaturanSkema = z.object({
   // Persona id from lib/ai/persona.ts; legacy labels ("Bawaan", "Ahli") from
   // drafts saved before that module existed are normalized to an id here.
   persona: z.string().transform((nilai) => normalkanPersonaId(nilai)),
-  gaya_hook: z.enum(["pertanyaan", "masalah_relatif", "pernyataan_mengejutkan", "bawaan"]),
+  gaya_hook: z.enum([
+    "pertanyaan",
+    "masalah_relatif",
+    "pernyataan_mengejutkan",
+    "curiosity_gap",
+    "before_after",
+    "contrarian",
+    "bawaan",
+  ]),
   aturan_kepercayaan: z.boolean(),
   letak_link: z.enum(["status_terakhir", "balasan", "tanpa_link"]),
   sertakan_disclosure: z.boolean().default(true),
@@ -152,6 +160,48 @@ export const naskahVideoSkema = z.object({
 
 export type NaskahVideo = z.infer<typeof naskahVideoSkema>;
 
+/* -------------------------- Prompt 8: carousel slides ------------------------- */
+
+export function hitungKata(teks: string | null | undefined): number {
+  if (!teks) return 0;
+  return teks.trim().split(/\s+/).filter(Boolean).length;
+}
+
+export const BATAS_KATA_CAROUSEL = {
+  kicker: 3,
+  cover_headline: 8,
+  isi_judul: 6,
+  isi_penjelasan: 25,
+  cta: 12,
+} as const;
+
+export const carouselSlideSkema = z.object({
+  urutan: z.number().int().min(1),
+  peran: z.enum(["cover", "isi", "cta"]),
+  kicker: z.string().nullable().optional(),
+  headline: z.string().nullable().optional(),
+  judul: z.string().nullable().optional(),
+  isi: z.string().nullable().optional(),
+  visualUrl: z.string().nullable().optional(),
+  visualPrompt: z.string().nullable().optional(),
+});
+
+export const carouselResponseSkema = z.object({
+  slides: z
+    .array(carouselSlideSkema)
+    .min(3, "minimal 3 slide")
+    .max(10, "maksimal 10 slide"),
+  caption: z
+    .string()
+    .min(1, "caption wajib diisi")
+    .refine((c) => charLength(c) <= 2200, "caption melebihi 2200 karakter"),
+  hashtag: z.array(z.string()).max(5, "maksimal 5 hashtag").default([]),
+  klaim_perlu_cek: z.array(z.string()).default([]),
+});
+
+export type CarouselSlide = z.infer<typeof carouselSlideSkema>;
+export type CarouselResponse = z.infer<typeof carouselResponseSkema>;
+
 /* --------------------------- Request bodies (API) ----------------------------- */
 
 export const analisisRequestSkema = z.object({
@@ -178,4 +228,25 @@ export const generateRequestSkema = z.object({
   pengaturan: pengaturanSkema,
   link: z.string().optional(),
   kategori: z.string().optional(),
+  jumlahSlide: z.number().int().min(3).max(10).optional(),
+  rasio: z.enum(["4:5", "1:1"]).optional(),
+  template: z.enum(["template_1", "template_2", "template_3"]).optional(),
+  fotoUrl: z.string().optional(),
 });
+
+export const carouselRequestSkema = z.object({
+  namaProduk: z.string().min(1),
+  ringkasan: z.string().min(1),
+  fitur: z.array(z.string()).default([]),
+  ide: ideItemSkema,
+  pengaturan: pengaturanSkema,
+  link: z.string().optional(),
+  handle: z.string().optional(),
+  sumber: z.string().optional(),
+  jumlahSlide: z.number().int().min(3).max(10).default(5),
+  rasio: z.enum(["4:5", "1:1"]).default("4:5"),
+  template: z.enum(["template_1", "template_2", "template_3"]).default("template_1"),
+  fotoUrl: z.string().optional(),
+});
+
+export type CarouselRequest = z.infer<typeof carouselRequestSkema>;

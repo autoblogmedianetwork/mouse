@@ -29,9 +29,18 @@ export interface GenerateStatusInput {
 }
 
 const HOOK_INSTRUCTIONS: Record<Pengaturan["gaya_hook"], string> = {
-  pertanyaan: "Status pertama dibuka dengan pertanyaan yang memancing rasa penasaran.",
-  masalah_relatif: "Status pertama dibuka dengan masalah yang relatable bagi pembaca.",
-  pernyataan_mengejutkan: "Status pertama dibuka dengan pernyataan mengejutkan (tetapi jujur, tanpa klaim berlebihan).",
+  curiosity_gap:
+    "Status pertama dibuka dengan formula CURIOSITY GAP: ungkapkan fakta unik atau celah penasaran yang memancing pembaca untuk membaca kelanjutannya tanpa clickbait palsu.",
+  before_after:
+    "Status pertama dibuka dengan formula BEFORE-AFTER: kontraskan kondisi repot/frustrasi sebelum menemukan solusi dengan kemudahan sesudahnya.",
+  contrarian:
+    "Status pertama dibuka dengan formula CONTRARIAN: bantah anggapan umum atau mitos keliru yang sering dipercaya seputar topik penawaran ini.",
+  masalah_relatif:
+    "Status pertama dibuka dengan formula AUDIENCE PAIN: soroti satu kerepotan atau masalah spesifik yang paling sering dirasakan audiens.",
+  pertanyaan:
+    "Status pertama dibuka dengan pertanyaan reflektif yang langsung mengena pada situasi pembaca.",
+  pernyataan_mengejutkan:
+    "Status pertama dibuka dengan pernyataan mengejutkan atau angka/fakta riil (tanpa melebih-lebihkan).",
   bawaan: "Status pertama dibuka dengan hook kuat yang cocok untuk platform ini.",
 };
 

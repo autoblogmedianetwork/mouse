@@ -18,6 +18,8 @@ import { type SavedProduct } from "./form-produk-manual";
 import { PengaturanGenerate } from "./pengaturan-generate";
 import { StatusEditor } from "./status-editor";
 import { ThreadsPreview } from "./threads-preview";
+import { CarouselSlideEditor } from "./carousel-slide-editor";
+import type { CarouselResponse } from "@/lib/ai/schemas";
 import { ChecklistGate, type ChecklistId } from "./checklist-gate";
 import { ActionBar } from "./action-bar";
 import { charLength, validateStatusList } from "@/lib/statuses/validator-500";
@@ -52,6 +54,7 @@ const DRAFT_KEY = "autothreads-draft-posting";
 interface KontenKerja {
   ide: Ide;
   statuses: string[];
+  carousel?: CarouselResponse;
   /** ID of the matching entry in the content bank (Pustaka), if saved. */
   bankId?: string;
 }
@@ -389,12 +392,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     setError(null);
     setPesan(null);
 
-    const kontenBaru: Array<{ ide: Ide; statuses: string[] }> = [];
+    const kontenBaru: Array<KontenKerja> = [];
     const gagal: string[] = [];
-    // Mode naskah video (prompt 09) memakai rute dan skema sendiri; hasilnya
-    // tiga bagian yang disimpan sebagai tiga status supaya alur edit, checklist,
-    // dan salin tetap berjalan tanpa jalur UI terpisah.
+    // Mode naskah video (prompt 09) dan carousel (prompt 08) memakai rute sendiri.
     const naskahVideo = draft.pengaturan.mode_output === "naskah_video";
+    const carouselMode = draft.pengaturan.mode_output === "carousel";
 
     // Satu job per ide terpilih; satu gagal tidak menghentikan yang lain (PRD 15.1).
     for (const ide of terpilih) {
@@ -417,6 +419,34 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
         link: draft.produk?.url_referensi || undefined,
         kategori: (draft.produk as PenawaranSaved)?.kategori_penawaran,
       };
+      if (carouselMode) {
+        const carouselBody = {
+          ...body,
+          handle: "@" + (draft.produk?.nama_internal || "affiliate"),
+          jumlahSlide:
+            draft.pengaturan.jumlah_status === "pendek"
+              ? 4
+              : draft.pengaturan.jumlah_status === "panjang"
+                ? 7
+                : 5,
+        };
+        const result = await postJson<CarouselResponse>("/api/carousel", carouselBody);
+        if (result.ok && result.data) {
+          const carousel = result.data;
+          const statuses = [
+            carousel.caption,
+            ...carousel.slides.map((s) => {
+              const head = s.headline || s.judul || "";
+              const bodyText = s.isi || "";
+              return s.kicker ? `[${s.kicker}] ${head}\n${bodyText}`.trim() : `${head}\n${bodyText}`.trim();
+            }),
+          ];
+          kontenBaru.push({ ide, statuses, carousel });
+        } else {
+          gagal.push(ide.judul);
+        }
+        continue;
+      }
       if (naskahVideo) {
         const result = await postJson<{
           hook_visual: string;
@@ -480,6 +510,12 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     update({ konten, status: draft.status === "siap_posting" ? "draft" : draft.status });
   };
 
+  const setKontenAktifCarousel = (statuses: string[], carousel: CarouselResponse) => {
+    const konten = [...draft.konten];
+    konten[draft.kontenAktif] = { ...konten[draft.kontenAktif], statuses, carousel };
+    update({ konten, status: draft.status === "siap_posting" ? "draft" : draft.status });
+  };
+
   // Batas karakter mengikuti mode output: 500 untuk Threads, 280 untuk X,
   // dan 500 untuk naskah video (mengikuti constraint database).
   const batasKarakter = batasKarakterMode(draft.pengaturan.mode_output);
@@ -488,8 +524,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     if (!kontenAktif || kontenAktif.statuses.length === 0) return false;
     const cleaned = kontenAktif.statuses.map((s) => s.trim()).filter((s) => s.length > 0);
     if (cleaned.length !== kontenAktif.statuses.length) return false;
+    if (draft.pengaturan.mode_output === "carousel") {
+      return Boolean(kontenAktif.carousel?.slides && kontenAktif.carousel.slides.length >= 3);
+    }
     return validateStatusList(kontenAktif.statuses, batasKarakter).ok;
-  }, [kontenAktif, batasKarakter]);
+  }, [kontenAktif, batasKarakter, draft.pengaturan.mode_output]);
 
   const semuaChecklist = useMemo(() => {
     const items = draft.pengaturan.aturan_kepercayaan
@@ -516,6 +555,32 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
   const salinUtas = async () => {
     if (!kontenAktif) return;
+    if (draft.pengaturan.mode_output === "carousel" && kontenAktif.carousel) {
+      const buffer: string[] = [];
+      buffer.push(`=== CAROUSEL: ${kontenAktif.ide.judul.toUpperCase()} ===\n`);
+      kontenAktif.carousel.slides.forEach((s, i) => {
+        buffer.push(`--- SLIDE ${i + 1} (${s.peran.toUpperCase()}) ---`);
+        if (s.kicker) buffer.push(`[Label]: ${s.kicker}`);
+        if (s.headline || s.judul) buffer.push(`[Judul]: ${s.headline || s.judul}`);
+        if (s.isi) buffer.push(`[Penjelasan]: ${s.isi}`);
+        buffer.push("");
+      });
+      buffer.push("=== CAPTION ===");
+      buffer.push(kontenAktif.carousel.caption);
+      const berhasil = await salinKeClipboard(buffer.join("\n"));
+      if (!berhasil) {
+        setPesan("Gagal menyalin. Izinkan akses clipboard lalu coba lagi.");
+        return;
+      }
+      catatRiwayat({
+        konten_judul: kontenAktif.ide.judul,
+        mode: "manual",
+        status_akhir: draft.status === "siap_posting" ? "siap_posting" : "draft",
+        catatan: `Carousel disalin (${kontenAktif.carousel.slides.length} slide)`,
+      });
+      setPesan("Seluruh slide carousel dan caption berhasil disalin.");
+      return;
+    }
     // Teks disusun dan disalin lewat helper bersama (lib/konten/salin.ts) supaya
     // hasilnya sama dengan tombol salin per status.
     const berhasil = await salinKeClipboard(teksUtasLengkap(kontenAktif.statuses));
@@ -977,6 +1042,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 (3 detik), fungsi produk, dan CTA — dengan durasi total 30 sampai
                 60 detik.
               </p>
+            ) : draft.pengaturan.mode_output === "carousel" ? (
+              <p className="mt-2 rounded-lg border border-surface-border p-3 text-xs text-muted-foreground">
+                Mode Carousel: tiap konten disusun menjadi slide visual (cover, isi, cta) dan caption.
+                Hasil slide bisa langsung diunduh sebagai gambar PNG atau disalin teksnya ke Canva.
+              </p>
             ) : null}
             <div className="mt-4 flex gap-3">
               <button
@@ -1049,49 +1119,132 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               </div>
             ) : null}
 
-            <div className="grid gap-6 lg:grid-cols-5">
-              <div className="space-y-6 lg:col-span-3">
-                <StatusEditor
-                  statuses={kontenAktif?.statuses ?? []}
-                  onChange={setKontenAktif}
-                  batas={batasKarakter}
-                />
-                <ChecklistGate
-                  nilai={draft.checklist}
-                  onChange={(id, checked) =>
-                    update({ checklist: { ...draft.checklist, [id]: checked } })
-                  }
-                  aturanKepercayaanAktif={draft.pengaturan.aturan_kepercayaan}
-                />
+            {draft.pengaturan.mode_output === "carousel" ? (
+              <CarouselSlideEditor
+                slides={
+                  kontenAktif?.carousel?.slides ?? [
+                    {
+                      urutan: 1,
+                      peran: "cover",
+                      kicker: "PILIHAN TERBAIK",
+                      headline: kontenAktif?.ide.judul ?? "Review Produk",
+                      isi: "",
+                    },
+                    {
+                      urutan: 2,
+                      peran: "isi",
+                      kicker: null,
+                      headline: "Keunggulan Utama",
+                      isi: kontenAktif?.statuses[1] ?? "Penjelasan detail produk...",
+                    },
+                    {
+                      urutan: 3,
+                      peran: "cta",
+                      kicker: null,
+                      headline: "Cek Link Produk",
+                      isi: "Tautan pembelian tersedia di bio atau komentar.",
+                    },
+                  ]
+                }
+                caption={kontenAktif?.carousel?.caption ?? kontenAktif?.statuses[0] ?? ""}
+                hashtag={kontenAktif?.carousel?.hashtag ?? []}
+                produkNama={draft.produk?.nama || draft.produk?.nama_internal || "Produk Pilihan"}
+                fotoUrl={(draft.produk as PenawaranSaved)?.gambar_url || ""}
+                handleAkun={draft.produk?.nama_internal || ""}
+                onChangeSlides={(newSlides) => {
+                  const nextCarousel: CarouselResponse = {
+                    slides: newSlides,
+                    caption: kontenAktif?.carousel?.caption ?? kontenAktif?.statuses[0] ?? "",
+                    hashtag: kontenAktif?.carousel?.hashtag ?? [],
+                    klaim_perlu_cek: kontenAktif?.carousel?.klaim_perlu_cek ?? [],
+                  };
+                  const newStatuses = [
+                    nextCarousel.caption,
+                    ...newSlides.map((s) => {
+                      const head = s.headline || s.judul || "";
+                      const bodyText = s.isi || "";
+                      return s.kicker
+                        ? `[${s.kicker}] ${head}\n${bodyText}`.trim()
+                        : `${head}\n${bodyText}`.trim();
+                    }),
+                  ];
+                  setKontenAktifCarousel(newStatuses, nextCarousel);
+                }}
+                onChangeCaption={(newCaption) => {
+                  if (!kontenAktif) return;
+                  const currentCarousel = kontenAktif.carousel ?? {
+                    slides: [],
+                    caption: "",
+                    hashtag: [],
+                    klaim_perlu_cek: [],
+                  };
+                  const nextCarousel: CarouselResponse = {
+                    ...currentCarousel,
+                    caption: newCaption,
+                  };
+                  const newStatuses = [newCaption, ...kontenAktif.statuses.slice(1)];
+                  setKontenAktifCarousel(newStatuses, nextCarousel);
+                }}
+                onChangeHashtag={(newHashtag) => {
+                  if (!kontenAktif) return;
+                  const currentCarousel = kontenAktif.carousel ?? {
+                    slides: [],
+                    caption: "",
+                    hashtag: [],
+                    klaim_perlu_cek: [],
+                  };
+                  const nextCarousel: CarouselResponse = {
+                    ...currentCarousel,
+                    hashtag: newHashtag,
+                  };
+                  setKontenAktifCarousel(kontenAktif.statuses, nextCarousel);
+                }}
+              />
+            ) : (
+              <div className="grid gap-6 lg:grid-cols-5">
+                <div className="space-y-6 lg:col-span-3">
+                  <StatusEditor
+                    statuses={kontenAktif?.statuses ?? []}
+                    onChange={setKontenAktif}
+                    batas={batasKarakter}
+                  />
+                  <ChecklistGate
+                    nilai={draft.checklist}
+                    onChange={(id, checked) =>
+                      update({ checklist: { ...draft.checklist, [id]: checked } })
+                    }
+                    aturanKepercayaanAktif={draft.pengaturan.aturan_kepercayaan}
+                  />
+                </div>
+                <div className="lg:col-span-2">
+                  <ThreadsPreview
+                    statuses={kontenAktif?.statuses ?? []}
+                    linkProduk={draft.produk?.url_referensi || undefined}
+                    letakLink={draft.pengaturan.letak_link}
+                    batas={batasKarakter}
+                  />
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Total{" "}
+                    {kontenAktif?.statuses.reduce((sum, s) => sum + charLength(s), 0) ?? 0} karakter
+                    di {kontenAktif?.statuses.length ?? 0} status.
+                  </p>
+                  <TombolSuaraNarasi statuses={kontenAktif?.statuses ?? []} />
+                  <TombolRenderVideo
+                    statuses={kontenAktif?.statuses ?? []}
+                    produkNama={draft.produk?.nama || draft.produk?.nama_internal || "Produk Pilihan"}
+                  />
+                  <PanduanFotoCandid
+                    produk={{
+                      nama_internal: draft.produk?.nama_internal,
+                      nama: draft.produk?.nama ?? null,
+                      varian: draft.produk?.varian ?? null,
+                      fitur: draft.analisis?.fitur ?? null,
+                      target_audiens: draft.analisis?.target_audiens ?? null,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="lg:col-span-2">
-                <ThreadsPreview
-                  statuses={kontenAktif?.statuses ?? []}
-                  linkProduk={draft.produk?.url_referensi || undefined}
-                  letakLink={draft.pengaturan.letak_link}
-                  batas={batasKarakter}
-                />
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Total{" "}
-                  {kontenAktif?.statuses.reduce((sum, s) => sum + charLength(s), 0) ?? 0} karakter
-                  di {kontenAktif?.statuses.length ?? 0} status.
-                </p>
-                <TombolSuaraNarasi statuses={kontenAktif?.statuses ?? []} />
-                <TombolRenderVideo
-                  statuses={kontenAktif?.statuses ?? []}
-                  produkNama={draft.produk?.nama || draft.produk?.nama_internal || "Produk Pilihan"}
-                />
-                <PanduanFotoCandid
-                  produk={{
-                    nama_internal: draft.produk?.nama_internal,
-                    nama: draft.produk?.nama ?? null,
-                    varian: draft.produk?.varian ?? null,
-                    fitur: draft.analisis?.fitur ?? null,
-                    target_audiens: draft.analisis?.target_audiens ?? null,
-                  }}
-                />
-              </div>
-            </div>
+            )}
 
             <ActionBar
               status={draft.status}

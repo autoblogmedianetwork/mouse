@@ -365,3 +365,53 @@ Cara menguji manual:
    sekarang" di dialog. Konfirmasi, dan periksa utas muncul di akun Threads serta konten pindah ke
    tab Sudah posting.
 4. Matikan `THREADS_ACCESS_TOKEN` lalu ulangi: tombol kirim hilang dan salin manual tetap jalan.
+
+## 21 Oktober 2026 — fitur carousel, Pollinations, sumber penawaran, dan offers
+
+Fase: lanjutan Fase 6/7 — carousel (prompt 08), media Pollinations, sumber penawaran
+(tahap 1-5), dan migrasi `0008_offers`. Kerja produksi disiapkan sesi Antigravity;
+sesi ini merapikan typecheck dan menerbitkan kerja itu sebagai commit.
+
+Yang dikerjakan (warisan Antigravity, sebelumnya staged):
+
+- API `POST /api/carousel`, prompt `carousel-slides.v1` + schema, dan editor slide
+  `features/posting/carousel-slide-editor.tsx`: render canvas 3 tema × 2 rasio,
+  unduh PNG per slide dan semuanya, tambah/hapus/geser urutan slide.
+- `lib/media/pollinations.ts` + test: gambar AI untuk foto produk carousel.
+- Prompt `generate-status.v4`: instruksi khusus kategori penawaran hosting/SaaS,
+  kursus, marketplace, dan lainnya.
+
+Yang diperbaiki sesi ini:
+
+- `/api/generate` kini menolak `mode_output=carousel` dengan pesan arah ke
+  `/api/carousel` (dulu gagal typecheck: mode carousel dipaksa ke `PlatformId`).
+- `alur-buat-posting` berhenti membaca `nama_toko`/`foto_produk`/`foto_url` yang
+  tidak pernah ada di `SavedProduct`/`PenawaranSaved`: handle memakai `nama_internal`,
+  foto memakai `gambar_url`.
+- Tabel hook v1/v2/v3 dilengkapi `curiosity_gap`, `before_after`, `contrarian`
+  (teks dari v4) agar kompatibel dengan union `gaya_hook` yang baru, tanpa mengubah
+  prompt versi lama.
+
+| Pemeriksaan | Perintah | Hasil |
+|---|---|---|
+| Typecheck | `npx tsc --noEmit` | Lulus, exit 0 — 8 error diperbaiki |
+| Lint | `npx eslint .` | Lulus, exit 0 |
+| Unit | `npx vitest run` | 473 tes lulus di 47 berkas, exit 0 |
+| Supabase | probe REST 19 tabel (service role) | Semua HTTP 200, termasuk `offers` (0008) dan `carousel_slides` |
+| GitHub | `git fetch` + `git rev-parse HEAD origin/main` | commit ini didorong; sinkron setelah push |
+
+Yang belum dipastikan dari sesi ini:
+
+- Render canvas editor slide belum diuji visual di peramban; butuh coba manual.
+- Pollinations memanggil layanan luar; tidak ada test jaringan penuh, hanya unit test
+  dengan fetch tiruan.
+- Tabel `offers` penuh datanya belum dipakai hunt end-to-end lewat UI.
+
+Cara menguji manual:
+
+1. `npm run dev`, buka `/posting/baru`, pilih mode output "Carousel", simpan produk
+   dengan `gambar_url` terisi, lalu generate.
+2. Di editor slide: ganti tema dan rasio, ubah teks slide, unduh PNG satu slide dan
+   semua slide.
+3. Mode Threads/X tetap jalan seperti semula; body dengan `mode_output=carousel` yang
+   nyasar ke `/api/generate` mendapat 400 dengan pesan arah ke `/api/carousel`.

@@ -46,7 +46,7 @@ export function hitungBiayaUsd(
 /* -------------------------------- logging --------------------------------- */
 
 export interface CatatanGenerasi {
-  jenis: "analisis" | "ide" | "generate" | "storyboard" | "foto_ke_video" | "naskah_video";
+  jenis: "analisis" | "ide" | "generate" | "storyboard" | "foto_ke_video" | "naskah_video" | "carousel";
   status: "done" | "failed" | "pending";
   attempts: number;
   promptVersion: string;

@@ -146,7 +146,9 @@ className={cn(
         <p className="mt-1 text-xs text-muted-foreground">
           {value.mode_output === "naskah_video"
             ? "Naskah video: tiga bagian (hook visual 3 detik, fungsi produk, CTA), durasi 30 sampai 60 detik. Pengaturan jumlah dan panjang status tidak dipakai."
-            : `Batas ${batasPlatform(value.mode_output)} karakter per status.`}
+            : value.mode_output === "carousel"
+              ? "Carousel: susunan slide visual (cover, isi, cta) + caption. Didesain untuk diunduh sebagai gambar PNG atau disalin ke Canva."
+              : `Batas ${batasPlatform(value.mode_output)} karakter per status.`}
         </p>
       </div>
 
@@ -210,10 +212,13 @@ className={cn(
           value={value.gaya_hook}
           onChange={(next) => set("gaya_hook", next)}
           options={[
-            { value: "bawaan", label: "Bawaan" },
-            { value: "pertanyaan", label: "Pertanyaan" },
-            { value: "masalah_relatif", label: "Masalah relatable" },
-            { value: "pernyataan_mengejutkan", label: "Pernyataan mengejutkan" },
+            { value: "bawaan", label: "Bawaan (Otomatis AI)" },
+            { value: "curiosity_gap", label: "Curiosity Gap (Fakta Unik)" },
+            { value: "before_after", label: "Before-After (Transformasi)" },
+            { value: "contrarian", label: "Contrarian (Anti-Mainstream)" },
+            { value: "masalah_relatif", label: "Audience Pain (Keluhan Nyata)" },
+            { value: "pertanyaan", label: "Pertanyaan Reflektif" },
+            { value: "pernyataan_mengejutkan", label: "Pernyataan Mengejutkan" },
           ]}
         />
         <div>

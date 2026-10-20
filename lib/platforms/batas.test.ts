@@ -29,8 +29,9 @@ describe("batasKarakterMode", () => {
     expect(batasKarakterMode("x")).toBe(280);
   });
 
-  it("naskah video memakai batas database (500), bukan 280", () => {
+  it("naskah video dan carousel memakai batas database (500), bukan 280", () => {
     expect(batasKarakterMode("naskah_video")).toBe(MAX_STATUS_LENGTH);
+    expect(batasKarakterMode("carousel")).toBe(MAX_STATUS_LENGTH);
   });
 });
 
@@ -41,7 +42,7 @@ describe("daftar mode output", () => {
     }
   });
 
-  it("hanya tiga mode: threads, x, naskah_video", () => {
-    expect([...MODE_OUTPUT_IDS]).toEqual(["threads", "x", "naskah_video"]);
+  it("empat mode: threads, x, naskah_video, carousel", () => {
+    expect([...MODE_OUTPUT_IDS]).toEqual(["threads", "x", "naskah_video", "carousel"]);
   });
 });
