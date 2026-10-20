@@ -415,3 +415,40 @@ Cara menguji manual:
    semua slide.
 3. Mode Threads/X tetap jalan seperti semula; body dengan `mode_output=carousel` yang
    nyasar ke `/api/generate` mendapat 400 dengan pesan arah ke `/api/carousel`.
+
+## 21 Oktober 2026 — persona kurasi dataset + gaya bahasa natural (ADR 0010)
+
+Fase: lanjutan pengaturan generate & semua fitur AI — variasi nada persona dan
+pengepresan gaya bahasa Indonesia natural untuk seluruh output AI.
+
+Yang dikerjakan:
+
+- `scripts/kurasi-persona-prompt.mjs`: parser RFC-4180 mini (tanpa dependency) untuk
+  menyaring peran relevan dari `prompts.csv` (Awesome ChatGPT Prompts, 153.172 baris,
+  2.551 akt). Enam peran terpilih dilokalkan menjadi persona baru.
+- `lib/ai/persona.ts`: 6 persona baru — `pendongeng`, `copywriter`, `pengiklan`,
+  `komedian`, `motivator`, `spesialis-sosmed` (total 9 id), lengkap `LABEL_LAMA` agar
+  draf lama yang simpan id langsung tetap valid.
+- `lib/ai/gaya-bahasa.ts`: blok `ATURAN_BAHASA` — bahasa natural media sosial Indonesia,
+  larangan kata baku/terjemah kaku, larangan pembuka generik, jujur pada data.
+- Prompt versi baru per fitur (wrapper, versi lama utuh): `analisis-penawaran.v3`,
+  `ide-konten.v2`, `generate-status.v5`, `naskah-video.v2`, `carousel-slides.v2`.
+- Kelima route `app/api/*` pindah ke versi baru; `prompt_version` yang tercatat ikut.
+- Test baru: 5 test prompt versi + asersi kurasi persona. ADR `docs/adr/0010-`.
+
+| Pemeriksaan | Perintah | Hasil |
+|---|---|---|
+| Unit lib/ai | `npx vitest run lib/ai` | 122 tes lulus di 17 berkas, exit 0 |
+| Typecheck | `npx tsc --noEmit` | Lulus, exit 0 |
+| Lint | `npx eslint .` | Lulus, exit 0 |
+| Unit repo | `npx vitest run` | 489 tes lulus (47 sebelumnya + 16 tes baru), exit 0 |
+
+Cara menguji manual:
+
+1. `npm run dev`, buka `/posting/baru`, buka Pengaturan generate: persona baru
+   (Pendongeng, Copywriter, Pengiklan, Komedian, Motivator, Spesialis Sosmed) tampil
+   dengan ikon di select.
+2. Generate satu utas dengan persona Pendongeng: hasil harus terasa cerita dulu
+   jualan kemudian, bahasa santai khas Threads, bukan baku.
+3. Coba mode Analisis dan Ide: ringkasan/ide juga santai, tanpa pembuka generik
+   "Dalam dunia yang...".

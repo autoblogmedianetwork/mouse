@@ -9,7 +9,17 @@
  */
 
 /** Stable ids. `bawaan` is the default (F3a). */
-export const PERSONA_IDS = ["bawaan", "sahabat", "ahli"] as const;
+export const PERSONA_IDS = [
+  "bawaan",
+  "sahabat",
+  "ahli",
+  "pendongeng",
+  "copywriter",
+  "pengiklan",
+  "komedian",
+  "motivator",
+  "spesialis-sosmed",
+] as const;
 
 export type PersonaId = (typeof PERSONA_IDS)[number];
 
@@ -47,6 +57,54 @@ export const PERSONA_LIST: Persona[] = [
       "Tenang dan informatif. Menjelaskan fungsi produk secara to the point tanpa bertele-tele.",
     ikon: "🎯",
   },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Storyteller.
+    id: "pendongeng",
+    judul: "Pendongeng",
+    deskripsi_nada:
+      "Cerita dulu, jualan kemudian. Mulai dari kisah/kondisi sehari-hari yang relatable, ditutup dengan produk sebagai penyelesaiannya.",
+    ikon: "📖",
+  },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Copywriter.
+    id: "copywriter",
+    judul: "Copywriter",
+    deskripsi_nada:
+      "Kata-katanya tajam dan hemat. Satu kalimat sudah jadi hook-nya; manis dipesan tapi tidak memaksa.",
+    ikon: "✍️",
+  },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Advertiser.
+    id: "pengiklan",
+    judul: "Pengiklan",
+    deskripsi_nada:
+      "Nada kampanye: manfaat disebut duluan, ajakannya tegas, dan tetap tidak melebih-lebihkan data produk.",
+    ikon: "🧲",
+  },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Stand-up Comedian.
+    id: "komedian",
+    judul: "Komedian",
+    deskripsi_nada:
+      "Bercanda ringan dari awal sampai akhir utas; boleh self-deprecating, tetapi fakta produk tetap akurat.",
+    ikon: "🎭",
+  },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Motivational Speaker.
+    id: "motivator",
+    judul: "Motivator",
+    deskripsi_nada:
+      "Membakar semangat: buka dengan kerepotan yang bikin sakit kepala, lanjut ke jalan keluarnya, produk jadi andalan.",
+    ikon: "🔥",
+  },
+  {
+    // Dikurasi dari dataset Awesome ChatGPT Prompts (ADR 0010): Social Media Manager.
+    id: "spesialis-sosmed",
+    judul: "Spesialis Sosmed",
+    deskripsi_nada:
+      "Paham algoritma media sosial: hook kuat, hashtag hemat, dan ajakan balik ke komentar. Suaranya khas warganet, bukan iklan lepas.",
+    ikon: "📣",
+  },
 ];
 
 /**
@@ -57,6 +115,12 @@ const LABEL_LAMA: Record<string, PersonaId> = {
   bawaan: "bawaan",
   sahabat: "sahabat",
   ahli: "ahli",
+  pendongeng: "pendongeng",
+  copywriter: "copywriter",
+  pengiklan: "pengiklan",
+  komedian: "komedian",
+  motivator: "motivator",
+  "spesialis-sosmed": "spesialis-sosmed",
 };
 
 /**

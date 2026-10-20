@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { ideRequestSkema, ideSkema } from "@/lib/ai/schemas";
-import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v1";
+import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v2";
 
 export async function POST(req: Request) {
   let body: unknown;

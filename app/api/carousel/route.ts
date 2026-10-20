@@ -8,7 +8,7 @@
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { carouselRequestSkema, carouselResponseSkema } from "@/lib/ai/schemas";
-import { buildCarouselPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/carousel-slides.v1";
+import { buildCarouselPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/carousel-slides.v2";
 
 export async function POST(req: Request) {
   let body: unknown;

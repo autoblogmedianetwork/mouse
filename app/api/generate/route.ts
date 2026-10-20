@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { BATAS_JUMLAH, generateRequestSkema, statusesSkema } from "@/lib/ai/schemas";
 import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
-import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v4";
+import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v5";
 
 export async function POST(req: Request) {
   let body: unknown;

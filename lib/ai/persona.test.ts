@@ -23,6 +23,17 @@ describe("data persona", () => {
     }
   });
 
+  it("memuat 6 persona hasil kurasi dari dataset prompt (ADR 0010)", () => {
+    expect(PERSONA_IDS).toContain("pendongeng");
+    expect(PERSONA_IDS).toContain("copywriter");
+    expect(PERSONA_IDS).toContain("pengiklan");
+    expect(PERSONA_IDS).toContain("komedian");
+    expect(PERSONA_IDS).toContain("motivator");
+    expect(PERSONA_IDS).toContain("spesialis-sosmed");
+    expect(PERSONA_LIST).toHaveLength(9);
+    expect(labelPersonaUntukPrompt("pendongeng")).toContain("Pendongeng");
+  });
+
   it("persona bawaan adalah default dan ada di daftar", () => {
     expect(PERSONA_BAWAAN.id).toBe("bawaan");
     expect(PENGATURAN_AWAL.persona).toBe(PERSONA_BAWAAN.id);

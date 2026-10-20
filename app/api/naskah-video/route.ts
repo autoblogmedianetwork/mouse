@@ -8,7 +8,7 @@
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { generateRequestSkema, naskahVideoSkema } from "@/lib/ai/schemas";
-import { buildNaskahVideoPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/naskah-video.v1";
+import { buildNaskahVideoPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/naskah-video.v2";
 
 export async function POST(req: Request) {
   let body: unknown;

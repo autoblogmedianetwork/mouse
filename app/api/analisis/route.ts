@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { analisisRequestSkema, analisisSkema } from "@/lib/ai/schemas";
-import { buildAnalisisPenawaranPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/analisis-penawaran.v2";
+import { buildAnalisisPenawaranPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/analisis-penawaran.v3";
 import { cleanDescription } from "@/lib/produk/bersihkan-deskripsi";
 
 export async function POST(req: Request) {
