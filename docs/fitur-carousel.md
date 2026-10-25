@@ -58,9 +58,13 @@ Template disimpan sebagai file HTML dengan placeholder, di `lib/carousel/templat
 | 3 | Latar penuh warna, teks tebal | Promosi, tawaran |
 
 Aturan template:
-- Ukuran teks minimal 48 piksel untuk headline dan 32 piksel untuk isi.
+- Tipografi besar agar terbaca di layar HP: headline cover sampai 120 px, judul slide isi 76 px, headline slide CTA 96 px, isi 46–48 px, chip kicker 30–34 px, footer 30 px.
+- Auto-shrink: jika teks panjang, headline mengecil otomatis agar tidak terpotong; renderer memakai penghitungan `wrapLines` per baris.
+- Komposisi dinamis (tanpa gambar): glow radial warna aksen, pola garis diagonal halus, ring dekoratif, dan watermark nomor raksasa samar — latar tidak boleh polos datar.
+- Ilustrasi AI (Pollinations) dirender full-bleed dengan veil gradien yang menebal ke bawah, bukan ditutup penuh.
+- Kicker ditampilkan sebagai chip kapsul warna aksen; badge nomor slide bundar di pojok kanan atas; bar progres di dasar slide; slide CTA terpusat dengan pill besar "Link di Bio".
 - Tidak ada script atau font dari CDN luar (sesuai prompt 06 dan ADR 0003).
-- Foto produk ditampilkan tanpa diubah bentuk atau warnanya.
+- Foto produk ditampilkan dengan bayangan dan ring aksen, tanpa diubah bentuk atau warnanya.
 
 ---
 
