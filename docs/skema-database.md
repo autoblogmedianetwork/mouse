@@ -174,6 +174,24 @@ Daftar link affiliate untuk halaman Link Affiliate (F5).
 
 Unique: `(user_id, url)`.
 
+### carousel_gaya_preset
+Preset gaya carousel per akun (panel "Gaya Slide", migrasi 0009). Satu preset menyimpan empat field gaya
+yang sama dengan panel: `skalaFont` (70–150), `warnaAksen` (hex atau string kosong = ikut tema),
+`posisiKonten` (`atas` | `tengah`), `ruangKeliling` (90–140). Format `gaya` divalidasi Zod di
+`lib/konten/gaya-preset.ts`.
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid | cascade delete |
+| nama | text | nama preset, unik per user |
+| gaya | jsonb | empat field gaya di atas |
+| created_at, updated_at | timestamptz | |
+
+Unique: `(user_id, nama)`. RLS: `owner_all` dengan `(select auth.uid()) = user_id`.
+Untuk nilai default di aplikasi (skala 100, aksen ikut tema, posisi tengah, kelonggaran 100):
+`PENGATURAN_GAYA_AWAL` di `lib/konten/gaya-preset.ts`.
+
 ### templates
 
 | Kolom | Tipe | Keterangan |

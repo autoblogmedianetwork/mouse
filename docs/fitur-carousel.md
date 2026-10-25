@@ -62,7 +62,7 @@ Panel "Gaya Slide" (global per carousel, di editor):
 - Warna aksen kustom (color picker) atau "Ikut Tema" — otomatis pilih teks gelap/putih berdasar luminansi.
 - Posisi blok teks cover/isi: atas atau tengah (CTA selalu terpusat).
 - Kelonggaran 90–140% (pengali margin dan jarak antar elemen).
-- Gaya berlaku seragam untuk preview dan semua PNG yang diunduh; tersimpan di state editor (tidak persist saat reload).
+- Gaya berlaku seragam untuk preview dan semua PNG yang diunduh; gaya saat ini tersimpan di state editor, dan bisa disimpan sebagai **Preset gaya per akun** (tabel `carousel_gaya_preset`, migrasi 0009). Preset terakhir yang diterapkan otomatis aktif saat editor carousel berikutnya dibuka di perangkat mana pun.
 
 Aturan template:
 - Tipografi besar agar terbaca di layar HP: headline cover sampai 120 px, judul slide isi 76 px, headline slide CTA 96 px, isi 46–48 px, chip kicker 30–34 px, footer 30 px.

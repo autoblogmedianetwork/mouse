@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CarouselSlide } from "@/lib/ai/schemas";
 import { BATAS_KATA_CAROUSEL, hitungKata } from "@/lib/ai/schemas";
+import {
+  daftarPresetGaya,
+  hapusPresetGaya,
+  PENGATURAN_GAYA_AWAL,
+  simpanPresetGaya,
+  type GayaPreset,
+} from "@/lib/konten/gaya-preset";
 import { salinKeClipboard } from "@/lib/konten/salin";
 import { buildPollinationsUrl, rekomendasiPromptVisual } from "@/lib/media/pollinations";
 import { cn } from "@/lib/utils";
@@ -76,7 +83,6 @@ export interface GayaCarousel {
   ruangKeliling: number;
 }
 
-const GAYA_AWAL: GayaCarousel = { skalaFont: 100, warnaAksen: "", posisiKonten: "tengah", ruangKeliling: 100 };
 
 /**
  * Menggambar satu slide ke canvas HTML5 beresolusi tinggi (1080x1350 atau 1080x1080).
@@ -95,7 +101,7 @@ function renderSlideToCanvas(
   handleAkun: string,
   imgElement: HTMLImageElement | null,
   visualElement: HTMLImageElement | null = null,
-  gaya: GayaCarousel = GAYA_AWAL,
+  gaya: GayaCarousel = PENGATURAN_GAYA_AWAL,
 ) {
   const width = 1080;
   const height = rasio === "4:5" ? 1350 : 1080;
@@ -492,9 +498,96 @@ export function CarouselSlideEditor({
   const [slideAktif, setSlideAktif] = useState(0);
   const [rasio, setRasio] = useState<RasioSlide>("4:5");
   const [tema, setTema] = useState<TemaSlide>("dark_tech");
-  const [gaya, setGaya] = useState<GayaCarousel>(GAYA_AWAL);
+  const [gaya, setGaya] = useState<GayaCarousel>(PENGATURAN_GAYA_AWAL);
 
   const ubahGaya = (patch: Partial<GayaCarousel>) => setGaya((g) => ({ ...g, ...patch }));
+
+  // Preset gaya per akun (tabel carousel_gaya_preset, migrasi 0009).
+  const KUNCI_PRESET_TERAKHIR = "heaviliate:preset_gaya_terakhir";
+  const [presets, setPresets] = useState<GayaPreset[]>([]);
+  const [presetDipilih, setPresetDipilih] = useState("");
+  const [namaPresetBaru, setNamaPresetBaru] = useState("");
+  const [presetMemuat, setPresetMemuat] = useState(false);
+  const [pesanPreset, setPesanPreset] = useState<string | null>(null);
+
+  const tampilkanPesanPreset = (pesan: string) => {
+    setPesanPreset(pesan);
+    setTimeout(() => setPesanPreset(null), 3000);
+  };
+
+  const muatDaftarPreset = useCallback(async (): Promise<GayaPreset[]> => {
+    try {
+      setPresetMemuat(true);
+      const daftar = await daftarPresetGaya();
+      setPresets(daftar);
+      return daftar;
+    } catch (err) {
+      tampilkanPesanPreset(err instanceof Error ? err.message : "Gagal memuat preset.");
+      return [];
+    } finally {
+      setPresetMemuat(false);
+    }
+  }, []);
+
+  // Muat sekali saat editor terbuka; terapkan otomatis preset terakhir yang dipakai
+  // supaya setiap carousel baru langsung punya gaya yang sama.
+  useEffect(() => {
+    (async () => {
+      const daftar = await muatDaftarPreset();
+      const idTerakhir = window.localStorage.getItem(KUNCI_PRESET_TERAKHIR);
+      const pilih = daftar.find((p) => p.id === idTerakhir);
+      if (pilih) {
+        setGaya(pilih.gaya);
+        setPresetDipilih(pilih.id);
+      }
+    })();
+  }, [muatDaftarPreset]);
+
+  const terapkanPreset = (p: GayaPreset) => {
+    setGaya(p.gaya);
+    setPresetDipilih(p.id);
+    window.localStorage.setItem(KUNCI_PRESET_TERAKHIR, p.id);
+    tampilkanPesanPreset(`Preset "${p.nama}" diterapkan ke semua slide.`);
+  };
+
+  const simpanPresetSekarang = async () => {
+    const namaLama = presets.find((p) => p.id === presetDipilih)?.nama ?? "";
+    const nama = namaPresetBaru.trim() || namaLama;
+    if (!nama) {
+      tampilkanPesanPreset("Tulis nama preset dulu di kolom nama.");
+      return;
+    }
+    try {
+      setPresetMemuat(true);
+      const tersimpan = await simpanPresetGaya(nama, gaya);
+      setNamaPresetBaru("");
+      await muatDaftarPreset();
+      setPresetDipilih(tersimpan.id);
+      window.localStorage.setItem(KUNCI_PRESET_TERAKHIR, tersimpan.id);
+      tampilkanPesanPreset(`Preset "${tersimpan.nama}" tersimpan di akun.`);
+    } catch (err) {
+      tampilkanPesanPreset(err instanceof Error ? err.message : "Gagal menyimpan preset.");
+    } finally {
+      setPresetMemuat(false);
+    }
+  };
+
+  const hapusPresetSekarang = async () => {
+    const p = presets.find((x) => x.id === presetDipilih);
+    if (!p) return;
+    try {
+      setPresetMemuat(true);
+      await hapusPresetGaya(p.id);
+      setPresets((daftar) => daftar.filter((x) => x.id !== p.id));
+      window.localStorage.removeItem(KUNCI_PRESET_TERAKHIR);
+      setPresetDipilih("");
+      tampilkanPesanPreset(`Preset "${p.nama}" dihapus.`);
+    } catch (err) {
+      tampilkanPesanPreset(err instanceof Error ? err.message : "Gagal menghapus preset.");
+    } finally {
+      setPresetMemuat(false);
+    }
+  };
   const [isDownloading, setIsDownloading] = useState(false);
   const [pesanSalin, setPesanSalin] = useState<string | null>(null);
 
@@ -843,11 +936,64 @@ export function CarouselSlideEditor({
 
         <button
           type="button"
-          onClick={() => setGaya(GAYA_AWAL)}
+          onClick={() => {
+            setGaya(PENGATURAN_GAYA_AWAL);
+            setPresetDipilih("");
+            window.localStorage.removeItem(KUNCI_PRESET_TERAKHIR);
+          }}
           className="ml-auto rounded-lg border border-surface-border px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
         >
           ↺ Reset gaya
         </button>
+      </div>
+
+      {/* Preset gaya: tersimpan per akun di tabel carousel_gaya_preset (migrasi 0009).
+          Preset terakhir yang dipakai otomatis diterapkan saat editor dibuka. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-surface-border bg-surface p-3">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          💾 Preset gaya
+        </span>
+        <select
+          value={presetDipilih}
+          onChange={(e) => {
+            const p = presets.find((x) => x.id === e.target.value);
+            if (p) terapkanPreset(p);
+            else setPresetDipilih("");
+          }}
+          className="rounded-lg border border-surface-border bg-background px-2 py-1.5 text-xs"
+        >
+          <option value="">Pilih preset…</option>
+          {presets.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.nama}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          value={namaPresetBaru}
+          onChange={(e) => setNamaPresetBaru(e.target.value)}
+          maxLength={40}
+          placeholder="Nama preset baru"
+          className="w-40 rounded-lg border border-surface-border bg-background px-2 py-1.5 text-xs"
+        />
+        <button
+          type="button"
+          onClick={simpanPresetSekarang}
+          disabled={presetMemuat}
+          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+        >
+          Simpan gaya ini
+        </button>
+        <button
+          type="button"
+          onClick={hapusPresetSekarang}
+          disabled={!presetDipilih || presetMemuat}
+          className="rounded-lg border border-surface-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-40"
+        >
+          Hapus
+        </button>
+        {pesanPreset ? <span className="text-xs text-muted-foreground">{pesanPreset}</span> : null}
       </div>
 
       {pesanSalin ? (
