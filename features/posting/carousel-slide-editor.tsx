@@ -63,10 +63,27 @@ const TEMPLATE_CONFIG: Record<
   },
 };
 
+/** Preferensi gaya global carousel dari panel "Gaya Slide". Global per carousel supaya
+ * komposisi antar-slide tetap konsisten (docs/fitur-carousel.md bagian 4). */
+export interface GayaCarousel {
+  /** Pengali ukuran font seleuruh elemen teks, persen (70–150). */
+  skalaFont: number;
+  /** Warna aksen kustom hex; string kosong = ikut tema aktif. */
+  warnaAksen: string;
+  /** Penempatan blok teks slide cover/isi; CTA selalu terpusat. */
+  posisiKonten: "atas" | "tengah";
+  /** Pengali margin dan jarak antar elemen, persen (90–140) — penangkal teks "nempel". */
+  ruangKeliling: number;
+}
+
+const GAYA_AWAL: GayaCarousel = { skalaFont: 100, warnaAksen: "", posisiKonten: "tengah", ruangKeliling: 100 };
+
 /**
  * Menggambar satu slide ke canvas HTML5 beresolusi tinggi (1080x1350 atau 1080x1080).
  * Tipografi besar agar terbaca dan menarik di layar HP; teks panjang mengecil otomatis
  * (auto-shrink) supaya headline besar tetap aman tanpa terpotong (docs/fitur-carousel.md bagian 4).
+ * Parameter `gaya` (panel "Gaya Slide") mengatur skala font, warna aksen, posisi blok teks,
+ * dan kelonggaran jarak — berlaku seragam untuk preview dan unduhan PNG.
  */
 function renderSlideToCanvas(
   canvas: HTMLCanvasElement,
@@ -78,6 +95,7 @@ function renderSlideToCanvas(
   handleAkun: string,
   imgElement: HTMLImageElement | null,
   visualElement: HTMLImageElement | null = null,
+  gaya: GayaCarousel = GAYA_AWAL,
 ) {
   const width = 1080;
   const height = rasio === "4:5" ? 1350 : 1080;
@@ -90,11 +108,14 @@ function renderSlideToCanvas(
   const conf = TEMPLATE_CONFIG[tema];
   const isCTA = slide.peran === "cta";
   const isCover = slide.peran === "cover";
-  const MARGIN = 80;
+  /** k: pengali ukuran teks; RU: pengali jarak/margin dari panel gaya. */
+  const k = gaya.skalaFont / 100;
+  const RU = gaya.ruangKeliling / 100;
+  const accent = gaya.warnaAksen.trim() || conf.accent;
+  const MARGIN = Math.round(80 * RU);
   const contentWidth = width - MARGIN * 2;
   const bottomLimit = height - 170;
-  /** Warna teks di atas blok berwarna aksen tema. */
-  const onAccent = tema === "light_clean" ? "#ffffff" : "#0b1220";
+  const onAccent = warnaTeksDiatas(accent);
   const adaVisualAI = Boolean(visualElement && visualElement.complete && visualElement.naturalWidth);
 
   // 1. Latar dasar: gradient vertikal tema
@@ -121,12 +142,12 @@ function renderSlideToCanvas(
   } else {
     // 1b. Latar dinamis ketika tidak ada gambar: glow radial, pola diagonal halus,
     // ring dekoratif, dan watermark nomor raksasa samar.
-    gambarGlow(ctx, 0, 0, width * 0.75, conf.accent, 0.16);
-    gambarGlow(ctx, width, height, width * 0.6, conf.accent, 0.10);
+    gambarGlow(ctx, 0, 0, width * 0.75, accent, 0.16);
+    gambarGlow(ctx, width, height, width * 0.6, accent, 0.10);
 
     ctx.save();
     ctx.globalAlpha = 0.045;
-    ctx.strokeStyle = conf.accent;
+    ctx.strokeStyle = accent;
     ctx.lineWidth = 3;
     for (let s = -height; s < width + height; s += 64) {
       ctx.beginPath();
@@ -138,7 +159,7 @@ function renderSlideToCanvas(
 
     ctx.save();
     ctx.globalAlpha = 0.3;
-    ctx.strokeStyle = conf.accent;
+    ctx.strokeStyle = accent;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(width - 60, height - 120, 230, 0, Math.PI * 2);
@@ -151,7 +172,7 @@ function renderSlideToCanvas(
 
     ctx.save();
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = conf.accent;
+    ctx.fillStyle = accent;
     ctx.beginPath();
     ctx.arc(MARGIN + 30, height - 260, 10, 0, Math.PI * 2);
     ctx.fill();
@@ -159,7 +180,7 @@ function renderSlideToCanvas(
 
     ctx.save();
     ctx.globalAlpha = 0.06;
-    ctx.fillStyle = conf.accent;
+    ctx.fillStyle = accent;
     ctx.font = "bold 640px sans-serif";
     ctx.textAlign = "right";
     ctx.fillText(String(index + 1).padStart(2, "0"), width + 30, height + 150);
@@ -173,13 +194,13 @@ function renderSlideToCanvas(
 
   // 2. Header: kicker sebagai chip kapsul warna + badge nomor bundar
   const kickerTeks = (slide.kicker || (isCover ? "AFFILIATE PICK" : `POIN ${index + 1}`)).toUpperCase();
-  const chipFontSize = isCover ? 34 : 30;
+  const chipFontSize = Math.round((isCover ? 34 : 30) * k);
   ctx.font = `bold ${chipFontSize}px sans-serif`;
   const chipPadX = 40;
   const chipW = ctx.measureText(kickerTeks).width + chipPadX * 2;
   const chipH = chipFontSize + 40;
   const chipY = 96;
-  ctx.fillStyle = conf.accent;
+  ctx.fillStyle = accent;
   ctx.beginPath();
   ctx.roundRect(MARGIN, chipY, chipW, chipH, chipH / 2);
   ctx.fill();
@@ -195,10 +216,10 @@ function renderSlideToCanvas(
   const badgeCy = chipY + chipH / 2;
   ctx.beginPath();
   ctx.arc(badgeCx, badgeCy, badgeR, 0, Math.PI * 2);
-  ctx.fillStyle = conf.accent;
+  ctx.fillStyle = accent;
   ctx.fill();
   ctx.fillStyle = onAccent;
-  ctx.font = "bold 32px sans-serif";
+  ctx.font = `bold ${Math.round(32 * k)}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(String(index + 1).padStart(2, "0"), badgeCx, badgeCy + 2);
@@ -206,11 +227,11 @@ function renderSlideToCanvas(
   ctx.textBaseline = "alphabetic";
 
   // 3. Foto produk: besar, dengan bayangan lembut dan ring aksen
-  let contentStartY = chipY + chipH + 70;
+  let contentStartY = chipY + chipH + Math.round(70 * RU);
   if (imgElement && imgElement.complete && imgElement.naturalWidth) {
     const imgSize = rasio === "4:5" ? 480 : 360;
     const imgX = (width - imgSize) / 2;
-    const imgY = chipY + chipH + 60;
+    const imgY = chipY + chipH + Math.round(60 * RU);
     ctx.save();
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     ctx.shadowBlur = 40;
@@ -226,12 +247,12 @@ function renderSlideToCanvas(
     ctx.clip();
     ctx.drawImage(imgElement, imgX, imgY, imgSize, imgSize);
     ctx.restore();
-    ctx.strokeStyle = conf.accent;
+    ctx.strokeStyle = accent;
     ctx.lineWidth = 5;
     ctx.beginPath();
     ctx.roundRect(imgX, imgY, imgSize, imgSize, 32);
     ctx.stroke();
-    contentStartY = imgY + imgSize + 64;
+    contentStartY = imgY + imgSize + Math.round(64 * RU);
   }
 
   const judulTeks = slide.headline || slide.judul || "";
@@ -240,7 +261,7 @@ function renderSlideToCanvas(
   if (isCTA) {
     // Slide CTA: blok terpusat — headline besar (sampai 96px), isi 48px, lalu pill aksen besar
     const avail = bottomLimit - contentStartY;
-    const sizeIsiCta = 48;
+    const sizeIsiCta = Math.round(48 * k);
     let tinggiIsi = 0;
     if (isiTeks) {
       ctx.font = `normal ${sizeIsiCta}px sans-serif`;
@@ -249,29 +270,30 @@ function renderSlideToCanvas(
     let sizeJudul = 0;
     let tinggiJudul = 0;
     if (judulTeks) {
-      sizeJudul = cariUkuranFont(ctx, judulTeks, contentWidth, avail * 0.55, 96, 56);
+      sizeJudul = cariUkuranFont(ctx, judulTeks, contentWidth, avail * 0.55, Math.round(96 * k), Math.round(56 * k));
       tinggiJudul = wrapLines(ctx, judulTeks, contentWidth).length * sizeJudul * 1.18;
     }
-    const tinggiPill = 110;
-    const tinggiBlok = tinggiJudul + (tinggiJudul ? 40 : 0) + tinggiIsi + (tinggiIsi ? 48 : 0) + tinggiPill;
+    const sizeJudulPill = Math.round(46 * k);
+    const tinggiPill = sizeJudulPill + 64;
+    const tinggiBlok = tinggiJudul + (tinggiJudul ? Math.round(40 * RU) : 0) + tinggiIsi + (tinggiIsi ? Math.round(48 * RU) : 0) + tinggiPill;
     let cy = contentStartY + Math.max(0, (avail - tinggiBlok) / 2);
 
     if (judulTeks) {
       ctx.fillStyle = conf.textPrimary;
       ctx.font = `bold ${sizeJudul}px sans-serif`;
-      cy = drawWrappedText(ctx, judulTeks, width / 2, cy, contentWidth, sizeJudul * 1.18, "center") + 40;
+      cy = drawWrappedText(ctx, judulTeks, width / 2, cy, contentWidth, sizeJudul * 1.18, "center") + Math.round(40 * RU);
     }
     if (isiTeks) {
       ctx.fillStyle = conf.textSecondary;
       ctx.font = `normal ${sizeIsiCta}px sans-serif`;
-      cy = drawWrappedText(ctx, isiTeks, width / 2, cy, contentWidth, sizeIsiCta * 1.35, "center") + 48;
+      cy = drawWrappedText(ctx, isiTeks, width / 2, cy, contentWidth, sizeIsiCta * 1.35, "center") + Math.round(48 * RU);
     }
 
     const pilTeks = "Link di Bio 👉";
-    ctx.font = "bold 46px sans-serif";
-    const pillW = ctx.measureText(pilTeks).width + 110;
+    ctx.font = `bold ${Math.round(46 * k)}px sans-serif`;
+    const pillW = ctx.measureText(pilTeks).width + Math.round(110 * RU);
     const pillX = width / 2 - pillW / 2;
-    ctx.fillStyle = conf.accent;
+    ctx.fillStyle = accent;
     ctx.beginPath();
     ctx.roundRect(pillX, cy, pillW, tinggiPill, tinggiPill / 2);
     ctx.fill();
@@ -285,31 +307,39 @@ function renderSlideToCanvas(
     // Slide cover / isi: komposisi poster — blok teks dipusatkan vertikal dengan headline raksasa
     const avail = bottomLimit - contentStartY;
     let tinggiIsi = 0;
-    let sizeIsi = 46;
+    let sizeIsi = Math.round(46 * k);
     if (isiTeks) {
       ctx.font = `normal ${sizeIsi}px sans-serif`;
       tinggiIsi = wrapLines(ctx, isiTeks, contentWidth).length * sizeIsi * 1.35;
       if (tinggiIsi > avail * 0.4) {
-        sizeIsi = 40;
+        sizeIsi = Math.max(32, Math.round(40 * k));
         tinggiIsi = wrapLines(ctx, isiTeks, contentWidth).length * sizeIsi * 1.35;
       }
     }
     let sizeJudul = 0;
     let tinggiJudul = 0;
     if (judulTeks) {
-      const ruangJudul = Math.max(160, avail - tinggiIsi - (isiTeks ? 40 : 0) - 46);
-      sizeJudul = cariUkuranFont(ctx, judulTeks, contentWidth, ruangJudul, isCover ? 120 : 76, isCover ? 56 : 48);
+      const ruangJudul = Math.max(160, avail - tinggiIsi - (isiTeks ? Math.round(40 * RU) : 0) - Math.round(46 * RU));
+      sizeJudul = cariUkuranFont(
+        ctx, judulTeks, contentWidth, ruangJudul,
+        Math.round((isCover ? 120 : 76) * k),
+        Math.round((isCover ? 56 : 48) * k),
+      );
       tinggiJudul = wrapLines(ctx, judulTeks, contentWidth).length * sizeJudul * 1.15;
     }
-    const tinggiBar = judulTeks ? 46 : 0; // bar aksen di bawah headline
-    const tinggiBlok = tinggiJudul + tinggiBar + (isiTeks ? 40 + tinggiIsi : 0);
-    let cursorY = contentStartY + Math.max(0, (avail - tinggiBlok) / 2);
+    const tinggiBar = judulTeks ? Math.round(46 * RU) : 0; // bar aksen di bawah headline
+    const tinggiBlok = tinggiJudul + tinggiBar + (isiTeks ? Math.round(40 * RU) + tinggiIsi : 0);
+    // Posisi panel gaya: "atas" menempel blok teks ke atas area konten; "tengah" dipusatkan
+    let cursorY =
+      gaya.posisiKonten === "atas"
+        ? contentStartY
+        : contentStartY + Math.max(0, (avail - tinggiBlok) / 2);
 
     if (judulTeks) {
       ctx.fillStyle = conf.textPrimary;
       ctx.font = `bold ${sizeJudul}px sans-serif`;
-      cursorY = drawWrappedText(ctx, judulTeks, MARGIN, cursorY, contentWidth, sizeJudul * 1.15) + 24;
-      ctx.fillStyle = conf.accent;
+      cursorY = drawWrappedText(ctx, judulTeks, MARGIN, cursorY, contentWidth, sizeJudul * 1.15) + Math.round(24 * RU);
+      ctx.fillStyle = accent;
       ctx.beginPath();
       ctx.roundRect(MARGIN, cursorY, 140, 12, 6);
       ctx.fill();
@@ -318,20 +348,20 @@ function renderSlideToCanvas(
     if (isiTeks) {
       ctx.fillStyle = conf.textSecondary;
       ctx.font = `normal ${sizeIsi}px sans-serif`;
-      drawWrappedText(ctx, isiTeks, MARGIN, cursorY + 40, contentWidth, sizeIsi * 1.35);
+      drawWrappedText(ctx, isiTeks, MARGIN, cursorY + Math.round(40 * RU), contentWidth, sizeIsi * 1.35);
     } else if (!judulTeks) {
-      cursorY += 40;
+      cursorY += Math.round(40 * RU);
     }
   }
 
   // 4. Footer: handle akun, ajakan geser, dan bar progres slide
   ctx.fillStyle = conf.textSecondary;
-  ctx.font = "normal 30px sans-serif";
+  ctx.font = `normal ${Math.round(30 * k)}px sans-serif`;
   ctx.fillText(handleAkun ? `@${handleAkun.replace(/^@/, "")}` : "Threads", MARGIN, height - 104);
 
   const swipeText = isCTA ? "Cek link di bio 👉" : "Geser untuk lanjut 👉";
-  ctx.fillStyle = conf.accent;
-  ctx.font = "bold 30px sans-serif";
+  ctx.fillStyle = accent;
+  ctx.font = `bold ${Math.round(30 * k)}px sans-serif`;
   const swipeWidth = ctx.measureText(swipeText).width;
   ctx.fillText(swipeText, width - MARGIN - swipeWidth, height - 104);
 
@@ -340,10 +370,20 @@ function renderSlideToCanvas(
   ctx.beginPath();
   ctx.roundRect(MARGIN, trackY, contentWidth, 8, 4);
   ctx.fill();
-  ctx.fillStyle = conf.accent;
+  ctx.fillStyle = accent;
   ctx.beginPath();
   ctx.roundRect(MARGIN, trackY, Math.max(24, contentWidth * ((index + 1) / totalSlides)), 8, 4);
   ctx.fill();
+}
+
+/** Warna teks yang detak terbaca di atas blok berwarna aksen mana pun (luminansi). */
+function warnaTeksDiatas(hex: string): string {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16) || 0;
+  const g = parseInt(h.slice(2, 4), 16) || 0;
+  const b = parseInt(h.slice(4, 6), 16) || 0;
+  const l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return l > 0.65 ? "#0b1220" : "#ffffff";
 }
 
 /** Konversi warna hex (#rrggbb) ke rgba dengan alpha untuk glow dan pola. */
@@ -452,6 +492,9 @@ export function CarouselSlideEditor({
   const [slideAktif, setSlideAktif] = useState(0);
   const [rasio, setRasio] = useState<RasioSlide>("4:5");
   const [tema, setTema] = useState<TemaSlide>("dark_tech");
+  const [gaya, setGaya] = useState<GayaCarousel>(GAYA_AWAL);
+
+  const ubahGaya = (patch: Partial<GayaCarousel>) => setGaya((g) => ({ ...g, ...patch }));
   const [isDownloading, setIsDownloading] = useState(false);
   const [pesanSalin, setPesanSalin] = useState<string | null>(null);
 
@@ -526,8 +569,9 @@ export function CarouselSlideEditor({
       handleAkun,
       imgRef.current,
       visualImgRef.current,
+      gaya,
     );
-  }, [slide, slideAktif, slides.length, tema, rasio, handleAkun, imgVersion, visualImgVersion]);
+  }, [slide, slideAktif, slides.length, tema, rasio, handleAkun, imgVersion, visualImgVersion, gaya]);
 
   const updateSlideField = (field: keyof CarouselSlide, val: string | null) => {
     const next = [...slides];
@@ -583,6 +627,7 @@ export function CarouselSlideEditor({
         handleAkun,
         imgRef.current,
         index === slideAktif ? visualImgRef.current : null,
+        gaya,
       );
 
       const url = c.toDataURL("image/png");
@@ -591,7 +636,7 @@ export function CarouselSlideEditor({
       a.download = `slide-${index + 1}-${targetSlide.peran}.png`;
       a.click();
     },
-    [slides, tema, rasio, handleAkun, slideAktif],
+    [slides, tema, rasio, handleAkun, slideAktif, gaya],
   );
 
   const unduhSemuaSlide = useCallback(async () => {
@@ -716,6 +761,93 @@ export function CarouselSlideEditor({
             {isDownloading ? "Mengunduh…" : "📥 Unduh Semua PNG"}
           </button>
         </div>
+      </div>
+
+      {/* Panel gaya: kontrol global seluruh slide — skala teks, warna aksen, posisi, kelonggaran */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-surface-border bg-surface p-4">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          🎨 Gaya
+        </span>
+
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Skala teks
+          <input
+            type="range"
+            min={70}
+            max={150}
+            step={5}
+            value={gaya.skalaFont}
+            onChange={(e) => ubahGaya({ skalaFont: Number(e.target.value) })}
+            className="w-28 accent-primary"
+          />
+          <span className="w-10 font-semibold text-foreground">{gaya.skalaFont}%</span>
+        </label>
+
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Warna aksen
+          <input
+            type="color"
+            value={gaya.warnaAksen || TEMPLATE_CONFIG[tema].accent}
+            onChange={(e) => ubahGaya({ warnaAksen: e.target.value })}
+            className="h-7 w-9 cursor-pointer rounded border border-surface-border bg-transparent"
+          />
+        </label>
+
+        <button
+          type="button"
+          onClick={() => ubahGaya({ warnaAksen: "" })}
+          className={cn(
+            "rounded-lg border px-3 py-1 text-xs font-medium transition-colors",
+            gaya.warnaAksen
+              ? "border-surface-border text-muted-foreground hover:text-foreground"
+              : "border-primary bg-primary/10 text-primary font-semibold",
+          )}
+        >
+          Ikut Tema
+        </button>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">Posisi:</span>
+          <div className="flex rounded-lg border border-surface-border bg-muted/30 p-1">
+            {(["atas", "tengah"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => ubahGaya({ posisiKonten: p })}
+                className={cn(
+                  "rounded px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+                  gaya.posisiKonten === p
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Kelonggaran
+          <input
+            type="range"
+            min={90}
+            max={140}
+            step={5}
+            value={gaya.ruangKeliling}
+            onChange={(e) => ubahGaya({ ruangKeliling: Number(e.target.value) })}
+            className="w-28 accent-primary"
+          />
+          <span className="w-10 font-semibold text-foreground">{gaya.ruangKeliling}%</span>
+        </label>
+
+        <button
+          type="button"
+          onClick={() => setGaya(GAYA_AWAL)}
+          className="ml-auto rounded-lg border border-surface-border px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
+        >
+          ↺ Reset gaya
+        </button>
       </div>
 
       {pesanSalin ? (
