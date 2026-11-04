@@ -6,6 +6,7 @@
 import { z } from "zod";
 import type { ContentStatus } from "@/components/status-badge";
 import { MAX_STATUS_LENGTH, charLength, validateStatusList } from "@/lib/statuses/validator-500";
+import { KERANGKA_IDS } from "@/lib/ai/kerangka";
 import { checklistLengkap } from "./checklist";
 
 /**
@@ -60,6 +61,12 @@ export const kontenSkema = z.object({
    * Older rows have no value and fall back to "bawaan".
    */
   gaya_hook: z.enum(GAYA_HOOK).default("bawaan"),
+  /**
+   * Urutan isi yang dipakai saat konten ini digenerate (lib/ai/kerangka.ts).
+   * Disimpan per konten supaya performa bisa dibandingkan per kerangka;
+   * konten lama tanpa nilai dianggap "bebas".
+   */
+  kerangka: z.enum(KERANGKA_IDS).default("bebas"),
   link_produk: z.string().default(""),
   arsip: z.boolean().default(false),
   arsip_at: z.string().nullable().default(null),

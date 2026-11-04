@@ -112,7 +112,7 @@ Satu konten Threads (utas) hasil generate.
 | product_id | uuid | set null jika produk dihapus |
 | judul_internal | text | |
 | status | content_status | default 'draft' |
-| pengaturan | jsonb | jumlah status, panjang, instruksi, anti_ai_slop, persona |
+| pengaturan | jsonb | jumlah status, panjang, instruksi, anti_ai_slop, persona, kerangka penulisan (lihat ADR 0012). `kerangka` disimpan di sini karena belum ada kolom khusus; nilai tak dikenal dibaca sebagai `bebas` |
 | letak_link | link_placement | default 'status_terakhir' |
 | gaya_hook | text | gaya hook pembuka yang dipakai saat generate (Fase 6, PRD F3a). Nilai: `pertanyaan`, `masalah_relatif`, `pernyataan_mengejutkan`, `bawaan` |
 | link_produk | text | |
@@ -887,3 +887,95 @@ Menampung penawaran affiliate dari berbagai sumber:
 
 RLS: `owner_all` untuk `authenticated` dengan `(select auth.uid()) = user_id`.
 
+
+## 14. Migrasi 0009: tabel `carousel_gaya_preset` (preset gaya slide)
+
+Status: file `supabase/migrations/0009_gaya_preset.sql` sudah ada di repo dan **belum
+dijalankan** di project Supabase saat catatan ini ditulis.
+
+Menyimpan panel "Gaya Slide" sebagai preset per akun, supaya tema favorit (skala font,
+warna aksen, posisi konten, kelonggaran) bisa dipakai ulang di setiap carousel baru.
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid | cascade delete |
+| nama | text | 1–40 karakter; unik per user |
+| gaya | jsonb | `{ skalaFont, warnaAksen, posisiKonten, ruangKeliling }` |
+| created_at, updated_at | timestamptz | trigger `set_updated_at` |
+
+Index: `carousel_gaya_preset_user_idx (user_id, updated_at desc)`.
+RLS: `owner_all` untuk `authenticated`, sama seperti tabel lain.
+
+Selama migrasi ini belum dijalankan, `lib/konten/gaya-preset.ts` akan menerima error
+"relation does not exist" saat memuat preset; fitur carousel sendiri tetap jalan tanpa
+preset tersimpan.
+
+## 15. Migrasi 0010: riset audiens dan peluang produk (tahap 1-2 content machine)
+
+Status: file `supabase/migrations/0010_riset_audiens.sql` ditambahkan (5 November 2026).
+Jalankan setelah 0009 di SQL Editor. Sumber keputusan: ADR 0011 dan
+`docs/content-machine.md`.
+
+Dua tabel ini adalah artefak dua tahap pertama pipeline konten. Sebelumnya ide hanya
+bisa lahir dari produk yang sudah dibuat (`idea_batches.product_id not null`); alur
+sekarang bergerak dari audiens → peluang kategori → baru produk.
+
+### audience_riset
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid | cascade delete |
+| niche | text | 1–120 karakter |
+| audiens | text | 1–200 karakter |
+| ringkasan | text | maks 4.000 karakter, dari AI |
+| masalah | jsonb | array 10 objek `{ masalah, situasi, produk_contoh[], alasan }` |
+| prompt_version | text | mis. `riset-audience.v1` |
+| model | text | model yang benar-benar dipakai |
+| created_at | timestamptz | |
+
+Index: `audience_riset_user_created_idx (user_id, created_at desc)`.
+RLS: `owner_all` untuk `authenticated`.
+
+### peluang_produk
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid | cascade delete |
+| riset_id | uuid | referensi `audience_riset(id)` cascade delete |
+| urutan | integer | 1–20, unik per riset |
+| kategori | text | jenis produk generik, maks 160 karakter |
+| alasan | text | maks 2.000 karakter |
+| masalah_terkait | text | disalin dari daftar masalah riset |
+| contoh_produk | text[] | 1–3 nama generik |
+| prioritas | text | `tinggi`, `sedang`, `rendah` |
+| kesulitan_konten | text | `rendah`, `sedang`, `tinggi` |
+| dipilih | boolean | user sudah menekan "Buat produk" |
+| produk_id | uuid | referensi `products(id)` on delete set null |
+| created_at | timestamptz | |
+
+Index: `peluang_produk_user_riset_idx (user_id, riset_id, urutan)`.
+RLS: `owner_all` untuk `authenticated`.
+
+### generations.jenis
+
+Constraint `generations_jenis_check` dibangun ulang dari daftar lengkap, sehingga file
+ini tidak bergantung pada 0007 sudah dijalankan atau belum. Nilai yang diterima:
+`analisis`, `ide`, `generate`, `storyboard`, `foto_ke_video`, `naskah_video`,
+`carousel`, `audience`, `peluang`.
+
+`carousel` ikut ditambahkan karena sebelumnya belum ada: biaya carousel ditolak
+constraint, sehingga pemakaian anggaran bulanan tercatat lebih rendah dari yang
+sebenarnya.
+
+Catatan implementasi:
+
+- Penyusunan ulang peluang (`POST /api/audience/peluang`) menghapus baris peluang
+  lama untuk riset itu lalu menulis 20 baris baru. Produk yang sudah dibuat tetap ada
+  di `products`; yang direset hanya tanda `dipilih`/`produk_id`.
+- Jalankan riset dan susun peluang dipisah menjadi dua rute supaya tahap 1 tetap
+  tersimpan bila tahap 2 gagal atau anggaran AI habis.
+- Ekspor CSV (`riset.csv`, `peluang.csv`) dihasilkan di peramban dari data yang sudah
+  tersimpan; Google Sheets adalah jalur tukar data, bukan sumber kebenaran.

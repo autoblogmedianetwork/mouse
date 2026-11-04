@@ -21,7 +21,14 @@ import {
 } from "./catat-generation";
 
 export interface JalankanAIArgs extends GenerateJSONOptions {
-  jenis: "analisis" | "ide" | "generate" | "naskah_video" | "carousel";
+  jenis:
+    | "analisis"
+    | "ide"
+    | "generate"
+    | "naskah_video"
+    | "carousel"
+    | "audience"
+    | "peluang";
   promptVersion: string;
   prompt: string;
   schema: import("zod").ZodTypeAny;

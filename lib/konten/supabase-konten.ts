@@ -9,6 +9,7 @@
  * ulang bersifat idempoten (upsert), bukan menggandakan baris.
  */
 import { z } from "zod";
+import { kerangkaDariNilai } from "@/lib/ai/kerangka";
 import { kontenSkema, type Konten } from "./skema";
 
 /** Jumlah konten terakhir yang ditampilkan (N-5). */
@@ -94,7 +95,9 @@ export function kontenKeBaris(k: Konten, userId: string): BarisKontenBaru {
     user_id: userId,
     judul_internal: k.judul,
     status: k.status,
-    pengaturan: { otomatis: k.otomatis, checklist: k.checklist },
+    // kerangka ikut disimpan di jsonb pengaturan: kolom khusus belum ada,
+    // dan nilai ini yang dipakai untuk membandingkan performa per kerangka.
+    pengaturan: { otomatis: k.otomatis, checklist: k.checklist, kerangka: k.kerangka },
     letak_link: k.letak_link,
     link_produk: k.link_produk.trim() === "" ? null : k.link_produk,
     gaya_hook: k.gaya_hook,
@@ -136,6 +139,7 @@ export function barisKeKonten(baris: BarisKonten, statuses: string[]): Konten {
     )
       ? baris.gaya_hook
       : "bawaan",
+    kerangka: kerangkaDariNilai(baris.pengaturan.kerangka),
     link_produk: baris.link_produk ?? "",
     arsip: baris.is_arsip,
     arsip_at: baris.arsip_at,

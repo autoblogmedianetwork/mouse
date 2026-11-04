@@ -11,6 +11,8 @@ export interface MenuItem {
 export const MENU_ITEMS: MenuItem[] = [
   // Workspace group
   { label: "Dashboard", href: "/", group: "workspace", available: true },
+  // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
+  { label: "Riset audiens", href: "/riset", group: "workspace", available: true },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", available: true },
   { label: "Antrian review", href: "/antrian", group: "workspace", available: true },
   { label: "Akun sosial", href: "/akun", group: "workspace", available: true },

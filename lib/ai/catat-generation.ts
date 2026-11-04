@@ -46,7 +46,17 @@ export function hitungBiayaUsd(
 /* -------------------------------- logging --------------------------------- */
 
 export interface CatatanGenerasi {
-  jenis: "analisis" | "ide" | "generate" | "storyboard" | "foto_ke_video" | "naskah_video" | "carousel";
+  // Harus sejajar dengan constraint generations_jenis_check (migrasi 0010).
+  jenis:
+    | "analisis"
+    | "ide"
+    | "generate"
+    | "storyboard"
+    | "foto_ke_video"
+    | "naskah_video"
+    | "carousel"
+    | "audience"
+    | "peluang";
   status: "done" | "failed" | "pending";
   attempts: number;
   promptVersion: string;

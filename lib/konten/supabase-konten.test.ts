@@ -23,6 +23,7 @@ function konten(over: Partial<Konten> = {}): Konten {
     status: "draft",
     letak_link: "balasan",
     gaya_hook: "pertanyaan",
+    kerangka: "bebas",
     link_produk: "https://contoh.test/produk",
     arsip: false,
     arsip_at: null,
@@ -57,9 +58,16 @@ describe("kontenKeBaris", () => {
     });
   });
 
-  it("menyimpan checklist dan penanda otomatis di pengaturan jsonb", () => {
-    const baris = kontenKeBaris(konten({ otomatis: true, checklist: { hook_kuat: true } }), USER);
-    expect(baris.pengaturan).toEqual({ otomatis: true, checklist: { hook_kuat: true } });
+  it("menyimpan checklist, penanda otomatis, dan kerangka di pengaturan jsonb", () => {
+    const baris = kontenKeBaris(
+      konten({ otomatis: true, checklist: { hook_kuat: true }, kerangka: "msspc" }),
+      USER,
+    );
+    expect(baris.pengaturan).toEqual({
+      otomatis: true,
+      checklist: { hook_kuat: true },
+      kerangka: "msspc",
+    });
   });
 
   it("mengosongkan link kalau memang tidak ada", () => {

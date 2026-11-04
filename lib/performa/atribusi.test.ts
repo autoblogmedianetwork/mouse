@@ -16,6 +16,7 @@ function konten(ubah: Partial<Konten>): Konten {
     status: "terkirim",
     letak_link: "balasan",
     gaya_hook: "bawaan",
+    kerangka: "bebas",
     link_produk: "",
     arsip: false,
     arsip_at: null,

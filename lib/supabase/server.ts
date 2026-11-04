@@ -8,6 +8,8 @@
  * Client components must use lib/supabase/klien.ts instead.
  */
 import { createServerClient } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 /** Same env guard as the browser client, so both report the same problem. */
@@ -55,4 +57,43 @@ export async function penggunaSaatIni() {
   const { data, error } = await supabase.auth.getUser();
   if (error) return null;
   return data.user;
+}
+
+/**
+ * Guard for route handlers that spend money or act on the owner's behalf.
+ *
+ * The AI routes and /api/posting/kirim were callable without a session, so
+ * anyone who found the URL could bill the AI account or post as the owner.
+ * Returns the user, or a ready-made response to return immediately:
+ *
+ *   const sesi = await wajibSesi();
+ *   if ("respons" in sesi) return sesi.respons;
+ *
+ * 503 (not 401) when the environment is missing: that is a server fault, not
+ * a sign-in problem, and the UI must not tell the user to log in again.
+ */
+export async function wajibSesi(): Promise<
+  { user: User; supabase: NonNullable<Awaited<ReturnType<typeof klienServer>>> } | { respons: NextResponse }
+> {
+  const supabase = await klienServer();
+  if (!supabase) {
+    return {
+      respons: NextResponse.json(
+        { ok: false, error: "Supabase belum dikonfigurasi di server." },
+        { status: 503 },
+      ),
+    };
+  }
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    return {
+      respons: NextResponse.json(
+        { ok: false, error: "Sesi tidak ditemukan. Masuk dulu untuk memakai fitur ini." },
+        { status: 401 },
+      ),
+    };
+  }
+
+  return { user: data.user, supabase };
 }

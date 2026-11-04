@@ -274,6 +274,8 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
         letak_link: draft.pengaturan.letak_link,
         // Recorded so Analitik can compare hook styles (Fase 6).
         gaya_hook: draft.pengaturan.gaya_hook,
+        // Urutan isi ikut tercatat, supaya performa bisa dibandingkan per kerangka.
+        kerangka: draft.pengaturan.kerangka,
         link_produk: draft.produk?.url_referensi ?? "",
         arsip: lama?.arsip ?? false,
         arsip_at: lama?.arsip_at ?? null,

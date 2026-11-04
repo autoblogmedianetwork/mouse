@@ -10,9 +10,14 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { BATAS_JUMLAH, generateRequestSkema, statusesSkema } from "@/lib/ai/schemas";
 import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
-import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v5";
+import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v6";
+import { wajibSesi } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
+  // Tanpa sesi, siapa pun yang tahu URL ini bisa membebani biaya AI.
+  const sesi = await wajibSesi();
+  if ("respons" in sesi) return sesi.respons;
+
   let body: unknown;
   try {
     body = await req.json();

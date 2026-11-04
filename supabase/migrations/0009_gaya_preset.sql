@@ -4,6 +4,11 @@
 -- (skala font, warna aksen, posisi konten, kelonggaran) sebagai
 -- preset yang bisa diterapkan ke setiap carousel baru.
 -- ============================================================
+-- Cara pakai sekali jalan: tempel seluruh isi file ini ke Supabase -> SQL Editor -> Run.
+-- Idempoten: create table/index dibungkus "if not exists", policy di-drop lebih dulu.
+-- Satu transaksi: kalau trigger gagal, tabel tidak tertinggal tanpa trigger.
+
+begin;
 
 create table if not exists carousel_gaya_preset (
   id uuid primary key default gen_random_uuid(),
@@ -27,3 +32,5 @@ alter table carousel_gaya_preset enable row level security;
 drop policy if exists owner_all on carousel_gaya_preset;
 create policy owner_all on carousel_gaya_preset for all to authenticated
   using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+
+commit;

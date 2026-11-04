@@ -3,6 +3,11 @@
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
+import {
+  KERANGKA_IDS,
+  KETERANGAN_KERANGKA,
+  LABEL_KERANGKA,
+} from "@/lib/ai/kerangka";
 import { LABEL_MODE_OUTPUT, MODE_OUTPUT_IDS, batasPlatform } from "@/lib/platforms/batas";
 import {
   LABEL_PRESET_THREAD,
@@ -221,6 +226,20 @@ className={cn(
             { value: "pernyataan_mengejutkan", label: "Pernyataan Mengejutkan" },
           ]}
         />
+        <div>
+          <SelectField
+            id="kerangka"
+            label="Kerangka penulisan (urutan isi)"
+            value={value.kerangka}
+            onChange={(next) => set("kerangka", next)}
+            // Pilihan dari lib/ai/kerangka.ts, bukan hardcode di sini.
+            options={KERANGKA_IDS.map((id) => ({ value: id, label: LABEL_KERANGKA[id] }))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {KETERANGAN_KERANGKA[value.kerangka]} Gaya hook di atas tetap dipakai untuk status
+            pertama.
+          </p>
+        </div>
         <div>
           <SelectField
             id="persona"

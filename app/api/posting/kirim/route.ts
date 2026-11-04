@@ -2,6 +2,7 @@
  * POST /api/posting/kirim — kirim satu utas ke provider posting (Fase 7).
  *
  * Urutan kerjanya:
+ *   0. Wajib sesi: rute ini bertindak atas nama pemilik akun.
  *   1. Validasi bentuk permintaan dengan Zod.
  *   2. Gerbang antrian: hanya konten yang sudah disetujui, jadwalnya tiba, dan
  *      belum melewati batas harian atau jeda antar posting (lib/posting/antrian).
@@ -12,13 +13,19 @@
  * Token Threads tidak pernah menyentuh klien; rute ini satu-satunya jalur kirim.
  */
 import { NextResponse } from "next/server";
-import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
+import { wajibSesi } from "@/lib/supabase/server";
 import { periksaKirim } from "@/lib/posting/antrian";
 import { catatPost, riwayatKirimServer } from "@/lib/posting/catat-post";
 import { ambilProvider, penyediaEfektif } from "@/lib/posting/provider";
 import { kirimRequestSkema, type CatatanKirim, type HasilKirim } from "@/lib/posting/skema";
 
 export async function POST(req: Request) {
+  // Rute ini mengirim atas nama pemilik akun, jadi sesi wajib — sebelumnya
+  // tanpa sesi pun tetap jalan memakai riwayat dari klien.
+  const sesi = await wajibSesi();
+  if ("respons" in sesi) return sesi.respons;
+  const { user, supabase } = sesi;
+
   let badan: unknown;
   try {
     badan = await req.json();
@@ -35,16 +42,12 @@ export async function POST(req: Request) {
   }
 
   const { konten, pengaturan, riwayat } = parsed.data;
-  const supabase = await klienServer();
-  const user = supabase ? await penggunaSaatIni() : null;
 
-  // Sumber kuota: tabel `posts` saat Supabase aktif (tidak bisa dipalsukan
-  // klien), kalau tidak riwayat dari klien (pustaka masih di localStorage).
+  // Sumber kuota: tabel `posts` (tidak bisa dipalsukan klien). Riwayat dari
+  // klien hanya dipakai kalau server belum punya catatan sama sekali.
   let riwayatEfektif: CatatanKirim[] = riwayat;
-  if (supabase && user) {
-    const dariServer = await riwayatKirimServer(supabase);
-    if (dariServer.length > 0) riwayatEfektif = dariServer;
-  }
+  const dariServer = await riwayatKirimServer(supabase);
+  if (dariServer.length > 0) riwayatEfektif = dariServer;
 
   const izin = periksaKirim(konten, riwayatEfektif, pengaturan);
   if (!izin.boleh) {
@@ -61,17 +64,15 @@ export async function POST(req: Request) {
   const provider = ambilProvider(pengaturan.penyedia);
   const hasil = await provider.kirim(konten.statuses);
 
-  if (supabase && user) {
-    await catatPost(supabase, user.id, {
-      kontenId: konten.id,
-      judul: konten.judul,
-      hasil,
-      jumlahStatus: konten.statuses.length,
-      // Rute ini selalu dipicu aksi user, jadi modenya manual dalam arti
-      // "dikirim karena keputusan user", bukan oleh penjadwal otomatis (K12).
-      mode: "manual",
-    });
-  }
+  await catatPost(supabase, user.id, {
+    kontenId: konten.id,
+    judul: konten.judul,
+    hasil,
+    jumlahStatus: konten.statuses.length,
+    // Rute ini selalu dipicu aksi user, jadi modenya manual dalam arti
+    // "dikirim karena keputusan user", bukan oleh penjadwal otomatis (K12).
+    mode: "manual",
+  });
 
   return NextResponse.json(hasil);
 }

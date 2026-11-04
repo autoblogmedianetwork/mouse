@@ -4,6 +4,7 @@
  */
 import { z } from "zod";
 import { PERSONA_BAWAAN, normalkanPersonaId } from "@/lib/ai/persona";
+import { KERANGKA_IDS } from "@/lib/ai/kerangka";
 import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
 import { MODE_OUTPUT_IDS } from "@/lib/platforms/batas";
 
@@ -76,6 +77,10 @@ export const pengaturanSkema = z.object({
   // Persona id from lib/ai/persona.ts; legacy labels ("Bawaan", "Ahli") from
   // drafts saved before that module existed are normalized to an id here.
   persona: z.string().transform((nilai) => normalkanPersonaId(nilai)),
+  // Urutan isi konten (lib/ai/kerangka.ts). Sengaja dipisah dari gaya_hook:
+  // hook mengatur pembuka, kerangka mengatur alur. "bebas" = tidak dipaksakan,
+  // sehingga draf lama dan perilaku prompt sebelumnya tidak berubah.
+  kerangka: z.enum(KERANGKA_IDS).default("bebas"),
   gaya_hook: z.enum([
     "pertanyaan",
     "masalah_relatif",
@@ -99,6 +104,7 @@ export const PENGATURAN_AWAL: Pengaturan = {
   instruksi: "",
   anti_ai_slop: true,
   persona: PERSONA_BAWAAN.id,
+  kerangka: "bebas",
   gaya_hook: "bawaan",
   aturan_kepercayaan: true,
   letak_link: "balasan",
@@ -202,7 +208,67 @@ export const carouselResponseSkema = z.object({
 export type CarouselSlide = z.infer<typeof carouselSlideSkema>;
 export type CarouselResponse = z.infer<typeof carouselResponseSkema>;
 
+/* ------------------- Prompt 10: riset audiens (tahap 1) ---------------------- */
+
+/**
+ * Satu masalah audiens. `situasi` dan `alasan` diberi default string kosong:
+ * nilai yang hilang lebih baik ditampilkan apa adanya daripada membuang
+ * seluruh 10 hasil riset yang lain.
+ */
+export const masalahAudiensSkema = z.object({
+  masalah: z.string().min(1, "masalah tidak boleh kosong"),
+  situasi: z.string().default(""),
+  produk_contoh: z
+    .array(z.string())
+    .min(1, "setiap masalah wajib punya minimal satu contoh produk")
+    .max(3, "maksimal 3 contoh produk per masalah"),
+  alasan: z.string().default(""),
+});
+
+export const risetAudiensSkema = z.object({
+  ringkasan: z.string().min(1, "ringkasan wajib diisi").max(4000),
+  masalah: z
+    .array(masalahAudiensSkema)
+    .length(10, "riset audiens wajib menghasilkan tepat 10 masalah"),
+});
+
+export type MasalahAudiens = z.infer<typeof masalahAudiensSkema>;
+export type RisetAudiens = z.infer<typeof risetAudiensSkema>;
+
+/* ------------------ Prompt 11: peluang produk (tahap 2) ---------------------- */
+
+export const PRIORITAS_PELUANG = ["tinggi", "sedang", "rendah"] as const;
+export const KESULITAN_KONTEN = ["rendah", "sedang", "tinggi"] as const;
+
+export const peluangItemSkema = z.object({
+  kategori: z.string().min(1, "kategori tidak boleh kosong").max(160),
+  alasan: z.string().min(1).max(2000),
+  masalah_terkait: z.string().default(""),
+  contoh_produk: z.array(z.string()).min(1).max(3),
+  prioritas: z.enum(PRIORITAS_PELUANG),
+  kesulitan_konten: z.enum(KESULITAN_KONTEN),
+});
+
+export const peluangProdukSkema = z.object({
+  peluang: z
+    .array(peluangItemSkema)
+    .length(20, "peluang produk wajib menghasilkan tepat 20 kategori"),
+});
+
+export type PeluangItem = z.infer<typeof peluangItemSkema>;
+export type PeluangProduk = z.infer<typeof peluangProdukSkema>;
+
 /* --------------------------- Request bodies (API) ----------------------------- */
+
+export const risetRequestSkema = z.object({
+  niche: z.string().trim().min(3, "Niche minimal 3 karakter.").max(120),
+  audiens: z.string().trim().min(3, "Target audiens minimal 3 karakter.").max(200),
+});
+
+/** Body untuk menyusun ulang peluang dari riset yang sudah tersimpan. */
+export const peluangRequestSkema = z.object({
+  risetId: z.string().min(1, "ID riset wajib diisi.").max(64),
+});
 
 export const analisisRequestSkema = z.object({
   deskripsi: z.string().min(1, "Deskripsi wajib diisi"),

@@ -5,8 +5,13 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { ideRequestSkema, ideSkema } from "@/lib/ai/schemas";
 import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v2";
+import { wajibSesi } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
+  // Tanpa sesi, siapa pun yang tahu URL ini bisa membebani biaya AI.
+  const sesi = await wajibSesi();
+  if ("respons" in sesi) return sesi.respons;
+
   let body: unknown;
   try {
     body = await req.json();
