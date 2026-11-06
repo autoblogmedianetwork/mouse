@@ -15,24 +15,28 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { tujuanAman } from "@/lib/auth/tujuan";
 import { klienPeramban, PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
 /** Label form, metadata, dan tombol memakai gaya terminal: mono + uppercase. */
-const mikro = "font-mono text-[11px] uppercase tracking-[0.08em]";
+const mikro = "font-mono text-meta uppercase tracking-meta";
 const garis = "border-foreground";
 
 const FIELD_CLASS =
-  "!rounded-none h-12 w-full border-2 border-foreground bg-background px-3 font-mono text-sm uppercase tracking-[0.05em] outline-none focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-primary sm:h-14 sm:text-base";
+  "h-12 w-full border-2 border-foreground bg-background px-3 font-mono text-badan uppercase tracking-badge outline-none focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-primary sm:h-14 sm:text-base";
 const TOMBOL_UTAMA =
-  "!rounded-none inline-flex h-12 w-full items-center justify-center gap-2 border-2 border-foreground bg-primary px-4 font-mono text-sm font-semibold uppercase tracking-[0.08em] text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60 sm:h-14 sm:w-auto sm:justify-start";
+  "inline-flex h-12 w-full items-center justify-center gap-2 border-2 border-foreground bg-primary px-4 font-mono text-badan font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60 sm:h-14 sm:w-auto sm:justify-start";
 const TOMBOL_GHOST =
-  "!rounded-none inline-flex h-11 items-center justify-center border-2 border-foreground px-4 font-mono text-xs font-medium uppercase tracking-[0.08em] transition-colors hover:bg-muted";
+  "inline-flex h-11 items-center justify-center border-2 border-foreground px-4 font-mono text-meta font-medium uppercase tracking-meta transition-colors hover:bg-muted";
 
 /** Judul struktural raksasa: mengecil proporsional di mobile lewat clamp. */
 const JUDUL = "font-sans font-black uppercase leading-[0.9] tracking-[-0.04em] text-[clamp(2.75rem,11vw,6rem)]";
 
 export function FormMasuk() {
-  const galatUrl = useSearchParams().get("galat");
+  const params = useSearchParams();
+  const galatUrl = params.get("galat");
+  /** Halaman yang tadi ditolak guard; dipulihkan setelah login berhasil. */
+  const tujuan = tujuanAman(params.get("tujuan"));
   const [email, setEmail] = useState("");
   const [emailAktif, setEmailAktif] = useState<string | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
@@ -70,7 +74,9 @@ export function FormMasuk() {
     setSibuk(true);
     const { error } = await supabase.auth.signInWithOtp({
       email: normal,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(tujuan)}`,
+      },
     });
     setSibuk(false);
     if (error) {
@@ -91,10 +97,7 @@ export function FormMasuk() {
   const galatTampil = galat ?? galatUrl;
 
   return (
-    <section
-      aria-labelledby="masuk-judul"
-      className={`!rounded-none bg-surface ${garis} border-2`}
-    >
+    <section aria-labelledby="masuk-judul" className={`bg-surface ${garis} border-2`}>
       {emailAktif ? (
         /* Sesi aktif: panel status sederhana dengan penanda setor. */ (
           <div className="divide-y divide-surface-border">
@@ -104,7 +107,7 @@ export function FormMasuk() {
             </div>
             <dl className="grid gap-4 px-4 py-5 sm:grid-cols-[auto_1fr] sm:px-6">
               <dt className={mikro}>Masuk sebagai</dt>
-              <dd className="font-mono text-sm font-medium break-all">{emailAktif}</dd>
+              <dd className="font-mono text-badan font-medium break-all">{emailAktif}</dd>
             </dl>
             <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-6">
               <button type="button" className={TOMBOL_GHOST} onClick={keluar}>
@@ -126,7 +129,7 @@ export function FormMasuk() {
               <h2 id="masuk-judul" className={JUDUL}>
                 MASUK
               </h2>
-              <p className="mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
+              <p className="mt-3 max-w-md text-badan text-muted-foreground sm:text-base">
                 Satu email, tanpa kata sandi. Tautan sekali pakai dikirim ke kotak masuk Anda dan
                 berlaku sebentar.
               </p>

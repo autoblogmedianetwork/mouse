@@ -51,7 +51,7 @@ export function StatusBadge({
       className={cn(
         // Segi empat tegas (tanpa radius, token global) dengan label monospace:
         // penanda status seperti ticker di terminal.
-        "inline-flex items-center border-2 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.06em]",
+        "inline-flex items-center border-2 px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge",
         config.className,
         className,
       )}

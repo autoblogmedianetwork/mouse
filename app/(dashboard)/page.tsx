@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
 
 export const metadata = { title: "Dashboard" };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await wajibSesiHalaman("/");
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -13,7 +16,7 @@ export default function DashboardPage() {
       >
         <Link
           href="/posting/baru"
-          className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Buat posting baru
         </Link>

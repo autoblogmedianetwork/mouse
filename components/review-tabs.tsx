@@ -26,7 +26,7 @@ export function ReviewTabs({
     <div
       role="tablist"
       aria-label="Antrian review per status"
-      className="flex gap-1 overflow-x-auto border-b border-surface-border pb-px"
+      className="flex gap-1 overflow-x-auto border-b-2 border-foreground"
     >
       {tabs.map((t) => {
         const dipilih = t.value === aktif;
@@ -38,7 +38,7 @@ export function ReviewTabs({
             aria-selected={dipilih}
             onClick={() => onSelect(t.value)}
             className={cn(
-              "flex shrink-0 items-center gap-2 rounded-t-lg px-3 py-2 text-sm transition-colors",
+              "flex shrink-0 items-center gap-2 px-3 py-2 text-badan transition-colors",
               dipilih
                 ? "bg-muted font-medium text-foreground"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
@@ -47,7 +47,7 @@ export function ReviewTabs({
             {t.label}
             <span
               className={cn(
-                "rounded-full border border-surface-border px-1.5 py-0.5 text-xs tabular-nums",
+                "border border-surface-border px-1.5 py-0.5 font-mono text-mikro tabular-nums",
                 dipilih ? "text-foreground" : "text-muted-foreground",
               )}
             >

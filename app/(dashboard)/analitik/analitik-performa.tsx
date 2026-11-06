@@ -6,6 +6,7 @@
  */
 import Link from "next/link";
 import { useMemo } from "react";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { MARKETPLACE_LABEL } from "@/lib/impor/marketplace";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
@@ -20,9 +21,7 @@ export function AnalitikPerforma() {
 
   if (!siap) {
     return (
-      <div className="rounded-xl border border-surface-border bg-surface p-6 text-sm text-muted-foreground">
-        Memuat data performa…
-      </div>
+      <Card className="text-badan text-muted-foreground">Memuat data performa…</Card>
     );
   }
 
@@ -43,29 +42,32 @@ export function AnalitikPerforma() {
 
       <BagianPerformaKonten lengkap />
 
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+      <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">Sumber data</h2>
-          <Link href="/impor" className="text-sm text-primary underline-offset-2 hover:underline">
+          <h2 className="text-isi font-semibold">Sumber data</h2>
+          <Link href="/impor" className="text-badan text-primary underline-offset-2 hover:underline">
             Tambah laporan
           </Link>
         </div>
         <ul className="mt-3 divide-y divide-surface-border">
           {simpanan.sumber.map((s) => (
-            <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+            <li
+              key={s.id}
+              className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-badan"
+            >
               <span className="min-w-0 truncate font-medium">{s.nama}</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-meta text-muted-foreground">
                 {MARKETPLACE_LABEL[s.marketplace]} · {formatAngka(s.baris)} baris ·{" "}
                 {formatRupiah(s.komisi)} · {new Date(s.diimpor_pada).toLocaleDateString("id-ID")}
               </span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="mt-3 text-meta text-muted-foreground">
           Data ini tersimpan di peramban Anda. Setelah login Supabase aktif, baris yang sama akan
           disinkronkan ke tabel performa.
         </p>
-      </section>
+      </Card>
     </div>
   );
 }

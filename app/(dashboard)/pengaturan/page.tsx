@@ -1,9 +1,12 @@
 import { PageHeader } from "@/components/page-header";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { FormPengaturan } from "./form-pengaturan";
 
 export const metadata = { title: "Pengaturan" };
 
-export default function PengaturanPage() {
+export default async function PengaturanPage() {
+  await wajibSesiHalaman("/pengaturan");
+
   return (
     <div className="space-y-6">
       <PageHeader

@@ -8,6 +8,7 @@
  * masuk sebagai catatan performa setelah user menekan tombol simpan.
  */
 import { useCallback, useMemo, useRef, useState } from "react";
+import { Card } from "@/components/card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -26,10 +27,10 @@ import { PerformaRingkas } from "./performa-ringkas";
 import { usePerforma } from "./use-performa";
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 const btnUtama =
-  "inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
-const btnGhost = "rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted";
+  "inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
+const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 
 export function PanelImpor() {
   const { simpanan, siap, pesan, impor, hapusSemua } = usePerforma();
@@ -146,9 +147,9 @@ export function PanelImpor() {
   return (
     <div className="space-y-6">
       {/* 1. Sumber data */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-        <h2 className="text-base font-semibold">1. Pilih berkas ekspor</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <Card>
+        <h2 className="text-isi font-semibold">1. Pilih berkas ekspor</h2>
+        <p className="mt-1 text-badan text-muted-foreground">
           Unggah ekspor komisi atau pesanan dari Shopee Affiliate, TikTok Shop Affiliate, atau
           Tokopedia Affiliate (.xlsx, .csv, .tsv). Jalur manual juga tersedia: tempel isi laporan di
           kotak bawah.
@@ -166,11 +167,11 @@ export function PanelImpor() {
             const f = e.dataTransfer.files?.[0];
             if (f) void prosesBerkas(f);
           }}
-          className={`mt-4 rounded-xl border border-dashed p-6 text-center transition-colors ${
+          className={`mt-4 border border-dashed p-6 text-center transition-colors ${
             tarik ? "border-primary bg-muted" : "border-surface-border"
           }`}
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-badan text-muted-foreground">
             Tarik berkas ke sini, atau
             <button
               type="button"
@@ -196,7 +197,7 @@ export function PanelImpor() {
         </div>
 
         <div className="mt-4 space-y-2">
-          <label htmlFor="tempel-laporan" className="text-sm font-medium">
+          <label htmlFor="tempel-laporan" className="text-badan font-medium">
             Atau tempel isi laporan
           </label>
           <textarea
@@ -205,39 +206,39 @@ export function PanelImpor() {
             onChange={(e) => setTeks(e.target.value)}
             rows={4}
             placeholder={"Nama Produk;ID Pesanan;Status Pesanan;Komisi\nTas Kanvas;A123;Selesai;12000"}
-            className={`${inputClass} font-mono text-xs`}
+            className={`${inputClass} font-mono text-meta`}
           />
           <button type="button" onClick={prosesTempel} className={btnGhost} disabled={sibuk}>
             Baca teks yang ditempel
           </button>
         </div>
 
-        {sibuk ? <p className="mt-3 text-sm text-muted-foreground">Membaca berkas…</p> : null}
+        {sibuk ? <p className="mt-3 text-badan text-muted-foreground">Membaca berkas…</p> : null}
         {galat ? (
-          <p role="alert" className="mt-3 rounded-lg border border-status-failed/40 bg-muted px-3 py-2 text-sm text-status-failed">
+          <p role="alert" className="mt-3 border border-status-failed/40 bg-muted px-3 py-2 text-badan text-status-failed">
             {galat}
           </p>
         ) : null}
-      </section>
+      </Card>
 
       {/* 2. Hasil deteksi dan pratinjau */}
       {hasil ? (
-        <section className="space-y-4 rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+        <Card className="space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-base font-semibold">2. Periksa hasil pembacaan</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h2 className="text-isi font-semibold">2. Periksa hasil pembacaan</h2>
+              <p className="mt-1 text-badan text-muted-foreground">
                 Sumber <span className="font-medium text-foreground">{hasil.nama_sumber}</span> ·
                 pemisah {hasil.pemisah === "xlsx" ? "Excel" : `"${hasil.pemisah}"`}
                 {hasil.baris_dilewati > 0 ? ` · ${hasil.baris_dilewati} baris judul dilewati` : ""}
               </p>
-              <p className="mt-1 text-sm">
+              <p className="mt-1 text-badan">
                 Terdeteksi:{" "}
                 <span className="font-medium">{MARKETPLACE_LABEL[hasil.marketplace]}</span>{" "}
                 <span className="text-muted-foreground">({hasil.alasan_deteksi})</span>
               </p>
             </div>
-            <label className="text-sm">
+            <label className="text-badan">
               <span className="mr-2 text-muted-foreground">Marketplace</span>
               <select
                 value={paksa}
@@ -253,40 +254,40 @@ export function PanelImpor() {
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm">
-            <span className="rounded-lg bg-muted px-3 py-1.5">
+          <div className="flex flex-wrap gap-4 text-badan">
+            <span className="bg-muted px-3 py-1.5">
               {formatAngka(hasil.baris.length)} baris siap disimpan
             </span>
-            <span className="rounded-lg bg-muted px-3 py-1.5">
+            <span className="bg-muted px-3 py-1.5">
               {formatAngka(hasil.total_baris)} baris dibaca
             </span>
-            <span className="rounded-lg bg-muted px-3 py-1.5">
+            <span className="bg-muted px-3 py-1.5">
               {formatAngka(hasil.ditolak.length)} baris dilewati
             </span>
             {hasil.kolom_tak_dikenali.length > 0 ? (
-              <span className="rounded-lg bg-muted px-3 py-1.5 text-muted-foreground">
+              <span className="bg-muted px-3 py-1.5 text-muted-foreground">
                 Kolom tak dipakai: {hasil.kolom_tak_dikenali.join(", ")}
               </span>
             ) : null}
           </div>
 
           {hasil.kolom_kurang.length > 0 ? (
-            <p role="alert" className="rounded-lg border border-status-failed/40 bg-muted px-3 py-2 text-sm">
+            <p role="alert" className="border border-status-failed/40 bg-muted px-3 py-2 text-badan">
               Kolom wajib belum ketemu: {hasil.kolom_kurang.map((k) => KOLOM_LABEL[k as KolomInternal] ?? k).join(", ")}.
               Petakan kolom secara manual di bawah.
             </p>
           ) : null}
 
           {/* Pemetaan kolom */}
-          <details open={hasil.kolom_kurang.length > 0} className="rounded-lg border border-surface-border">
-            <summary className="cursor-pointer px-3 py-2 text-sm font-medium">
+          <details open={hasil.kolom_kurang.length > 0} className="border border-surface-border">
+            <summary className="cursor-pointer px-3 py-2 text-badan font-medium">
               Ubah pemetaan kolom ({Object.keys(hasil.peta).length} dari {hasil.header.length})
             </summary>
             <div className="space-y-2 border-t border-surface-border p-3">
               {hasil.header.map((namaKolom, idx) => {
                 const terpakai = kolomDraft.get(idx);
                 return (
-                  <div key={`${namaKolom}-${idx}`} className="flex flex-wrap items-center gap-2 text-sm">
+                  <div key={`${namaKolom}-${idx}`} className="flex flex-wrap items-center gap-2 text-badan">
                     <span className="min-w-0 flex-1 truncate" title={namaKolom}>
                       {namaKolom || `(kolom ${idx + 1} tanpa nama)`}
                     </span>
@@ -329,11 +330,11 @@ export function PanelImpor() {
                   Terapkan pemetaan
                 </button>
                 {petaBerubah ? (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-meta text-muted-foreground">
                     Pemetaan belum diterapkan — tekan tombol untuk membaca ulang baris.
                   </span>
                 ) : (
-                  <span className="text-xs text-muted-foreground">Pemetaan sudah diterapkan.</span>
+                  <span className="text-meta text-muted-foreground">Pemetaan sudah diterapkan.</span>
                 )}
               </div>
             </div>
@@ -342,10 +343,10 @@ export function PanelImpor() {
           {/* Pratinjau baris */}
           {hasil.baris.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-sm">
+              <table className="w-full min-w-[40rem] text-badan">
                 <caption className="sr-only">Pratinjau baris performa hasil impor</caption>
                 <thead>
-                  <tr className="border-b border-surface-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                     <th className="py-2 pr-3 font-medium">Produk</th>
                     <th className="py-2 pr-3 font-medium">ID pesanan</th>
                     <th className="py-2 pr-3 font-medium">Tanggal</th>
@@ -366,7 +367,7 @@ export function PanelImpor() {
                 </tbody>
               </table>
               {hasil.baris.length > 8 ? (
-                <p className="mt-2 text-xs text-muted-foreground">
+                <p className="mt-2 text-meta text-muted-foreground">
                   Menampilkan 8 dari {formatAngka(hasil.baris.length)} baris.
                 </p>
               ) : null}
@@ -374,9 +375,9 @@ export function PanelImpor() {
           ) : null}
 
           {hasil.ditolak.length > 0 ? (
-            <div className="rounded-lg border border-surface-border p-3">
-              <p className="text-sm font-medium">Baris yang dilewati</p>
-              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+            <div className="border border-surface-border p-3">
+              <p className="text-badan font-medium">Baris yang dilewati</p>
+              <ul className="mt-2 space-y-1 text-meta text-muted-foreground">
                 {hasil.ditolak.slice(0, 5).map((d) => (
                   <li key={d.nomor}>
                     Baris {d.nomor}: {d.alasan}
@@ -387,14 +388,14 @@ export function PanelImpor() {
           ) : null}
 
           {ringkasPratinjau ? (
-            <div className="flex flex-wrap gap-4 text-sm">
-              <span className="rounded-lg bg-muted px-3 py-1.5">
+            <div className="flex flex-wrap gap-4 text-badan">
+              <span className="bg-muted px-3 py-1.5">
                 Komisi terbaca: <span className="font-medium">{formatRupiah(ringkasPratinjau.komisi)}</span>
               </span>
-              <span className="rounded-lg bg-muted px-3 py-1.5">
+              <span className="bg-muted px-3 py-1.5">
                 GMV: <span className="font-medium">{formatRupiah(ringkasPratinjau.gmv)}</span>
               </span>
-              <span className="rounded-lg bg-muted px-3 py-1.5">
+              <span className="bg-muted px-3 py-1.5">
                 {formatAngka(ringkasPratinjau.pesanan)} pesanan ·{" "}
                 {formatAngka(ringkasPratinjau.produk)} produk
               </span>
@@ -418,23 +419,23 @@ export function PanelImpor() {
             >
               Batalkan
             </button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-meta text-muted-foreground">
               Data masuk sebagai catatan performa. Konten dan status posting tidak berubah.
             </p>
           </div>
 
           {sukses ? (
-            <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm text-status-ready">
+            <p role="status" className="bg-muted px-3 py-2 text-badan text-status-ready">
               {sukses}
             </p>
           ) : null}
-        </section>
+        </Card>
       ) : null}
 
       {/* 3. Data tersimpan */}
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">3. Performa tersimpan</h2>
+          <h2 className="text-isi font-semibold">3. Performa tersimpan</h2>
           {simpanan.baris.length > 0 ? (
             <button type="button" className={btnGhost} onClick={() => setKonfirmasi(true)}>
               Hapus semua data performa
@@ -443,7 +444,7 @@ export function PanelImpor() {
         </div>
 
         {!siap ? (
-          <p className="text-sm text-muted-foreground">Memuat data tersimpan…</p>
+          <p className="text-badan text-muted-foreground">Memuat data tersimpan…</p>
         ) : simpanan.baris.length === 0 ? (
           <EmptyState
             title="Belum ada data performa"
@@ -453,13 +454,13 @@ export function PanelImpor() {
           <>
             <PerformaRingkas ringkas={ringkasTersimpan} />
 
-            <div className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-              <h3 className="text-base font-semibold">Riwayat impor</h3>
+            <Card>
+              <h3 className="text-isi font-semibold">Riwayat impor</h3>
               <ul className="mt-3 divide-y divide-surface-border">
                 {simpanan.sumber.slice(0, 8).map((s) => (
-                  <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+                  <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-badan">
                     <span className="min-w-0 truncate font-medium">{s.nama}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-meta text-muted-foreground">
                       {MARKETPLACE_LABEL[s.marketplace]} · {formatAngka(s.baris)} baris
                       {s.ditolak > 0 ? ` · ${formatAngka(s.ditolak)} dilewati` : ""} ·{" "}
                       {formatRupiah(s.komisi)} · {new Date(s.diimpor_pada).toLocaleString("id-ID")}
@@ -467,11 +468,11 @@ export function PanelImpor() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           </>
         )}
 
-        {pesan ? <p className="text-sm text-muted-foreground">{pesan}</p> : null}
+        {pesan ? <p className="text-badan text-muted-foreground">{pesan}</p> : null}
       </section>
 
       <ConfirmDialog

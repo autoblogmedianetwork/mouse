@@ -18,12 +18,12 @@ export function StatCard({
 }) {
   return (
     <div className="border-2 border-foreground bg-surface p-4 sm:p-5">
-      <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+      <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
         {label}
       </p>
       <p
         className={cn(
-          "mt-2 border-b border-surface-border pb-2 text-3xl font-bold tabular-nums tracking-tight",
+          "mt-2 border-b border-surface-border pb-2 text-hero font-bold tabular-nums tracking-tight",
           tone === "draft" && "text-status-draft",
           tone === "siap" && "text-status-ready",
         )}
@@ -31,7 +31,7 @@ export function StatCard({
         {nilai}
       </p>
       {catatan ? (
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground">
+        <p className="mt-2 font-mono text-mikro uppercase tracking-badge text-muted-foreground">
           {catatan}
         </p>
       ) : null}

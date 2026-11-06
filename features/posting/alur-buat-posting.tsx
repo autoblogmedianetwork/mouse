@@ -10,6 +10,7 @@ import { KartuQuickCapture } from "./kartu-quick-capture";
 import { TombolSuaraNarasi } from "./tombol-suara-narasi";
 import { TombolRenderVideo } from "./tombol-render-video";
 import { PanduanFotoCandid } from "./panduan-foto-candid";
+import { Card } from "@/components/card";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -131,11 +132,10 @@ async function postJson<T>(url: string, body: unknown): Promise<ApiResult<T>> {
   }
 }
 
-const cardClass = "rounded-xl border border-surface-border bg-surface p-4 sm:p-6";
 const primaryBtn =
-  "inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
+  "inline-flex h-10 items-center bg-primary px-5 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
 const ghostBtn =
-  "inline-flex h-10 items-center rounded-lg border border-surface-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60";
+  "inline-flex h-10 items-center border border-surface-border px-5 text-badan font-medium transition-colors hover:bg-muted disabled:opacity-60";
 
 export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) {
   // Quick Capture (N-8): parameter `prefill` dibaca murni saat render. Nilai
@@ -161,10 +161,12 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
   }, [draft.produk, programs]);
 
   const bannerAturan = catatanAturan ? (
-    <div className="flex items-start gap-3 rounded-none border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-700 dark:text-amber-300 font-mono">
-      <span className="text-base leading-none">⚠️</span>
+    <div className="flex items-start gap-3 border border-warning/40 bg-warning/10 p-3.5 font-mono text-meta">
+      <span aria-hidden className="text-badan leading-none font-bold text-warning">
+        !!
+      </span>
       <div>
-        <p className="font-semibold uppercase tracking-wider">
+        <p className="font-semibold text-warning uppercase tracking-meta">
           Pengingat Aturan Program Affiliate:
         </p>
         <p className="mt-1 leading-relaxed">{catatanAturan}</p>
@@ -619,7 +621,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               disabled={!bisaKe}
               onClick={() => bisaKe && setLangkah(l.id)}
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm font-mono",
+                "border px-3 py-1.5 text-meta font-medium transition-colors sm:text-badan font-mono",
                 aktif
                   ? "border-primary bg-primary text-primary-foreground font-semibold"
                   : bisaKe
@@ -636,13 +638,13 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {error ? (
         <div
           role="alert"
-          className="flex items-center justify-between gap-3 rounded-none border border-status-failed/40 bg-status-failed/10 px-4 py-3 text-sm font-mono"
+          className="flex items-center justify-between gap-3 border border-status-failed/40 bg-status-failed/10 px-4 py-3 text-badan font-mono"
         >
           <span>{error}</span>
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-xs underline-offset-2 hover:underline uppercase"
+            className="text-meta underline-offset-2 hover:underline uppercase"
           >
             [ Tutup ]
           </button>
@@ -650,7 +652,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       ) : null}
 
       {pesan ? (
-        <p className="text-sm font-mono text-status-ready" aria-live="polite">
+        <p className="text-badan font-mono text-status-ready" aria-live="polite">
           {pesan}
         </p>
       ) : null}
@@ -659,9 +661,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {langkah === "produk" ? (
         <div className="space-y-6">
           {prefill ? (
-            <div className="border border-primary/40 bg-primary/5 px-4 py-3 text-sm font-mono">
-              <p className="font-medium text-xs uppercase">[ DATA DARI QUICK CAPTURE ]</p>
-              <p className="mt-1 text-muted-foreground text-xs">
+            <div className="border border-primary/40 bg-primary/5 px-4 py-3 text-badan font-mono">
+              <p className="font-medium text-meta uppercase">[ DATA DARI QUICK CAPTURE ]</p>
+              <p className="mt-1 text-muted-foreground text-meta">
                 Isian di bawah diambil dari halaman yang Anda tandai
                 {prefill.sumber ? ` di ${prefill.sumber}` : ""}. Periksa dan lengkapi
                 dulu; penawaran baru tersimpan setelah Anda menekan “Simpan penawaran”.
@@ -682,18 +684,18 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
           />
           <KartuQuickCapture />
           {draft.produk ? (
-            <div className={cardClass}>
+            <Card>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                  <h2 className="text-meta font-mono font-semibold uppercase tracking-meta text-muted-foreground">
                     [ PENAWARAN AKTIF ]
                   </h2>
-                  <p className="mt-1 text-sm font-medium">
+                  <p className="mt-1 text-badan font-medium">
                     {draft.produk.nama_internal}
                     {draft.produk.harga ? ` (${draft.produk.harga})` : ""}
                   </p>
                   {draft.produk.url_referensi ? (
-                    <p className="text-xs font-mono text-muted-foreground truncate max-w-md mt-0.5">
+                    <p className="text-meta font-mono text-muted-foreground truncate max-w-md mt-0.5">
                       {draft.produk.url_referensi}
                     </p>
                   ) : null}
@@ -701,7 +703,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    className="h-9 px-4 border border-surface-border bg-muted/60 hover:bg-muted text-xs font-mono uppercase font-medium transition-colors"
+                    className="h-9 px-4 border border-surface-border bg-muted/60 hover:bg-muted text-meta font-mono uppercase font-medium transition-colors"
                     onClick={() => {
                       if (!draft.analisisManual) {
                         update({
@@ -719,14 +721,14 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   </button>
                   <button
                     type="button"
-                    className="h-9 px-4 bg-primary text-primary-foreground text-xs font-mono uppercase font-semibold hover:bg-primary-hover transition-colors"
+                    className="h-9 px-4 bg-primary text-primary-foreground text-meta font-mono uppercase font-semibold hover:bg-primary-hover transition-colors"
                     onClick={() => setLangkah("analisis")}
                   >
                     Lanjut ke analisis &gt;&gt;
                   </button>
                 </div>
               </div>
-            </div>
+            </Card>
           ) : null}
         </div>
       ) : null}
@@ -734,9 +736,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {/* ----------------------------- Tahap 2: analisis -------------------------- */}
       {langkah === "analisis" ? (
         <div className="space-y-6">
-          <section className={cardClass}>
+          <Card>
             <h2 className="text-base font-semibold">Analisis penawaran</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-badan text-muted-foreground">
               Hasil AI bersifat draft dan bisa dikoreksi sebelum lanjut (PRD 10.3).
             </p>
 
@@ -757,39 +759,39 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
             </div>
 
             {!draft.produk ? (
-              <p className="mt-3 text-sm text-status-failed">
+              <p className="mt-3 text-badan text-status-failed">
                 Isi penawaran di tahap 1 dulu.
               </p>
             ) : null}
-          </section>
+          </Card>
 
           {draft.analisis ? (
-            <section className={cardClass}>
+            <Card>
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Hasil analisis</h3>
-                <span className="text-xs text-muted-foreground">
+                <h3 className="text-badan font-semibold">Hasil analisis</h3>
+                <span className="text-meta text-muted-foreground">
                   Confidence: {draft.analisis.confidence}
                 </span>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+              <p className="mt-2 whitespace-pre-wrap text-badan leading-6">
                 {draft.analisis.ringkasan}
               </p>
               <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <dt className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
                     Fitur
                   </dt>
-                  <dd className="mt-1 list-inside list-disc text-sm">
+                  <dd className="mt-1 list-inside list-disc text-badan">
                     {draft.analisis.fitur.map((f) => (
                       <li key={f}>{f}</li>
                     ))}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <dt className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
                     Target audiens
                   </dt>
-                  <dd className="mt-1 list-inside list-disc text-sm">
+                  <dd className="mt-1 list-inside list-disc text-badan">
                     {draft.analisis.target_audiens.map((a) => (
                       <li key={a}>{a}</li>
                     ))}
@@ -797,15 +799,15 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 </div>
               </dl>
               {draft.analisis.klaim_perlu_cek.length > 0 ? (
-                <p className="mt-4 rounded-lg border border-status-failed/40 bg-status-failed/10 p-3 text-xs">
+                <p className="mt-4 border border-status-failed/40 bg-status-failed/10 p-3 text-meta">
                   Klaim yang perlu dicek: {draft.analisis.klaim_perlu_cek.join("; ")}
                 </p>
               ) : null}
-            </section>
+            </Card>
           ) : null}
 
-          <section className={cardClass}>
-            <label htmlFor="analisis-manual" className="mb-1 block text-sm font-medium">
+          <Card>
+            <label htmlFor="analisis-manual" className="mb-1 block text-badan font-medium">
               Ringkasan (bisa dikoreksi atau ditulis manual)
             </label>
             <textarea
@@ -814,9 +816,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               value={draft.analisisManual}
               onChange={(e) => update({ analisisManual: e.target.value })}
               placeholder="Tulis ringkasan produk sendiri jika AI tidak tersedia."
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
-          </section>
+          </Card>
 
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => setLangkah("produk")} className={ghostBtn}>
@@ -869,11 +871,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {langkah === "ide" ? (
         <div className="space-y-6">
           {bannerAturan}
-          <section className={cardClass}>
+          <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold">Ide konten</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-badan text-muted-foreground">
                   AI membuat 10 ide. Pilih satu atau beberapa (PRD F2).
                 </p>
               </div>
@@ -886,7 +888,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 {busy === "ide" ? "Membuat ide…" : "Buat 10 ide"}
               </button>
             </div>
-          </section>
+          </Card>
 
           {draft.ideList.length > 0 ? (
             <>
@@ -894,18 +896,18 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 <button
                   type="button"
                   onClick={() => update({ ideDipilih: draft.ideList.map((i) => i.judul) })}
-                  className="text-sm underline-offset-2 hover:underline"
+                  className="text-badan underline-offset-2 hover:underline"
                 >
                   Pilih semua
                 </button>
                 <button
                   type="button"
                   onClick={() => update({ ideDipilih: [] })}
-                  className="text-sm underline-offset-2 hover:underline"
+                  className="text-badan underline-offset-2 hover:underline"
                 >
                   Batalkan semua
                 </button>
-                <span className="ml-auto text-sm text-muted-foreground">
+                <span className="ml-auto text-badan text-muted-foreground">
                   {draft.ideDipilih.length} dipilih
                 </span>
               </div>
@@ -917,14 +919,14 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                     <li key={ide.judul}>
                       <label
                         className={cn(
-                          "flex h-full cursor-pointer flex-col rounded-xl border p-4 transition-colors",
+                          "flex h-full cursor-pointer flex-col border p-4 transition-colors",
                           dipilih
                             ? "border-primary bg-primary/5"
                             : "border-surface-border bg-surface hover:bg-muted/50",
                         )}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <span className="text-sm font-semibold leading-5">{ide.judul}</span>
+                          <span className="text-badan font-semibold leading-5">{ide.judul}</span>
                           <input
                             type="checkbox"
                             checked={dipilih}
@@ -932,13 +934,13 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                             className="mt-1 h-4 w-4 accent-[var(--primary)]"
                           />
                         </div>
-                        <p className="mt-2 text-sm text-muted-foreground">{ide.deskripsi}</p>
-                        <p className="mt-2 text-xs">
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                        <p className="mt-2 text-badan text-muted-foreground">{ide.deskripsi}</p>
+                        <p className="mt-2 text-meta">
+                          <span className="bg-muted px-2 py-0.5 text-muted-foreground">
                             {ide.format_label}
                           </span>
                         </p>
-                        <p className="mt-2 text-xs text-muted-foreground">
+                        <p className="mt-2 text-meta text-muted-foreground">
                           Jembatan: {ide.jembatan}
                         </p>
                       </label>
@@ -955,9 +957,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
           )}
 
           {/* Ide manual: PRD F1 — input manual tidak pernah dihapus, AI hanya pelengkap. */}
-          <section className={cardClass}>
+          <Card>
             <h2 className="text-base font-semibold">Ide manual</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-badan text-muted-foreground">
               Tanpa AI pun alur tetap berjalan: tulis idemu di sini, lanjut, lalu ketik
               statusnya sendiri di editor.
             </p>
@@ -968,7 +970,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 value={judulManual}
                 onChange={(e) => setJudulManual(e.target.value)}
                 placeholder="Judul ide, mis. 5 alasan tas kanvas awet"
-                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+                className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
               />
               <select
                 id="ide-manual-format"
@@ -977,7 +979,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   setFormatManual(e.target.value as (typeof FORMAT_LABELS)[number])
                 }
                 aria-label="Label format ide"
-                className="rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+                className="border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
               >
                 {FORMAT_LABELS.map((f) => (
                   <option key={f} value={f}>
@@ -992,14 +994,14 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               value={deskripsiManual}
               onChange={(e) => setDeskripsiManual(e.target.value)}
               placeholder="Deskripsi singkat (opsional)"
-              className="mt-3 w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="mt-3 w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
             <div className="mt-3">
               <button type="button" onClick={tambahIdeManual} className={ghostBtn}>
                 Tambah ide
               </button>
             </div>
-          </section>
+          </Card>
 
           <div className="flex gap-3">
             <button type="button" onClick={() => setLangkah("analisis")} className={ghostBtn}>
@@ -1033,19 +1035,19 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
             disabled={busy !== null}
           />
 
-          <section className={cardClass}>
-            <p className="text-sm text-muted-foreground">
+          <Card>
+            <p className="text-badan text-muted-foreground">
               Akan membuat <strong className="text-foreground">{draft.ideDipilih.length}</strong>{" "}
               konten (satu per ide terpilih). Semua hasil berstatus draft.
             </p>
             {draft.pengaturan.mode_output === "naskah_video" ? (
-              <p className="mt-2 rounded-lg border border-surface-border p-3 text-xs text-muted-foreground">
+              <p className="mt-2 border border-surface-border p-3 text-meta text-muted-foreground">
                 Mode naskah video: tiap konten berisi tiga bagian — hook visual
                 (3 detik), fungsi produk, dan CTA — dengan durasi total 30 sampai
                 60 detik.
               </p>
             ) : draft.pengaturan.mode_output === "carousel" ? (
-              <p className="mt-2 rounded-lg border border-surface-border p-3 text-xs text-muted-foreground">
+              <p className="mt-2 border border-surface-border p-3 text-meta text-muted-foreground">
                 Mode Carousel: tiap konten disusun menjadi slide visual (cover, isi, cta) dan caption.
                 Hasil slide bisa langsung diunduh sebagai gambar PNG atau disalin teksnya ke Canva.
               </p>
@@ -1065,7 +1067,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                 Kembali
               </button>
             </div>
-          </section>
+          </Card>
         </div>
       ) : null}
 
@@ -1109,7 +1111,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                     type="button"
                     onClick={() => update({ kontenAktif: i })}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs transition-colors",
+                      "border px-3 py-1.5 text-meta transition-colors",
                       i === draft.kontenAktif
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-surface-border bg-surface hover:bg-muted",
@@ -1225,7 +1227,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                     letakLink={draft.pengaturan.letak_link}
                     batas={batasKarakter}
                   />
-                  <p className="mt-3 text-xs text-muted-foreground">
+                  <p className="mt-3 text-meta text-muted-foreground">
                     Total{" "}
                     {kontenAktif?.statuses.reduce((sum, s) => sum + charLength(s), 0) ?? 0} karakter
                     di {kontenAktif?.statuses.length ?? 0} status.

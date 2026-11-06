@@ -11,6 +11,8 @@ import { createServerClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { tautanMasuk } from "@/lib/auth/tujuan";
 
 /** Same env guard as the browser client, so both report the same problem. */
 export function supabaseSiap(): boolean {
@@ -96,4 +98,41 @@ export async function wajibSesi(): Promise<
   }
 
   return { user: data.user, supabase };
+}
+
+/** Identity the dashboard shell needs; extracted from the verified JWT. */
+export interface SesiHalaman {
+  userId: string;
+  email: string | null;
+}
+
+/**
+ * Page guard: sends a signed-out visitor to /masuk and remembers where they
+ * were going. Call it from every dashboard page, not only the layout.
+ *
+ * Next.js docs (authentication.md §"Layouts and auth checks") warn that a
+ * layout does not re-render on navigation and does not control whether the
+ * route segment renders, so a layout check is optimistic only. The page check
+ * is the one that actually stops the page from rendering.
+ *
+ * `getClaims()` verifies the token locally and refreshes it when needed; the
+ * refresh cookie is written by proxy.ts, because Server Components cannot set
+ * cookies.
+ */
+export async function wajibSesiHalaman(tujuan: string): Promise<SesiHalaman> {
+  const supabase = await klienServer();
+  if (!supabase) {
+    redirect(`/masuk?galat=${encodeURIComponent("Supabase belum dikonfigurasi di server.")}`);
+  }
+
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (error || !claims?.sub) {
+    redirect(tautanMasuk(tujuan));
+  }
+
+  return {
+    userId: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : null,
+  };
 }

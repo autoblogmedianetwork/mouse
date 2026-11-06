@@ -1,10 +1,14 @@
-import { PageHeader } from "@/components/page-header";
 import Link from "next/link";
+import { Card } from "@/components/card";
+import { PageHeader } from "@/components/page-header";
 import { DaftarAkun } from "@/features/akun/daftar-akun";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 
 export const metadata = { title: "Akun sosial" };
 
-export default function AkunPage() {
+export default async function AkunPage() {
+  await wajibSesiHalaman("/akun");
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -14,14 +18,17 @@ export default function AkunPage() {
 
       <DaftarAkun />
 
-      <section className="rounded-xl border border-surface-border bg-surface p-5">
+      <Card>
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold">Ribuan konten, satu akun</h2>
-          <Link href="/posting/baru" className="text-sm text-primary underline-offset-2 hover:underline">
+          <h2 className="text-isi font-semibold">Ribuan konten, satu akun</h2>
+          <Link
+            href="/posting/baru"
+            className="text-badan text-primary underline-offset-2 hover:underline"
+          >
             Buat posting
           </Link>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-badan text-muted-foreground">
           Dari akun yang terhubung, pilih ide konten, generate utas, lalu salin atau kirim via provider
           posting. Status per konten terlihat di Antrian review.
         </p>
@@ -50,14 +57,14 @@ export default function AkunPage() {
             },
           ].map((item) => (
             <Link key={item.href} href={item.href} className="block">
-              <div className="rounded-xl border border-surface-border bg-background p-4 transition-colors hover:border-primary/40">
-                <p className="text-sm font-semibold">{item.label}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
+              <div className="border border-surface-border bg-background p-4 transition-colors hover:border-primary/40">
+                <p className="text-badan font-semibold">{item.label}</p>
+                <p className="mt-1 text-meta text-muted-foreground">{item.desc}</p>
               </div>
             </Link>
           ))}
         </div>
-      </section>
+      </Card>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Card } from "@/components/card";
 import {
   normalisasiUsername,
   type AkunSosial,
@@ -74,18 +75,18 @@ export function ModalTambahAkun({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="w-full max-w-lg rounded-xl border border-surface-border bg-surface p-6 shadow-xl animate-in fade-in-50 zoom-in-95">
-        <div className="flex items-center justify-between pb-4 border-b border-surface-border">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <Card className="w-full max-w-lg">
+        <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex h-9 w-9 items-center justify-center bg-primary/10 text-primary">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path d="M12 4v16m8-8H4" />
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-semibold">Hubungkan Akun Sosial</h2>
-              <p className="text-xs text-muted-foreground">
+              <h2 className="text-isi font-semibold">Hubungkan Akun Sosial</h2>
+              <p className="text-meta text-muted-foreground">
                 Sambungkan akun Threads untuk penerbitan konten affiliate.
               </p>
             </div>
@@ -93,7 +94,7 @@ export function ModalTambahAkun({
           <button
             type="button"
             onClick={onTutup}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path d="M6 18L18 6M6 6l12 12" />
@@ -102,40 +103,40 @@ export function ModalTambahAkun({
         </div>
 
         {pesanError && (
-          <div className="mt-4 rounded-lg border border-status-failed/30 bg-status-failed/10 p-3 text-xs text-status-failed">
+          <div className="mt-4 border border-status-failed/30 bg-status-failed/10 p-3 text-meta text-status-failed">
             {pesanError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label className="mb-1 block text-meta font-semibold uppercase tracking-meta text-muted-foreground">
               Platform
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setPlatform("Threads")}
-                className="flex items-center justify-center gap-2 rounded-lg border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
+                className="flex items-center justify-center gap-2 border border-primary bg-primary/10 px-3 py-2 text-badan font-medium text-primary"
               >
                 <span>Threads</span>
-                <span className="rounded-full bg-primary/20 px-1.5 py-0.2 text-[10px] font-bold">
+                <span className="border border-primary/40 px-1.5 py-0.5 font-mono text-mikro font-bold uppercase tracking-badge">
                   Aktif (MVP)
                 </span>
               </button>
               <button
                 type="button"
                 disabled
-                className="flex items-center justify-center gap-2 rounded-lg border border-surface-border bg-muted/40 px-3 py-2 text-sm font-medium text-muted-foreground opacity-60"
+                className="flex items-center justify-center gap-2 border border-surface-border bg-muted/40 px-3 py-2 text-badan font-medium text-muted-foreground opacity-60"
               >
                 <span>Instagram / X</span>
-                <span className="text-[10px] italic">(Segera)</span>
+                <span className="text-mikro italic">(Segera)</span>
               </button>
             </div>
           </div>
 
           <div>
-            <label htmlFor="modal-username" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="modal-username" className="mb-1 block text-meta font-semibold uppercase tracking-meta text-muted-foreground">
               Username / Handle Threads <span className="text-destructive">*</span>
             </label>
             <input
@@ -145,12 +146,12 @@ export function ModalTambahAkun({
               placeholder="@username_affiliate"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
+              className="w-full border border-input bg-background px-3 py-2 text-badan outline-none transition-colors focus:border-primary"
             />
           </div>
 
           <div>
-            <label htmlFor="modal-nama" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="modal-nama" className="mb-1 block text-meta font-semibold uppercase tracking-meta text-muted-foreground">
               Nama Tampilan (Opsional)
             </label>
             <input
@@ -159,40 +160,40 @@ export function ModalTambahAkun({
               placeholder="Contoh: Akun Promo Shopee"
               value={namaTampilan}
               onChange={(e) => setNamaTampilan(e.target.value)}
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
+              className="w-full border border-input bg-background px-3 py-2 text-badan outline-none transition-colors focus:border-primary"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label className="mb-1 block text-meta font-semibold uppercase tracking-meta text-muted-foreground">
               Metode Integrasi
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setMode("manual")}
-                className={`rounded-lg border p-2.5 text-left text-xs transition-colors ${
+                className={`border p-2.5 text-left text-meta transition-colors ${
                   mode === "manual"
                     ? "border-primary bg-primary/10 text-primary font-medium"
                     : "border-surface-border bg-background text-muted-foreground hover:bg-muted"
                 }`}
               >
                 <div className="font-semibold">Manual / Verifikasi</div>
-                <div className="mt-0.5 text-[11px] opacity-80">
+                <div className="mt-0.5 text-meta opacity-80">
                   Langsung aktif, siap untuk salin & kelola konten.
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setMode("otomatis")}
-                className={`rounded-lg border p-2.5 text-left text-xs transition-colors ${
+                className={`border p-2.5 text-left text-meta transition-colors ${
                   mode === "otomatis"
                     ? "border-primary bg-primary/10 text-primary font-medium"
                     : "border-surface-border bg-background text-muted-foreground hover:bg-muted"
                 }`}
               >
                 <div className="font-semibold">Threads API</div>
-                <div className="mt-0.5 text-[11px] opacity-80">
+                <div className="mt-0.5 text-meta opacity-80">
                   Kirim otomatis lewat Meta Graph API.
                 </div>
               </button>
@@ -200,15 +201,15 @@ export function ModalTambahAkun({
           </div>
 
           {mode === "otomatis" && (
-            <div className="space-y-3 rounded-lg border border-surface-border bg-background/50 p-3.5">
-              <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+            <div className="space-y-3 border border-surface-border bg-background/50 p-3.5">
+              <div className="flex items-center gap-1.5 text-meta text-primary font-medium">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Kredensial Meta Threads Developer
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                <label className="mb-1 block text-meta font-medium text-muted-foreground">
                   Threads User ID (Angka)
                 </label>
                 <input
@@ -216,11 +217,11 @@ export function ModalTambahAkun({
                   placeholder="Contoh: 17841400000000"
                   value={threadsUserId}
                   onChange={(e) => setThreadsUserId(e.target.value)}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-1.5 text-xs outline-none focus:border-primary"
+                  className="w-full border border-input bg-background px-3 py-1.5 text-meta outline-none focus:border-primary"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                <label className="mb-1 block text-meta font-medium text-muted-foreground">
                   Access Token (Long-lived 60 hari)
                 </label>
                 <input
@@ -228,17 +229,17 @@ export function ModalTambahAkun({
                   placeholder="THQW..."
                   value={accessToken}
                   onChange={(e) => setAccessToken(e.target.value)}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-1.5 text-xs outline-none focus:border-primary"
+                  className="w-full border border-input bg-background px-3 py-1.5 text-meta outline-none focus:border-primary"
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 Token disimpan aman di server dan tidak pernah terekspos ke klien.
               </p>
             </div>
           )}
 
           <div>
-            <label htmlFor="modal-catatan" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="modal-catatan" className="mb-1 block text-meta font-semibold uppercase tracking-meta text-muted-foreground">
               Catatan Internal (Opsional)
             </label>
             <input
@@ -247,7 +248,7 @@ export function ModalTambahAkun({
               placeholder="Catatan niche atau target audiens"
               value={catatan}
               onChange={(e) => setCatatan(e.target.value)}
-              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-input bg-background px-3 py-2 text-badan outline-none focus:border-primary"
             />
           </div>
 
@@ -256,14 +257,14 @@ export function ModalTambahAkun({
               type="button"
               onClick={onTutup}
               disabled={memuat}
-              className="rounded-lg border border-surface-border px-4 py-2 text-sm font-medium hover:bg-muted"
+              className="border border-surface-border px-4 py-2 text-badan font-medium hover:bg-muted"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={memuat}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-badan font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {memuat ? (
                 <>
@@ -279,7 +280,7 @@ export function ModalTambahAkun({
             </button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

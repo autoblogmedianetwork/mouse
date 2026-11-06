@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { AlurBuatPosting } from "@/features/posting/alur-buat-posting";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 
 export const metadata = { title: "Buat posting" };
 
@@ -13,6 +14,7 @@ export default async function BuatPostingPage({
 }: {
   searchParams: Promise<{ prefill?: string }>;
 }) {
+  await wajibSesiHalaman("/posting/baru");
   const { prefill } = await searchParams;
 
   return (

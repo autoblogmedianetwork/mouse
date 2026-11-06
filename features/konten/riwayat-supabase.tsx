@@ -7,6 +7,7 @@
  * aman diulang dan tidak menggandakan baris).
  */
 import { useEffect, useState } from "react";
+import { Card } from "@/components/card";
 import { StatusBadge } from "@/components/status-badge";
 import { muatKonten } from "@/lib/konten/store";
 import { RIWAYAT_LIMIT, belumDikirim } from "@/lib/konten/supabase-konten";
@@ -113,30 +114,30 @@ export function RiwayatSupabase() {
   }, []);
 
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+    <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-base font-semibold">Riwayat hasil terakhir</h2>
-        <span className="text-xs text-muted-foreground">
+        <h2 className="text-isi font-semibold">Riwayat hasil terakhir</h2>
+        <span className="text-meta text-muted-foreground">
           Maksimal {RIWAYAT_LIMIT} konten, dari tabel contents di Supabase
         </span>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-1 text-meta text-muted-foreground">
         Data diambil dari database, bukan dari penyimpanan browser. Semua konten di
         sini tetap berstatus draft sampai Anda menandainya siap posting.
       </p>
 
       {pesan ? (
-        <p className="mt-3 text-xs text-muted-foreground" aria-live="polite">
+        <p className="mt-3 text-meta text-muted-foreground" aria-live="polite">
           {pesan}
         </p>
       ) : null}
 
       {keadaan === "memuat" ? (
-        <p className="mt-3 text-sm text-muted-foreground">Memuat riwayat…</p>
+        <p className="mt-3 text-badan text-muted-foreground">Memuat riwayat…</p>
       ) : null}
 
       {keadaan === "tidak-tersedia" ? (
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-3 text-badan text-muted-foreground">
           {alasan === "sesi"
             ? "Masuk dulu untuk melihat riwayat dari database. Selama belum masuk, riwayat tidak ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan."
             : `${PESAN_ENV_KURANG} Selama belum tersambung, riwayat di bawah ini tidak ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan.`}
@@ -144,11 +145,11 @@ export function RiwayatSupabase() {
       ) : null}
 
       {keadaan === "gagal" ? (
-        <p className="mt-3 text-sm text-status-failed">{pesan}</p>
+        <p className="mt-3 text-badan text-status-failed">{pesan}</p>
       ) : null}
 
       {keadaan === "siap" && baris.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-3 text-badan text-muted-foreground">
           Belum ada konten di database. Konten yang Anda buat lewat Buat posting akan
           muncul di sini.
         </p>
@@ -159,8 +160,8 @@ export function RiwayatSupabase() {
           {baris.map((k) => (
             <li key={k.id} className="flex items-center justify-between gap-3 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{k.judul}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="truncate text-badan font-medium">{k.judul}</p>
+                <p className="text-meta text-muted-foreground">
                   {k.statuses.length} status · {new Date(k.updated_at).toLocaleString("id-ID")}
                 </p>
               </div>
@@ -169,6 +170,6 @@ export function RiwayatSupabase() {
           ))}
         </ul>
       ) : null}
-    </section>
+    </Card>
   );
 }

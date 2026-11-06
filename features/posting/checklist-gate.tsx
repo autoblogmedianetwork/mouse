@@ -7,6 +7,7 @@
  * The item list lives in lib/konten/checklist.ts because Antrian review (F10)
  * applies the same rules to bulk "tandai siap".
  */
+import { Card } from "@/components/card";
 import { CHECKLIST_ITEMS as CHECKLIST_ITEM_LIST, type ChecklistId } from "@/lib/konten/checklist";
 
 export const CHECKLIST_ITEMS = CHECKLIST_ITEM_LIST;
@@ -27,17 +28,17 @@ export function ChecklistGate({
   const selesai = items.filter((item) => nilai[item.id]).length;
 
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+    <Card>
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">Checklist sebelum siap posting</h2>
-        <span className="text-xs text-muted-foreground">
+        <h2 className="text-isi font-semibold">Checklist sebelum siap posting</h2>
+        <span className="text-meta text-muted-foreground">
           {selesai}/{items.length} selesai
         </span>
       </div>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
           <li key={item.id}>
-            <label className="flex cursor-pointer items-start gap-2.5 text-sm">
+            <label className="flex cursor-pointer items-start gap-2.5 text-badan">
               <input
                 type="checkbox"
                 checked={nilai[item.id]}
@@ -49,10 +50,10 @@ export function ChecklistGate({
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-muted-foreground">
+      <p className="mt-3 text-meta text-muted-foreground">
         Semua output AI tetap berstatus draft sampai Anda menekan “Tandai siap
         posting” (PRD F0).
       </p>
-    </section>
+    </Card>
   );
 }

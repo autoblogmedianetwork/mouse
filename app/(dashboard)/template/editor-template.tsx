@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { z } from "zod";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useLocalState } from "@/lib/konten/use-local-state";
@@ -42,11 +43,11 @@ const CONTOH_DATA: Record<string, string> = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 const btnGhost =
-  "rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted";
+  "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 const btnPrimary =
-  "rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover";
+  "bg-primary px-4 py-2 text-badan font-medium text-primary-foreground hover:bg-primary-hover";
 
 export function isiTemplateDenganContoh(isi: string): string {
   return Object.entries(CONTOH_DATA).reduce(
@@ -127,9 +128,9 @@ export function EditorTemplate() {
       />
 
       {/* Editor */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+      <Card>
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">
+          <h2 className="text-isi font-semibold">
             {editId ? "Edit template" : "Template baru"}
           </h2>
           {editId ? (
@@ -141,7 +142,7 @@ export function EditorTemplate() {
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="t-nama" className="mb-1 block text-sm font-medium">
+            <label htmlFor="t-nama" className="mb-1 block text-badan font-medium">
               Nama <span className="text-status-failed">*</span>
             </label>
             <input
@@ -153,7 +154,7 @@ export function EditorTemplate() {
             />
           </div>
           <div>
-            <label htmlFor="t-kategori" className="mb-1 block text-sm font-medium">
+            <label htmlFor="t-kategori" className="mb-1 block text-badan font-medium">
               Kategori <span className="text-status-failed">*</span>
             </label>
             <select
@@ -179,7 +180,7 @@ export function EditorTemplate() {
             )}
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="t-isi" className="mb-1 block text-sm font-medium">
+            <label htmlFor="t-isi" className="mb-1 block text-badan font-medium">
               Isi template <span className="text-status-failed">*</span>
             </label>
             <textarea
@@ -191,13 +192,13 @@ export function EditorTemplate() {
               className={inputClass}
             />
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Sisipkan placeholder:</span>
+              <span className="text-meta text-muted-foreground">Sisipkan placeholder:</span>
               {PLACEHOLDERS.map((ph) => (
                 <button
                   key={ph}
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, isi: `${f.isi}${ph}` }))}
-                  className="rounded bg-muted px-2 py-0.5 font-mono text-xs hover:bg-muted/70"
+                  className="bg-muted px-2 py-0.5 font-mono text-meta hover:bg-muted/70"
                 >
                   {ph}
                 </button>
@@ -207,18 +208,18 @@ export function EditorTemplate() {
         </div>
 
         {error ? (
-          <p className="mt-2 text-xs text-status-failed" role="alert">
+          <p className="mt-2 text-meta text-status-failed" role="alert">
             {error}
           </p>
         ) : null}
 
         {/* Preview dengan data contoh */}
         {form.isi.trim() ? (
-          <div className="mt-4 rounded-lg border border-surface-border p-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="mt-4 border border-surface-border p-3">
+            <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
               Preview (data contoh)
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+            <p className="mt-2 whitespace-pre-wrap text-badan leading-6">
               {isiTemplateDenganContoh(form.isi)}
             </p>
           </div>
@@ -229,11 +230,11 @@ export function EditorTemplate() {
             {editId ? "Simpan perubahan" : "Tambah template"}
           </button>
         </div>
-      </section>
+      </Card>
 
       {/* Filter Kategori Tabs */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-mono uppercase text-muted-foreground mr-1">Filter:</span>
+        <span className="mr-1 font-mono text-meta uppercase tracking-meta text-muted-foreground">Filter:</span>
         {["Semua", ...KATEGORI_TEMPLATE].map((kat) => {
           const aktif = filterKategori === kat;
           return (
@@ -242,7 +243,7 @@ export function EditorTemplate() {
               type="button"
               onClick={() => setFilterKategori(kat)}
               className={cn(
-                "rounded-md border px-3 py-1 text-xs font-medium transition-colors",
+                "border px-3 py-1 text-meta font-medium transition-colors",
                 aktif
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-surface-border bg-surface text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -267,19 +268,17 @@ export function EditorTemplate() {
       ) : (
         <ul className="space-y-3">
           {daftarTampil.map((t) => (
-            <li
-              key={t.id}
-              className="flex flex-col gap-3 rounded-xl border border-surface-border bg-surface p-4 sm:flex-row sm:items-start sm:justify-between"
-            >
+            <li key={t.id}>
+              <Card className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold">{t.nama}</h3>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                  <h3 className="text-badan font-semibold">{t.nama}</h3>
+                  <span className="bg-muted px-2 py-0.5 text-meta text-muted-foreground">
                     {t.kategori}
                   </span>
-                  <span className="text-xs text-muted-foreground">dipakai {t.dipakai}×</span>
+                  <span className="text-meta text-muted-foreground">dipakai {t.dipakai}×</span>
                 </div>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{t.isi}</p>
+                <p className="mt-1 line-clamp-2 text-meta text-muted-foreground">{t.isi}</p>
               </div>
               <div className="flex shrink-0 gap-2">
                 <button type="button" onClick={() => mulaiEdit(t)} className={btnGhost}>
@@ -293,6 +292,7 @@ export function EditorTemplate() {
                   Hapus
                 </button>
               </div>
+              </Card>
             </li>
           ))}
         </ul>

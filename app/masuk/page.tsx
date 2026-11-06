@@ -6,6 +6,7 @@
  * requires that for statically prerendered routes).
  */
 import { Suspense } from "react";
+import { Card } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
 import { FormMasuk } from "./form-masuk";
 
@@ -21,15 +22,13 @@ export default function MasukPage() {
 
       <Suspense
         fallback={
-          <div className="max-w-xl rounded-xl border border-surface-border bg-surface p-6 text-sm text-muted-foreground">
-            Memuat formulir…
-          </div>
+          <Card className="max-w-xl text-badan text-muted-foreground">Memuat formulir…</Card>
         }
       >
         <FormMasuk />
       </Suspense>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-meta text-muted-foreground">
         Sampai semua halaman bicara ke Supabase, data yang sudah ada di peramban ini belum ikut
         terpindah. Menyalin isi Pustaka lewat Ekspor JSON tetap aman sebagai cadangan.
       </p>

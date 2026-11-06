@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { z } from "zod";
+import { Card } from "@/components/card";
 import { usePosting } from "@/features/posting/use-posting";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import {
@@ -30,15 +32,15 @@ export const pengaturanSkemaApp = z.object({
 export type PengaturanApp = z.infer<typeof pengaturanSkemaApp>;
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 
 function Section({ judul, deskripsi, children }: { judul: string; deskripsi: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-      <h2 className="text-base font-semibold">{judul}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{deskripsi}</p>
+    <Card>
+      <h2 className="text-isi font-semibold">{judul}</h2>
+      <p className="mt-1 text-badan text-muted-foreground">{deskripsi}</p>
       <div className="mt-4">{children}</div>
-    </section>
+    </Card>
   );
 }
 
@@ -58,12 +60,12 @@ function Toggle({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-surface-border p-3">
+    <div className="flex items-start justify-between gap-4 border border-surface-border p-3">
       <div>
-        <label htmlFor={id} className="text-sm font-medium">
+        <label htmlFor={id} className="text-badan font-medium">
           {label}
         </label>
-        <p className="mt-0.5 text-xs text-muted-foreground">{deskripsi}</p>
+        <p className="mt-0.5 text-meta text-muted-foreground">{deskripsi}</p>
       </div>
       <input
         id={id}
@@ -100,7 +102,7 @@ function BagianPosting() {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="p-posting" className="mb-1 block text-sm font-medium">
+          <label htmlFor="p-posting" className="mb-1 block text-badan font-medium">
             Provider default
           </label>
           <select
@@ -122,7 +124,7 @@ function BagianPosting() {
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             {posting.bisaKirimApi
               ? "Threads API siap: tombol Kirim sekarang muncul di Antrian review dan Kalender."
               : posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
@@ -131,7 +133,7 @@ function BagianPosting() {
         </div>
 
         <div>
-          <label htmlFor="p-jeda" className="mb-1 block text-sm font-medium">
+          <label htmlFor="p-jeda" className="mb-1 block text-badan font-medium">
             Jeda antar posting (detik)
           </label>
           <input
@@ -146,7 +148,7 @@ function BagianPosting() {
         </div>
 
         <div>
-          <label htmlFor="p-batas" className="mb-1 block text-sm font-medium">
+          <label htmlFor="p-batas" className="mb-1 block text-badan font-medium">
             Batas posting per 24 jam
           </label>
           <input
@@ -158,7 +160,7 @@ function BagianPosting() {
             onChange={(e) => atur({ batas_harian: Math.max(1, Number(e.target.value) || 1) })}
             className={inputClass}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             Kuota resmi Threads 250 posting per 24 jam. Batas ini dijaga aplikasi supaya kuota
             platform tidak pernah tersentuh dulu.
           </p>
@@ -184,9 +186,16 @@ export function FormPengaturan() {
   return (
     <div className="space-y-4">
       <Section judul="Profil dan akun" deskripsi="Identitas akun. Login magic link aktif setelah Supabase terhubung (P3).">
+        <p className="text-badan text-muted-foreground">
+          Akun sosial tidak lagi punya menu sendiri (UI-Spec 2.1).{" "}
+          <Link href="/akun" className="text-primary underline-offset-2 hover:underline">
+            Buka daftar akun sosial
+          </Link>
+          .
+        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="p-nama" className="mb-1 block text-sm font-medium">
+            <label htmlFor="p-nama" className="mb-1 block text-badan font-medium">
               Nama
             </label>
             <input
@@ -198,7 +207,7 @@ export function FormPengaturan() {
             />
           </div>
           <div>
-            <label htmlFor="p-email" className="mb-1 block text-sm font-medium">
+            <label htmlFor="p-email" className="mb-1 block text-badan font-medium">
               Email
             </label>
             <input
@@ -219,13 +228,13 @@ export function FormPengaturan() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="p-model" className="mb-1 block text-sm font-medium">
+            <label htmlFor="p-model" className="mb-1 block text-badan font-medium">
               Model
             </label>
             <input id="p-model" value="Sesuai env AI_MODEL (server)" readOnly className={`${inputClass} text-muted-foreground`} />
           </div>
           <div>
-            <label htmlFor="p-batas" className="mb-1 block text-sm font-medium">
+            <label htmlFor="p-batas" className="mb-1 block text-badan font-medium">
               Batas biaya bulanan (Rp)
             </label>
             <input
@@ -264,7 +273,7 @@ export function FormPengaturan() {
           onChange={(next) => setValue({ ...value, scraping_aktif: next })}
         />
         {!value.scraping_aktif ? (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2 text-meta text-muted-foreground">
             Saat ini nonaktif. Form input manual selalu berfungsi penuh.
           </p>
         ) : null}
@@ -287,7 +296,7 @@ export function FormPengaturan() {
             onChange={(next) => setValue({ ...value, anti_ai_slop: next })}
           />
           <div>
-            <label htmlFor="p-hook" className="mb-1 block text-sm font-medium">
+            <label htmlFor="p-hook" className="mb-1 block text-badan font-medium">
               Gaya hook default
             </label>
             <select
@@ -314,7 +323,7 @@ export function FormPengaturan() {
 
       <Section judul="Data" deskripsi="Periode retensi arsip. Penghapusan otomatis berjalan sebagai job terpisah (Fase 5).">
         <div className="max-w-xs">
-          <label htmlFor="p-retensi" className="mb-1 block text-sm font-medium">
+          <label htmlFor="p-retensi" className="mb-1 block text-badan font-medium">
             Retensi arsip (hari)
           </label>
           <input
@@ -328,7 +337,7 @@ export function FormPengaturan() {
             }
             className={inputClass}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             Keputusan K3: 90 hari sejak konten diarsipkan.
           </p>
         </div>

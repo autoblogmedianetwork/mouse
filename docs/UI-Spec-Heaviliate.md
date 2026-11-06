@@ -1,7 +1,7 @@
 # UI Spec: Heaviliate Dashboard
 
-**Versi:** 0.1
-**Acuan:** `PRD-Heaviliate.md` (F0 sampai F8)
+**Versi:** 0.2
+**Acuan:** `PRD-Heaviliate.md` (F0 sampai F8), ADR 0009 (Swiss Industrial Print), ADR 0013 (token visual)
 **Referensi visual:** screenshot dashboard "Affiliate Post Manager" dari thread. Yang diambil adalah struktur layout dan alur, bukan branding, ikon, atau teks. Semua elemen visual dibuat ulang sendiri.
 
 ---
@@ -38,20 +38,28 @@
 
 ### 2.1 Struktur Sidebar
 
+Sembilan item, dua grup (ADR 0013).
+
 | Grup | Menu | Halaman | Fase |
 |---|---|---|---|
 | Workspace | Dashboard | `/` | MVP |
+| | Riset audiens | `/riset` | MVP |
 | | Buat posting | `/posting/baru` | MVP |
-| | Pustaka konten | `/konten` | MVP |
-| | Akun sosial | `/akun` | M6 |
-| | Kalender | `/kalender` | Level 2 |
+| | Antrian review | `/antrian` | MVP |
 | | Riwayat posting | `/riwayat` | MVP (status dasar), M6 (detail) |
-| Tools | Analitik | `/analitik` | Setelah M5 |
-| | Link affiliate | `/link` | MVP |
-| | Template deskripsi | `/template` | MVP |
+| Tools | Kalender | `/kalender` | Level 2 |
+| | Analitik | `/analitik` | Setelah M5 |
+| | Aset | `/aset` | MVP |
 | | Pengaturan | `/pengaturan` | MVP |
 
-Menu yang belum tersedia tetap tampil dengan label "Segera" dan tidak bisa diklik. Ini menjaga konsistensi navigasi saat fitur bertambah.
+- **Analitik** memuat tab "Impor performa" (`/impor`), karena laporan komisi adalah masukan untuk analisis, bukan halaman terpisah.
+- **Aset** memuat tab "Link affiliate" (`/link`) dan "Template deskripsi" (`/template`). Kedua route lama tetap hidup sebagai tab aktif, bukan redirect.
+- **Akun sosial** tidak lagi menjadi item sidebar. Halaman `/akun` tetap hidup dan ditautkan dari Pengaturan, bagian Profil dan akun (fase M6).
+- **Pustaka konten** kini tampil sebagai Antrian review (3.9). Route `/konten` hanya mengalihkan ke `/antrian` untuk bookmark lama.
+
+Setiap item membawa flag fase di `nav-config.ts`, bukan `available: true` permanen. Label "Segera" hanya tampil kalau route-nya memang belum ada; menandai fitur yang sudah berjalan sebagai "Segera" membuat label itu tidak pernah jujur.
+
+Pencocokan rute aktif memakai awalan dengan batas segmen: `/posting/baru/[id]` menandai "Buat posting", sedangkan `/` hanya cocok persis.
 
 ---
 
@@ -179,7 +187,9 @@ Bagian:
 
 | Komponen | Dipakai di | Catatan |
 |---|---|---|
-| `AppShell` | Semua halaman | Sidebar, topbar, slot konten |
+| `AppShell` | Semua halaman | Sidebar, topbar dengan breadcrumb, slot konten |
+| `MenuTabs` | Analitik, Aset | Tab antar halaman dalam satu item menu; daftar tab dibaca dari `nav-config.ts` |
+| `Card` | Semua halaman | Satu wadah blok: garis 2px, padding 4/6; prop `padat` untuk blok berisi tabel penuh. Menggantikan string kartu yang dulu disalin per halaman |
 | `StatCard` | Dashboard | Angka dengan label dan tren opsional |
 | `StatusBadge` | Semua daftar | Draft, Siap posting, Terjadwal, Terkirim, Gagal |
 | `MediaUploader` | Buat posting | Drag and drop, validasi tipe dan ukuran, preview |
@@ -232,11 +242,16 @@ Konten yang sudah terkirim tidak bisa diedit langsung. Pilih "Duplikat" untuk me
 
 ## 6. Desain Visual
 
-- **Warna utama:** oranye hangat untuk aksi utama. Netral abu-abu untuk latar. Warna status: abu (draft), hijau (siap), biru (terjadwal), hijau tua (terkirim), merah (gagal).
+Acuan: ADR 0009 (Swiss Industrial Print) dan ADR 0013 (token). Semua nilai diambil dari token di `app/globals.css`; angka yang ditulis langsung di komponen dianggap utang.
+
+- **Warna:** oranye hangat (`--primary`) hanya untuk aksi utama, netral abu untuk latar dan permukaan. Warna status tetap lima: abu (draft), hijau (siap), biru (terjadwal), hijau tua (terkirim), merah (gagal). Peringatan memakai `--warning` dan `--warning-foreground`. Chrome tidak memakai warna Tailwind langsung; pengecualian hanya preview Threads dan palet kanvas carousel, masing-masing dikomentari di modulnya.
+- **Bentuk:** radius 0 untuk seluruh chrome. Tiga pengecualian sah: avatar (lingkaran), track progress bar, dan kanvas gambar yang diekspor carousel.
+- **Garis:** 2px `foreground` untuk blok, header, dan tabel; 1px `surface-border` untuk pemisah di dalam blok.
+- **Tipografi:** Inter (`--font-sans`) untuk teks, IBM Plex Mono (`--font-mono`) untuk metadata uppercase. Skala token: mikro 10px, meta 11px, badan 13px, isi 16px, judul 22px, hero 34px. Tracking hanya 0.08em (metadata) dan 0.06em (badge).
+- **Ruang:** kelipatan 4px. Nilai 6px, 10px, dan 14px hanya untuk kontrol kecil yang sudah ada, tidak dipakai di blok baru.
+- **Dekorasi:** tanpa gradien, glow, bayangan lembut, `backdrop-blur`, atau emoji sebagai label. Emoji hanya boleh menjadi isi konten (teks slide, glyph tiruan Threads).
 - **Mode gelap:** didukung sejak awal. Preview Threads selalu ditampilkan dengan latar gelap agar sesuai tampilan asli.
-- **Tipografi:** satu font sans-serif (misalnya Inter atau Plus Jakarta Sans). Ukuran dasar 14px, judul halaman 24px.
-- **Ruang:** kelipatan 4px. Radius 12px untuk kartu, 8px untuk input.
-- **Fokus:** cincin fokus jelas di semua elemen interaktif.
+- **Fokus:** outline 2px `--ring` dengan offset 2px di semua elemen interaktif.
 
 ---
 

@@ -17,6 +17,7 @@ import {
   filterUsiaTerakhir,
   statusPostingProduk,
 } from "@/lib/produk/status-posting";
+import { Card } from "@/components/card";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { useLocalState } from "@/lib/konten/use-local-state";
 
@@ -69,21 +70,21 @@ export function DaftarProdukBelumDiposting() {
   }
 
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+    <Card>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">Produk yang lama tidak diposting</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <h2 className="text-isi font-semibold">Produk yang lama tidak diposting</h2>
+          <p className="mt-1 text-badan text-muted-foreground">
             Dihitung dari konten terkirim di pustaka, termasuk konten terarsip. Buat ulang konten
             untuk produk yang sudah lama tidak diangkat.
           </p>
         </div>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex items-center gap-2 text-meta text-muted-foreground">
           Batas tidak diposting
           <select
             value={batasHari}
             onChange={(e) => setBatasHari(Number(e.target.value))}
-            className="rounded-lg border border-surface-border bg-surface px-2 py-1.5 text-sm outline-none focus:border-primary"
+            className="border border-surface-border bg-surface px-2 py-1.5 text-badan outline-none focus:border-primary"
             aria-label="Batas hari sejak terkirim terakhir"
           >
             {BATAS_HARI_OPSI.map((opsi) => (
@@ -96,17 +97,17 @@ export function DaftarProdukBelumDiposting() {
       </div>
 
       {hasil.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="mt-4 text-badan text-muted-foreground">
           Semua produk sudah diposting dalam {batasHari} hari terakhir. Bagus.
         </p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-sm">
+          <table className="w-full min-w-[40rem] text-badan">
             <caption className="sr-only">
               Produk beserta waktu terkirim terakhir dan usianya
             </caption>
             <thead>
-              <tr className="border-surface-border text-muted-foreground border-b text-left text-xs uppercase tracking-wide">
+              <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                 <th className="py-2 pr-3 font-medium">Produk</th>
                 <th className="py-2 pr-3 font-medium">Konten</th>
                 <th className="py-2 pr-3 font-medium">Terkirim terakhir</th>
@@ -116,7 +117,7 @@ export function DaftarProdukBelumDiposting() {
             </thead>
             <tbody>
               {hasil.map((r) => (
-                <tr key={r.produk} className="border-surface-border/60 border-b transition-colors">
+                <tr key={r.produk} className="border-b border-surface-border transition-colors">
                   <td className="py-2.5 pr-3 font-medium">{r.produk}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground">
                     {r.jumlahTerkirim}/{r.jumlahKonten} terkirim
@@ -125,7 +126,7 @@ export function DaftarProdukBelumDiposting() {
                   <td
                     className={
                       r.belumPernah
-                        ? "text-status-failed py-2.5 pr-3 text-xs font-medium uppercase"
+                        ? "py-2.5 pr-3 font-mono text-meta font-medium uppercase text-status-failed"
                         : "py-2.5 pr-3 tabular-nums"
                     }
                   >
@@ -134,7 +135,7 @@ export function DaftarProdukBelumDiposting() {
                   <td className="py-2.5 pr-3">
                     <Link
                       href="/posting/baru"
-                      className="text-primary text-xs underline-offset-2 hover:underline"
+                      className="text-meta text-primary underline-offset-2 hover:underline"
                     >
                       Buat ulang konten
                     </Link>
@@ -145,6 +146,6 @@ export function DaftarProdukBelumDiposting() {
           </table>
         </div>
       )}
-    </section>
+    </Card>
   );
 }

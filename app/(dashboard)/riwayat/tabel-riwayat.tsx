@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -13,7 +14,7 @@ import { useLocalState } from "@/lib/konten/use-local-state";
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
+  "border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 
 /**
  * Riwayat Posting (UI-Spec 3.5): time, content, mode, final status, notes.
@@ -30,7 +31,7 @@ export function TabelRiwayat() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-badan">
           Dari
           <input
             type="date"
@@ -39,7 +40,7 @@ export function TabelRiwayat() {
             className={inputClass}
           />
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-badan">
           Sampai
           <input
             type="date"
@@ -48,7 +49,7 @@ export function TabelRiwayat() {
             className={inputClass}
           />
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-badan">
           Status
           <select
             value={filter.status}
@@ -75,10 +76,10 @@ export function TabelRiwayat() {
           actionHref="/posting/baru"
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-surface-border bg-surface">
-          <table className="w-full min-w-[640px] text-sm">
+        <Card padat className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-badan">
             <thead>
-              <tr className="border-b border-surface-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Waktu</th>
                 <th className="px-4 py-3 font-medium">Konten</th>
                 <th className="px-4 py-3 font-medium">Mode</th>
@@ -89,17 +90,17 @@ export function TabelRiwayat() {
             <tbody>
               {hasil.map((e) => (
                 <tr key={e.id} className="border-b border-surface-border last:border-0">
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
+                  <td className="whitespace-nowrap px-4 py-3 text-meta tabular-nums text-muted-foreground">
                     {new Date(e.waktu).toLocaleString("id-ID", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}
                   </td>
                   <td className="px-4 py-3 font-medium">{e.konten_judul}</td>
-                  <td className="px-4 py-3 text-xs">
+                  <td className="px-4 py-3">
                     <span
                       className={cn(
-                        "rounded-full border border-surface-border bg-muted px-2 py-0.5",
+                        "border border-surface-border bg-muted px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge",
                         e.mode === "auto" && "text-status-scheduled",
                       )}
                     >
@@ -109,15 +110,15 @@ export function TabelRiwayat() {
                   <td className="px-4 py-3">
                     <StatusBadge status={e.status_akhir} />
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{e.catatan}</td>
+                  <td className="px-4 py-3 text-meta text-muted-foreground">{e.catatan}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-meta text-muted-foreground">
         Status API (terkirim/gagal otomatis) masuk di M6 sesuai PRD F8.
       </p>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@/components/card";
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
@@ -24,8 +25,8 @@ import { cn } from "@/lib/utils";
  */
 
 const fieldClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
-const labelClass = "mb-1 block text-sm font-medium";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
+const labelClass = "mb-1 block text-badan font-medium";
 
 function SelectField<T extends string>({
   id,
@@ -75,12 +76,12 @@ function ToggleField({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-surface-border p-3">
+    <div className="flex items-start justify-between gap-4 border border-surface-border p-3">
       <div>
-        <label htmlFor={id} className="text-sm font-medium">
+        <label htmlFor={id} className="text-badan font-medium">
           {label}
         </label>
-        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+        <p className="mt-0.5 text-meta text-muted-foreground">{description}</p>
       </div>
       <input
         id={id}
@@ -106,19 +107,14 @@ export function PengaturanGenerate({
     onChange({ ...value, [key]: next });
 
   return (
-    <section
-className={cn(
-        "rounded-xl border border-surface-border bg-surface p-4 sm:p-6",
-        disabled && "opacity-60",
-      )}
-    >
+    <Card className={cn(disabled && "opacity-60")}>
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold">Pengaturan generate</h2>
+        <h2 className="text-isi font-semibold">Pengaturan generate</h2>
         <button
           type="button"
           onClick={() => onChange(PENGATURAN_AWAL)}
           disabled={disabled}
-          className="text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-50"
+          className="text-meta text-muted-foreground underline-offset-2 hover:underline disabled:opacity-50"
         >
           Kembalikan bawaan
         </button>
@@ -137,7 +133,7 @@ className={cn(
                 aria-pressed={aktif}
                 onClick={() => set("mode_output", mode)}
                 className={cn(
-                  "h-9 rounded-lg border px-3 text-sm font-medium transition-colors disabled:opacity-50",
+                  "h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
                   aktif
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-surface-border bg-surface hover:border-primary",
@@ -148,7 +144,7 @@ className={cn(
             );
           })}
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-meta text-muted-foreground">
           {value.mode_output === "naskah_video"
             ? "Naskah video: tiga bagian (hook visual 3 detik, fungsi produk, CTA), durasi 30 sampai 60 detik. Pengaturan jumlah dan panjang status tidak dipakai."
             : value.mode_output === "carousel"
@@ -170,7 +166,7 @@ className={cn(
                 aria-pressed={aktif}
                 onClick={() => onChange(terapkanPresetThread(value, preset))}
                 className={cn(
-                  "h-9 rounded-lg border px-3 text-sm font-medium transition-colors disabled:opacity-50",
+                  "h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
                   aktif
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-surface-border bg-surface hover:border-primary",
@@ -181,7 +177,7 @@ className={cn(
             );
           })}
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-meta text-muted-foreground">
           {presetThreadAktif(value)
             ? "Preset ini mengatur jumlah status dan panjang per status di bawah."
             : "Kustom: jumlah dan panjang status diatur sendiri di bawah."}
@@ -235,7 +231,7 @@ className={cn(
             // Pilihan dari lib/ai/kerangka.ts, bukan hardcode di sini.
             options={KERANGKA_IDS.map((id) => ({ value: id, label: LABEL_KERANGKA[id] }))}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             {KETERANGAN_KERANGKA[value.kerangka]} Gaya hook di atas tetap dipakai untuk status
             pertama.
           </p>
@@ -249,10 +245,11 @@ className={cn(
             // Pilihan datang dari data (lib/ai/persona.ts), bukan hardcode di sini.
             options={PERSONA_LIST.map((persona) => ({
               value: persona.id,
-              label: `${persona.ikon} ${persona.judul}`,
+              // Ikon emoji tidak dipakai di chrome (ADR 0013 butir 6).
+              label: persona.judul,
             }))}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             {ambilPersona(value.persona).deskripsi_nada}
           </p>
         </div>
@@ -306,6 +303,6 @@ className={cn(
           </div>
         </div>
       </div>
-    </section>
+    </Card>
   );
 }

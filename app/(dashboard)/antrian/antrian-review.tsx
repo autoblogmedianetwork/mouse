@@ -11,9 +11,11 @@
  * match `contents` in docs/skema-database.md.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Card } from "@/components/card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { CostWidget } from "@/components/cost-widget";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { ReviewTabs } from "@/components/review-tabs";
 import { StatusBadge } from "@/components/status-badge";
 import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
@@ -44,9 +46,8 @@ import { subIdDefault } from "@/lib/performa/atribusi";
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
-const btnGhost =
-  "rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
+const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 
 interface Konfirmasi {
   judul: string;
@@ -404,30 +405,27 @@ export function AntrianReview() {
   return (
     <div className="space-y-4">
       {pesan ? (
-        <p className="text-sm text-status-ready" aria-live="polite">
+        <p className="text-badan text-status-ready" aria-live="polite">
           {pesan}
         </p>
       ) : null}
 
       {/* Header antrian (UI-Spec 3.9): judul, widget biaya, jeda semua */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Antrian review</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Semua konten menunggu tinjauan Anda. Tidak ada yang menjadi siap posting tanpa checklist.
-          </p>
-        </div>
+      <PageHeader
+        title="Antrian review"
+        description="Semua konten menunggu tinjauan Anda. Tidak ada yang menjadi siap posting tanpa checklist."
+      >
         <CostWidget
           hariIniUsd={biaya.hariIniUsd}
           bulanIniUsd={biaya.bulanIniUsd}
           adaCatatan={biaya.adaCatatan}
           batasUsd={biaya.batasUsd}
         />
-      </div>
+      </PageHeader>
 
       {/* Status provider posting (UI-Spec 3.8): jelas mode apa yang aktif sekarang. */}
       {posting.siap ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-meta text-muted-foreground">
           Provider posting:{" "}
           <span className="text-foreground font-medium">
             {posting.bisaKirimApi ? "Threads API siap dipakai" : "manual saja (salin utas)"}
@@ -501,8 +499,8 @@ export function AntrianReview() {
 
       {/* Aksi massal (UI-Spec 3.9) */}
       {terpilih.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-surface-border bg-surface px-4 py-3">
-          <p className="text-sm font-medium">{terpilih.length} konten dipilih</p>
+        <Card padat className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <p className="text-badan font-medium">{terpilih.length} konten dipilih</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -529,7 +527,7 @@ export function AntrianReview() {
           >
             Bersihkan pilihan
           </button>
-        </div>
+        </Card>
       ) : null}
 
       {hasil.length === 0 ? (
@@ -555,82 +553,81 @@ export function AntrianReview() {
               aria-label="Pilih semua konten di tab ini"
               className="h-4 w-4 accent-[var(--primary)]"
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-meta text-muted-foreground">
               {semuaTerpilih ? "Batalkan pilihan semua" : "Pilih semua di tab ini"}
             </span>
           </li>
 
           {hasil.map((k) => (
-            <li
-              key={k.id}
-              className="flex flex-col gap-3 rounded-xl border border-surface-border bg-surface p-4 sm:flex-row"
-            >
-              <input
-                type="checkbox"
-                checked={terpilih.includes(k.id)}
-                onChange={(e) =>
-                  setTerpilih((prev) =>
-                    e.target.checked ? [...prev, k.id] : prev.filter((id) => id !== k.id),
-                  )
-                }
-                aria-label={`Pilih ${k.judul}`}
-                className="mt-1 h-4 w-4 shrink-0 accent-[var(--primary)]"
-              />
+            <li key={k.id}>
+              <Card padat className="flex flex-col gap-3 p-4 sm:flex-row">
+                <input
+                  type="checkbox"
+                  checked={terpilih.includes(k.id)}
+                  onChange={(e) =>
+                    setTerpilih((prev) =>
+                      e.target.checked ? [...prev, k.id] : prev.filter((id) => id !== k.id),
+                    )
+                  }
+                  aria-label={`Pilih ${k.judul}`}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--primary)]"
+                />
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-sm font-semibold leading-5">{k.judul}</h3>
-                  <StatusBadge status={k.status} />
-                  {k.otomatis ? (
-                    <span className="rounded-full border border-surface-border px-2 py-0.5 text-xs font-medium text-status-scheduled">
-                      Otomatis
-                    </span>
-                  ) : null}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-badan font-semibold">{k.judul}</h3>
+                    <StatusBadge status={k.status} />
+                    {k.otomatis ? (
+                      <span className="border border-surface-border px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge text-status-scheduled">
+                        Otomatis
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="mt-1 text-meta text-muted-foreground">
+                    {k.produk_nama || "Tanpa produk"} ·{" "}
+                    {new Date(k.updated_at).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    {" · "}
+                    {k.statuses.length} status
+                    {k.skor !== null ? ` · skor ide ${k.skor}` : ""}
+                    {k.letak_link !== "tanpa_link" ? " · link aktif" : ""}
+                  </p>
+
+                  <p className="mt-2 line-clamp-2 text-meta text-muted-foreground">
+                    {k.statuses[0]}
+                  </p>
+
+                  <p className="mt-2 flex flex-wrap items-center gap-2 text-meta text-muted-foreground">
+                    <span>Kode pelacak</span>
+                    <span className="font-mono text-foreground">{subIdDefault(k.id)}</span>
+                    <button
+                      type="button"
+                      onClick={() => salinSubId(k.id)}
+                      className="underline-offset-2 hover:text-foreground hover:underline"
+                      aria-label={`Salin kode pelacak ${k.judul}`}
+                    >
+                      Salin
+                    </button>
+                  </p>
                 </div>
 
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {k.produk_nama || "Tanpa produk"} ·{" "}
-                  {new Date(k.updated_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                  {" · "}
-                  {k.statuses.length} status
-                  {k.skor !== null ? ` · skor ide ${k.skor}` : ""}
-                  {k.letak_link !== "tanpa_link" ? " · link aktif" : ""}
-                </p>
-
-                <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
-                  {k.statuses[0]}
-                </p>
-
-                <p className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                  <span>Kode pelacak</span>
-                  <span className="font-mono text-foreground">{subIdDefault(k.id)}</span>
-                  <button
-                    type="button"
-                    onClick={() => salinSubId(k.id)}
-                    className="underline-offset-2 hover:text-foreground hover:underline"
-                    aria-label={`Salin kode pelacak ${k.judul}`}
-                  >
-                    Salin
-                  </button>
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
-                {aksiKartu(k).map((a) => (
-                  <button
-                    key={a.label}
-                    type="button"
-                    onClick={() => a.jalankan(k)}
-                    className={cn(btnGhost, a.destructive && "text-status-failed")}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
+                <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
+                  {aksiKartu(k).map((a) => (
+                    <button
+                      key={a.label}
+                      type="button"
+                      onClick={() => a.jalankan(k)}
+                      className={cn(btnGhost, a.destructive && "text-status-failed")}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              </Card>
             </li>
           ))}
         </ul>
@@ -695,21 +692,21 @@ export function AntrianReview() {
             if (e.target === e.currentTarget) setJadwalTarget(null);
           }}
         >
-          <div
+          <Card
             role="dialog"
             aria-modal="true"
             aria-labelledby="jadwal-judul"
-            className="w-[min(94vw,26rem)] rounded-xl border border-surface-border bg-surface p-5"
+            className="w-[min(94vw,26rem)] p-5"
           >
-            <h2 id="jadwal-judul" className="text-base font-semibold">
+            <h2 id="jadwal-judul" className="text-isi font-semibold">
               Jadwalkan konten
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-badan text-muted-foreground">
               Hanya penanda jadwal di kalender (mode manual tetap jalur utama). Konten yang dijadwalkan
               bisa dibatalkan kapan saja dari tab Terjadwal.
             </p>
-            <p className="mt-3 text-sm font-medium">{jadwalTarget.judul}</p>
-            <label className="mt-3 block text-xs text-muted-foreground">
+            <p className="mt-3 text-badan font-medium">{jadwalTarget.judul}</p>
+            <label className="mt-3 block text-meta text-muted-foreground">
               Tanggal dan jam
               <input
                 type="datetime-local"
@@ -722,7 +719,7 @@ export function AntrianReview() {
               <button
                 type="button"
                 onClick={() => setJadwalTarget(null)}
-                className="h-9 rounded-lg border border-surface-border px-4 text-sm font-medium hover:bg-muted"
+                className="h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
               >
                 Batal
               </button>
@@ -747,12 +744,12 @@ export function AntrianReview() {
                   );
                   setJadwalTarget(null);
                 }}
-                className="h-9 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+                className="h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
               >
                 Simpan jadwal
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       ) : null}
 

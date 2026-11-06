@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { StatCard } from "@/components/stat-card";
 import { StatusBadge } from "@/components/status-badge";
@@ -49,7 +50,7 @@ export function RingkasanDashboard() {
           actionLabel="Mulai dari produk pertama"
           actionHref="/posting/baru"
         />
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-badan text-muted-foreground">
           Sudah punya laporan komisi dari Shopee, TikTok Shop, atau Tokopedia?{" "}
           <Link href="/impor" className="text-primary underline-offset-2 hover:underline">
             Impor performa affiliate
@@ -75,12 +76,12 @@ export function RingkasanDashboard() {
         <section className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">Performa affiliate</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <h2 className="text-isi font-semibold">Performa affiliate</h2>
+              <p className="mt-1 text-badan text-muted-foreground">
                 Dihitung dari laporan Shopee, TikTok Shop, dan Tokopedia yang Anda impor.
               </p>
             </div>
-            <Link href="/analitik" className="text-sm text-primary underline-offset-2 hover:underline">
+            <Link href="/analitik" className="text-badan text-primary underline-offset-2 hover:underline">
               Buka Analitik
             </Link>
           </div>
@@ -88,30 +89,30 @@ export function RingkasanDashboard() {
           <BagianPerformaKonten />
         </section>
       ) : performaSiap ? (
-        <section className="rounded-xl border border-dashed border-surface-border bg-surface p-4 sm:p-6">
-          <h2 className="text-base font-semibold">Hubungkan data affiliate Anda</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <Card>
+          <h2 className="text-isi font-semibold">Hubungkan data affiliate Anda</h2>
+          <p className="mt-1 text-badan text-muted-foreground">
             Unggah ekspor komisi dari Shopee Affiliate, TikTok Shop, atau Tokopedia Affiliate, lalu
             dashboard ini menampilkan komisi, GMV, dan produk terlaris dari data nyata.
           </p>
           <Link
             href="/impor"
-            className="mt-3 inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="mt-3 inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             Impor laporan
           </Link>
-        </section>
+        </Card>
       ) : null}
 
       {adaDraft ? (
-        <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+        <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
                 Lanjutkan draft terakhir
               </p>
-              <p className="mt-1 text-sm font-semibold">{draftJudul ?? "Konten tanpa judul"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-badan font-semibold">{draftJudul ?? "Konten tanpa judul"}</p>
+              <p className="mt-1 text-badan text-muted-foreground">
                 {draft?.produk?.nama_internal ? `Produk: ${draft.produk.nama_internal} · ` : ""}
                 {draft?.updatedAt
                   ? `diubah ${new Date(draft.updatedAt).toLocaleString("id-ID")}`
@@ -120,19 +121,19 @@ export function RingkasanDashboard() {
             </div>
             <Link
               href="/posting/baru"
-              className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+              className="inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               Lanjutkan
             </Link>
           </div>
-        </section>
+        </Card>
       ) : null}
 
       {konten.length > 0 ? (
-        <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold">Konten terbaru</h2>
-            <Link href="/antrian" className="text-sm text-primary underline-offset-2 hover:underline">
+        <Card padat>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6 sm:pt-6">
+            <h2 className="text-isi font-semibold">Konten terbaru</h2>
+            <Link href="/antrian" className="text-badan text-primary underline-offset-2 hover:underline">
               Lihat Antrian review
             </Link>
           </div>
@@ -141,10 +142,13 @@ export function RingkasanDashboard() {
               .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))
               .slice(0, 5)
               .map((k) => (
-                <li key={k.id} className="flex items-center justify-between gap-3 py-2.5">
+                <li
+                  key={k.id}
+                  className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-6"
+                >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{k.judul}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="truncate text-badan font-medium">{k.judul}</p>
+                    <p className="text-meta text-muted-foreground">
                       {k.statuses.length} status ·{" "}
                       {new Date(k.updated_at).toLocaleDateString("id-ID")}
                     </p>
@@ -153,7 +157,7 @@ export function RingkasanDashboard() {
                 </li>
               ))}
           </ul>
-        </section>
+        </Card>
       ) : null}
     </div>
   );

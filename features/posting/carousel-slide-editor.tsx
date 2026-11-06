@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Card } from "@/components/card";
 import type { CarouselSlide } from "@/lib/ai/schemas";
 import { BATAS_KATA_CAROUSEL, hitungKata } from "@/lib/ai/schemas";
 import {
@@ -781,17 +782,17 @@ export function CarouselSlideEditor({
   return (
     <div className="space-y-6">
       {/* Pengaturan Rasio & Tema Template */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface p-4">
+      <Card padat className="flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase">
+          <span className="text-meta font-semibold text-muted-foreground uppercase">
             Rasio:
           </span>
-          <div className="flex rounded-lg border border-surface-border p-1 bg-muted/30">
+          <div className="flex border border-surface-border p-1 bg-muted/30">
             <button
               type="button"
               onClick={() => setRasio("4:5")}
               className={cn(
-                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                "px-2.5 py-1 text-meta font-medium transition-colors",
                 rasio === "4:5"
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -803,7 +804,7 @@ export function CarouselSlideEditor({
               type="button"
               onClick={() => setRasio("1:1")}
               className={cn(
-                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                "px-2.5 py-1 text-meta font-medium transition-colors",
                 rasio === "1:1"
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -815,7 +816,7 @@ export function CarouselSlideEditor({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase">
+          <span className="text-meta font-semibold text-muted-foreground uppercase">
             Tema:
           </span>
           <div className="flex gap-1.5">
@@ -825,7 +826,7 @@ export function CarouselSlideEditor({
                 type="button"
                 onClick={() => setTema(t)}
                 className={cn(
-                  "rounded-lg border px-3 py-1 text-xs font-medium transition-colors",
+                  "border px-3 py-1 text-meta font-medium transition-colors",
                   tema === t
                     ? "border-primary bg-primary/10 text-primary font-semibold"
                     : "border-surface-border hover:bg-muted text-muted-foreground",
@@ -841,28 +842,28 @@ export function CarouselSlideEditor({
           <button
             type="button"
             onClick={salinFormatCanva}
-            className="rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+            className="border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted"
           >
-            📋 Salin Teks Semua Slide
+            Salin Teks Semua Slide
           </button>
           <button
             type="button"
             onClick={unduhSemuaSlide}
             disabled={isDownloading}
-            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+            className="bg-primary px-3 py-1.5 text-meta font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
           >
-            {isDownloading ? "Mengunduh…" : "📥 Unduh Semua PNG"}
+            {isDownloading ? "Mengunduh…" : "Unduh Semua PNG"}
           </button>
         </div>
-      </div>
+      </Card>
 
       {/* Panel gaya: kontrol global seluruh slide — skala teks, warna aksen, posisi, kelonggaran */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-surface-border bg-surface p-4">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          🎨 Gaya
+      <Card padat className="flex flex-wrap items-center gap-x-5 gap-y-3 p-4">
+        <span className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+          Gaya
         </span>
 
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex items-center gap-2 text-meta text-muted-foreground">
           Skala teks
           <input
             type="range"
@@ -876,13 +877,13 @@ export function CarouselSlideEditor({
           <span className="w-10 font-semibold text-foreground">{gaya.skalaFont}%</span>
         </label>
 
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex items-center gap-2 text-meta text-muted-foreground">
           Warna aksen
           <input
             type="color"
             value={gaya.warnaAksen || TEMPLATE_CONFIG[tema].accent}
             onChange={(e) => ubahGaya({ warnaAksen: e.target.value })}
-            className="h-7 w-9 cursor-pointer rounded border border-surface-border bg-transparent"
+            className="h-7 w-9 cursor-pointer border border-surface-border bg-transparent"
           />
         </label>
 
@@ -890,7 +891,7 @@ export function CarouselSlideEditor({
           type="button"
           onClick={() => ubahGaya({ warnaAksen: "" })}
           className={cn(
-            "rounded-lg border px-3 py-1 text-xs font-medium transition-colors",
+            "border px-3 py-1 text-meta font-medium transition-colors",
             gaya.warnaAksen
               ? "border-surface-border text-muted-foreground hover:text-foreground"
               : "border-primary bg-primary/10 text-primary font-semibold",
@@ -900,15 +901,15 @@ export function CarouselSlideEditor({
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase text-muted-foreground">Posisi:</span>
-          <div className="flex rounded-lg border border-surface-border bg-muted/30 p-1">
+          <span className="text-meta font-semibold uppercase text-muted-foreground">Posisi:</span>
+          <div className="flex border border-surface-border bg-muted/30 p-1">
             {(["atas", "tengah"] as const).map((p) => (
               <button
                 key={p}
                 type="button"
                 onClick={() => ubahGaya({ posisiKonten: p })}
                 className={cn(
-                  "rounded px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+                  "px-2.5 py-1 text-meta font-medium capitalize transition-colors",
                   gaya.posisiKonten === p
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
@@ -920,7 +921,7 @@ export function CarouselSlideEditor({
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <label className="flex items-center gap-2 text-meta text-muted-foreground">
           Kelonggaran
           <input
             type="range"
@@ -941,17 +942,17 @@ export function CarouselSlideEditor({
             setPresetDipilih("");
             window.localStorage.removeItem(KUNCI_PRESET_TERAKHIR);
           }}
-          className="ml-auto rounded-lg border border-surface-border px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="ml-auto border border-surface-border px-3 py-1 text-meta font-medium text-muted-foreground hover:bg-muted"
         >
-          ↺ Reset gaya
+          Reset gaya
         </button>
-      </div>
+      </Card>
 
       {/* Preset gaya: tersimpan per akun di tabel carousel_gaya_preset (migrasi 0009).
           Preset terakhir yang dipakai otomatis diterapkan saat editor dibuka. */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-surface-border bg-surface p-3">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          💾 Preset gaya
+      <Card padat className="flex flex-wrap items-center gap-x-3 gap-y-2 p-3">
+        <span className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+          Preset gaya
         </span>
         <select
           value={presetDipilih}
@@ -960,7 +961,7 @@ export function CarouselSlideEditor({
             if (p) terapkanPreset(p);
             else setPresetDipilih("");
           }}
-          className="rounded-lg border border-surface-border bg-background px-2 py-1.5 text-xs"
+          className="border border-surface-border bg-background px-2 py-1.5 text-meta"
         >
           <option value="">Pilih preset…</option>
           {presets.map((p) => (
@@ -975,13 +976,13 @@ export function CarouselSlideEditor({
           onChange={(e) => setNamaPresetBaru(e.target.value)}
           maxLength={40}
           placeholder="Nama preset baru"
-          className="w-40 rounded-lg border border-surface-border bg-background px-2 py-1.5 text-xs"
+          className="w-40 border border-surface-border bg-background px-2 py-1.5 text-meta"
         />
         <button
           type="button"
           onClick={simpanPresetSekarang}
           disabled={presetMemuat}
-          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+          className="bg-primary px-3 py-1.5 text-meta font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
         >
           Simpan gaya ini
         </button>
@@ -989,15 +990,16 @@ export function CarouselSlideEditor({
           type="button"
           onClick={hapusPresetSekarang}
           disabled={!presetDipilih || presetMemuat}
-          className="rounded-lg border border-surface-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-40"
+          className="border border-surface-border px-3 py-1.5 text-meta text-muted-foreground hover:text-foreground disabled:opacity-40"
         >
           Hapus
         </button>
-        {pesanPreset ? <span className="text-xs text-muted-foreground">{pesanPreset}</span> : null}
-      </div>
+        {pesanPreset ? <span className="text-meta text-muted-foreground">{pesanPreset}</span> : null}
+      </Card>
+
 
       {pesanSalin ? (
-        <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-400">
+        <div className="border border-status-ready/30 bg-status-ready/10 p-2.5 text-meta text-status-ready">
           {pesanSalin}
         </div>
       ) : null}
@@ -1010,7 +1012,7 @@ export function CarouselSlideEditor({
             type="button"
             onClick={() => setSlideAktif(idx)}
             className={cn(
-              "flex-shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+              "flex-shrink-0 border px-3 py-1.5 text-meta font-medium transition-colors",
               idx === slideAktif
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-surface-border bg-surface hover:bg-muted text-muted-foreground",
@@ -1023,7 +1025,7 @@ export function CarouselSlideEditor({
           <button
             type="button"
             onClick={tambahSlide}
-            className="flex-shrink-0 rounded-lg border border-dashed border-surface-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-foreground"
+            className="flex-shrink-0 border border-dashed border-surface-border px-3 py-1.5 text-meta text-muted-foreground hover:border-primary hover:text-foreground"
           >
             + Tambah Slide
           </button>
@@ -1033,15 +1035,15 @@ export function CarouselSlideEditor({
       {/* Main Grid: Preview Kartu (Kiri) & Editor Teks Slide (Kanan) */}
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Kolom Kiri: Visual Canvas Preview */}
-        <div className="flex flex-col items-center rounded-xl border border-surface-border bg-surface p-4 lg:col-span-6">
+        <Card padat className="flex flex-col items-center p-4 lg:col-span-6">
           <div className="mb-3 flex w-full items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-meta font-medium text-muted-foreground">
               Preview Slide {slideAktif + 1} ({slide.peran.toUpperCase()})
             </span>
             <button
               type="button"
               onClick={() => unduhSlidePng(slideAktif)}
-              className="text-xs text-primary hover:underline"
+              className="text-meta text-primary hover:underline"
             >
               Unduh PNG Ini
             </button>
@@ -1049,7 +1051,7 @@ export function CarouselSlideEditor({
 
           <div
             className={cn(
-              "relative overflow-hidden rounded-2xl shadow-xl border border-surface-border max-w-full flex items-center justify-center bg-black/40",
+              "relative overflow-hidden border border-surface-border max-w-full flex items-center justify-center bg-black/40",
               rasio === "4:5" ? "aspect-[4/5] max-h-[500px]" : "aspect-square max-h-[440px]",
             )}
           >
@@ -1065,32 +1067,32 @@ export function CarouselSlideEditor({
               type="button"
               disabled={slideAktif === 0}
               onClick={() => setSlideAktif((p) => Math.max(0, p - 1))}
-              className="rounded-lg border border-surface-border px-3 py-1.5 text-xs disabled:opacity-40"
+              className="border border-surface-border px-3 py-1.5 text-meta disabled:opacity-40"
             >
               ← Sebelumnya
             </button>
-            <span className="text-xs text-muted-foreground font-mono">
+            <span className="text-meta text-muted-foreground font-mono">
               {slideAktif + 1} / {slides.length}
             </span>
             <button
               type="button"
               disabled={slideAktif === slides.length - 1}
               onClick={() => setSlideAktif((p) => Math.min(slides.length - 1, p + 1))}
-              className="rounded-lg border border-surface-border px-3 py-1.5 text-xs disabled:opacity-40"
+              className="border border-surface-border px-3 py-1.5 text-meta disabled:opacity-40"
             >
               Berikutnya →
             </button>
           </div>
-        </div>
+        </Card>
 
         {/* Kolom Kanan: Form Edit Slide Aktif */}
-        <div className="space-y-4 rounded-xl border border-surface-border bg-surface p-4 sm:p-6 lg:col-span-6">
+        <Card className="space-y-4 lg:col-span-6">
           <div className="flex items-center justify-between border-b border-surface-border pb-3">
             <div>
-              <h3 className="text-sm font-semibold">
+              <h3 className="text-badan font-semibold">
                 Edit Slide {slideAktif + 1}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 Peran: <strong className="uppercase">{slide.peran}</strong>
               </p>
             </div>
@@ -1098,7 +1100,7 @@ export function CarouselSlideEditor({
               <button
                 type="button"
                 onClick={() => hapusSlide(slideAktif)}
-                className="text-xs text-red-400 hover:underline"
+                className="text-meta text-status-failed hover:underline"
               >
                 Hapus slide ini
               </button>
@@ -1107,14 +1109,14 @@ export function CarouselSlideEditor({
 
           {/* Kicker (opsional) */}
           <div>
-            <div className="mb-1 flex items-center justify-between text-xs">
+            <div className="mb-1 flex items-center justify-between text-meta">
               <label htmlFor="slide-kicker" className="font-medium text-muted-foreground">
                 Kicker / Label Atas
               </label>
               <span
                 className={cn(
                   kataKicker > BATAS_KATA_CAROUSEL.kicker
-                    ? "text-red-400 font-semibold"
+                    ? "text-status-failed font-semibold"
                     : "text-muted-foreground",
                 )}
               >
@@ -1127,20 +1129,20 @@ export function CarouselSlideEditor({
               value={slide.kicker || ""}
               onChange={(e) => updateSlideField("kicker", e.target.value)}
               placeholder="Mis. TIPS MEMILIH, REVIEW JUJUR"
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
           </div>
 
           {/* Headline / Judul */}
           <div>
-            <div className="mb-1 flex items-center justify-between text-xs">
+            <div className="mb-1 flex items-center justify-between text-meta">
               <label htmlFor="slide-headline" className="font-medium text-muted-foreground">
                 {slide.peran === "cover" ? "Headline Utama" : "Judul Poin"}
               </label>
               <span
                 className={cn(
                   kataJudul > batasJudul
-                    ? "text-red-400 font-semibold"
+                    ? "text-status-failed font-semibold"
                     : "text-muted-foreground",
                 )}
               >
@@ -1163,20 +1165,20 @@ export function CarouselSlideEditor({
                   ? "Headline pemikat (maks 8 kata)"
                   : "Judul poin (maks 6 kata)"
               }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
           </div>
 
           {/* Isi Penjelasan */}
           <div>
-            <div className="mb-1 flex items-center justify-between text-xs">
+            <div className="mb-1 flex items-center justify-between text-meta">
               <label htmlFor="slide-isi" className="font-medium text-muted-foreground">
                 {slide.peran === "cta" ? "Ajakan Bertindak (CTA)" : "Isi Penjelasan"}
               </label>
               <span
                 className={cn(
                   kataIsi > batasIsi
-                    ? "text-red-400 font-semibold"
+                    ? "text-status-failed font-semibold"
                     : "text-muted-foreground",
                 )}
               >
@@ -1193,16 +1195,16 @@ export function CarouselSlideEditor({
                   ? "Ajakan santai, misal: Cek link affiliate di bio atau komentar."
                   : "Penjelasan ringkas poin ini (maks 25 kata)."
               }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
           </div>
 
           {/* Visual Pendukung AI (Pollinations.ai) */}
-          <div className="rounded-xl border border-surface-border bg-muted/20 p-3">
+          <div className="border border-surface-border bg-muted/20 p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold">🎨 Visual Pendukung AI</span>
-                <span className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-medium text-sky-400">
+                <span className="text-meta font-semibold">Visual Pendukung AI</span>
+                <span className="border border-surface-border px-1.5 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge text-muted-foreground">
                   Pollinations Cloud
                 </span>
               </div>
@@ -1213,14 +1215,14 @@ export function CarouselSlideEditor({
                     updateSlideField("visualUrl", null);
                     updateSlideField("visualPrompt", null);
                   }}
-                  className="text-xs text-red-400 hover:underline"
+                  className="text-meta text-status-failed hover:underline"
                 >
                   Hapus visual
                 </button>
               ) : null}
             </div>
 
-            <p className="mb-2 text-[11px] text-muted-foreground">
+            <p className="mb-2 text-meta text-muted-foreground">
               Latar ilustrasi suasana / masalah pendukung slide. Bebas biaya dan tidak membebani laptop.
             </p>
 
@@ -1235,7 +1237,7 @@ export function CarouselSlideEditor({
                   }))
                 }
                 placeholder="Deskripsi visual bahasa Inggris..."
-                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-1.5 text-xs outline-none focus:border-primary"
+                className="w-full border border-surface-border bg-surface px-3 py-1.5 text-meta outline-none focus:border-primary"
               />
               <button
                 type="button"
@@ -1268,16 +1270,16 @@ export function CarouselSlideEditor({
                   setTimeout(() => setIsGeneratingVisual(false), 800);
                 }}
                 disabled={isGeneratingVisual}
-                className="flex-shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+                className="flex-shrink-0 bg-primary px-3 py-1.5 text-meta font-medium text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
               >
-                {isGeneratingVisual ? "Membuat…" : "✨ Buat Visual"}
+                {isGeneratingVisual ? "Membuat…" : "Buat Visual"}
               </button>
             </div>
           </div>
 
           {/* Editor Caption & Hashtag */}
           <div className="border-t border-surface-border pt-4">
-            <div className="mb-1 flex items-center justify-between text-xs">
+            <div className="mb-1 flex items-center justify-between text-meta">
               <label htmlFor="carousel-caption" className="font-medium text-muted-foreground">
                 Caption Postingan
               </label>
@@ -1291,11 +1293,11 @@ export function CarouselSlideEditor({
               value={caption}
               onChange={(e) => onChangeCaption(e.target.value)}
               placeholder="Caption pengantar carousel..."
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+              className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
             />
             {onChangeHashtag ? (
               <div className="mt-3">
-                <div className="mb-1 flex items-center justify-between text-xs">
+                <div className="mb-1 flex items-center justify-between text-meta">
                   <label htmlFor="carousel-hashtag" className="font-medium text-muted-foreground">
                     Tagar / Hashtag (maks 5)
                   </label>
@@ -1314,12 +1316,12 @@ export function CarouselSlideEditor({
                     onChangeHashtag(tags);
                   }}
                   placeholder="Contoh: taskanvas rekomendasi racunshopee"
-                  className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+                  className="w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary"
                 />
               </div>
             ) : null}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

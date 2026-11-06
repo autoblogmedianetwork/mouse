@@ -6,13 +6,8 @@
  * readable reason instead of a blank page.
  */
 import { NextResponse, type NextRequest } from "next/server";
+import { tujuanAman } from "@/lib/auth/tujuan";
 import { klienServer } from "@/lib/supabase/server";
-
-/** Only internal paths are allowed, so the link cannot bounce to another site. */
-function tujuanAman(next: string | null): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/";
-  return next;
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);

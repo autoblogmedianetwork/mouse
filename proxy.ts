@@ -18,7 +18,17 @@ export async function proxy(request: NextRequest) {
   // Without Supabase the app still works from localStorage, so let it through.
   if (!url || !anonKey) return NextResponse.next({ request });
 
-  let response = NextResponse.next({ request });
+  // Server Components cannot read the current URL, but the dashboard layout
+  // needs it to remember where a signed-out visitor was going. Forward it as a
+  // request header; every cookie refresh rebuilds the response, so the header
+  // is reapplied from the mutated request.
+  const lanjut = () => {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", request.nextUrl.pathname);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  };
+
+  let response = lanjut();
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -29,7 +39,7 @@ export async function proxy(request: NextRequest) {
         for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value);
         }
-        response = NextResponse.next({ request });
+        response = lanjut();
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options);
         }

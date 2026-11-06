@@ -13,6 +13,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { csvPeluang, csvRiset, NAMA_BERKAS } from "@/lib/riset/ekspor";
 import {
@@ -27,11 +28,11 @@ import { daftarPeluang, daftarRiset, jadikanProduk } from "@/lib/riset/store";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 const btnUtama =
-  "inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
+  "inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
 const btnGhost =
-  "rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60";
+  "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted disabled:opacity-60";
 
 const labelPrioritas: Record<Peluang["prioritas"], string> = {
   tinggi: "bg-primary text-primary-foreground",
@@ -201,16 +202,16 @@ export function PanelRiset() {
   return (
     <div className="space-y-6">
       {/* 1. Input riset */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-        <h2 className="text-base font-semibold">1. Riset audiens</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <Card>
+        <h2 className="text-isi font-semibold">1. Riset audiens</h2>
+        <p className="mt-1 text-badan text-muted-foreground">
           Satu niche dan satu target audiens menghasilkan 10 masalah nyata, lalu 20 kategori
           produk yang berpotensi dipromosikan di Threads. Semua hasil berstatus draft.
         </p>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="r-niche" className="mb-1 block text-sm font-medium">
+            <label htmlFor="r-niche" className="mb-1 block text-badan font-medium">
               Niche <span className="text-status-failed">*</span>
             </label>
             <input
@@ -222,7 +223,7 @@ export function PanelRiset() {
             />
           </div>
           <div>
-            <label htmlFor="r-audiens" className="mb-1 block text-sm font-medium">
+            <label htmlFor="r-audiens" className="mb-1 block text-badan font-medium">
               Target audiens <span className="text-status-failed">*</span>
             </label>
             <input
@@ -254,38 +255,38 @@ export function PanelRiset() {
               {sibuk === "peluang" ? "Menyusun peluang…" : "Susun ulang peluang"}
             </button>
           ) : null}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-meta text-muted-foreground">
             Niche awal dipakai sebagai default; ganti kapan saja.
           </p>
         </div>
 
         {!siap ? (
-          <p role="alert" className="mt-3 text-sm text-status-failed">
+          <p role="alert" className="mt-3 text-badan text-status-failed">
             {PESAN_ENV_KURANG}
           </p>
         ) : null}
         {galat ? (
           <p
             role="alert"
-            className="mt-3 rounded-lg border border-status-failed/40 bg-muted px-3 py-2 text-sm text-status-failed"
+            className="mt-3 border border-status-failed/40 bg-muted px-3 py-2 text-badan text-status-failed"
           >
             {galat}
           </p>
         ) : null}
         {catatan ? (
-          <p role="status" className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm">
+          <p role="status" className="mt-3 bg-muted px-3 py-2 text-badan">
             {catatan}
           </p>
         ) : null}
-      </section>
+      </Card>
 
       {/* 2. Hasil riset */}
       {riset ? (
-        <section className="space-y-4 rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+        <Card className="space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold">2. Masalah audiens ({riset.masalah.length})</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h2 className="text-isi font-semibold">2. Masalah audiens ({riset.masalah.length})</h2>
+              <p className="mt-1 text-badan text-muted-foreground">
                 {riset.niche} · {riset.audiens} ·{" "}
                 {new Date(riset.created_at).toLocaleString("id-ID")}
               </p>
@@ -311,38 +312,38 @@ export function PanelRiset() {
           </div>
 
           {riset.ringkasan ? (
-            <p className="rounded-lg bg-muted px-3 py-2 text-sm">{riset.ringkasan}</p>
+            <p className="bg-muted px-3 py-2 text-badan">{riset.ringkasan}</p>
           ) : null}
 
           <ol className="grid gap-3 sm:grid-cols-2">
             {riset.masalah.map((m, i) => (
-              <li key={`${m.masalah}-${i}`} className="rounded-lg border border-surface-border p-3">
+              <li key={`${m.masalah}-${i}`} className="border border-surface-border p-3">
                 <div className="flex gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="font-mono text-meta text-muted-foreground">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <p className="text-sm font-medium">{m.masalah}</p>
+                  <p className="text-badan font-medium">{m.masalah}</p>
                 </div>
                 {m.situasi ? (
-                  <p className="mt-1 text-xs text-muted-foreground">{m.situasi}</p>
+                  <p className="mt-1 text-meta text-muted-foreground">{m.situasi}</p>
                 ) : null}
                 {m.produk_contoh.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {m.produk_contoh.map((p) => (
                       <span
                         key={p}
-                        className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                        className="bg-muted px-2 py-0.5 text-meta text-muted-foreground"
                       >
                         {p}
                       </span>
                     ))}
                   </div>
                 ) : null}
-                {m.alasan ? <p className="mt-2 text-xs">{m.alasan}</p> : null}
+                {m.alasan ? <p className="mt-2 text-meta">{m.alasan}</p> : null}
               </li>
             ))}
           </ol>
-        </section>
+        </Card>
       ) : (
         <EmptyState
           title="Belum ada riset dipilih"
@@ -352,20 +353,20 @@ export function PanelRiset() {
 
       {/* 3. Peluang produk */}
       {riset && peluang.length > 0 ? (
-        <section className="space-y-3 rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+        <Card className="space-y-3">
           <div>
-            <h2 className="text-base font-semibold">3. Peluang produk ({peluang.length})</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="text-isi font-semibold">3. Peluang produk ({peluang.length})</h2>
+            <p className="mt-1 text-badan text-muted-foreground">
               Tekan “Buat produk” pada kategori yang ingin dikerjakan. Produk dibuat dengan
               sumber manual; harga dan tautan diisi di form produk.
             </p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[46rem] text-sm">
+            <table className="w-full min-w-[46rem] text-badan">
               <caption className="sr-only">Daftar kategori peluang produk hasil riset</caption>
               <thead>
-                <tr className="border-b border-surface-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   <th className="py-2 pr-3 font-medium">#</th>
                   <th className="py-2 pr-3 font-medium">Kategori</th>
                   <th className="py-2 pr-3 font-medium">Prioritas</th>
@@ -377,34 +378,34 @@ export function PanelRiset() {
               <tbody>
                 {urutkanPeluang(peluang).map((p) => (
                   <tr key={p.id} className="border-b border-surface-border/60 align-top">
-                    <td className="py-2 pr-3 font-mono text-xs text-muted-foreground">
+                    <td className="py-2 pr-3 font-mono text-meta text-muted-foreground">
                       {String(p.urutan).padStart(2, "0")}
                     </td>
                     <td className="max-w-[16rem] py-2 pr-3">
                       <p className="font-medium">{p.kategori}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{p.alasan}</p>
+                      <p className="mt-0.5 text-meta text-muted-foreground">{p.alasan}</p>
                     </td>
                     <td className="py-2 pr-3">
                       <span
-                        className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${labelPrioritas[p.prioritas]}`}
+                        className={`inline-block px-2 py-0.5 text-meta font-medium ${labelPrioritas[p.prioritas]}`}
                       >
                         {p.prioritas}
                       </span>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1 text-meta text-muted-foreground">
                         konten: {p.kesulitan_konten}
                       </p>
                     </td>
-                    <td className="max-w-[12rem] py-2 pr-3 text-xs text-muted-foreground">
+                    <td className="max-w-[12rem] py-2 pr-3 text-meta text-muted-foreground">
                       {p.masalah_terkait ?? "—"}
                     </td>
-                    <td className="max-w-[12rem] py-2 pr-3 text-xs text-muted-foreground">
+                    <td className="max-w-[12rem] py-2 pr-3 text-meta text-muted-foreground">
                       {p.contoh_produk.join(", ") || "—"}
                     </td>
                     <td className="py-2 pr-3">
                       {p.dipilih && p.produk_id ? (
                         <Link
                           href="/posting/baru"
-                          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+                          className="text-meta font-medium text-primary underline-offset-2 hover:underline"
                         >
                           Produk dibuat →
                         </Link>
@@ -424,27 +425,28 @@ export function PanelRiset() {
               </tbody>
             </table>
           </div>
-        </section>
+        </Card>
       ) : null}
 
       {/* 4. Riwayat */}
       <section className="space-y-3">
-        <h2 className="text-base font-semibold">Riwayat riset</h2>
+        <h2 className="text-isi font-semibold">Riwayat riset</h2>
         {riwayat.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-badan text-muted-foreground">
             Belum ada riset tersimpan. Riset pertama akan muncul di sini setelah dijalankan.
           </p>
         ) : (
-          <ul className="divide-y divide-surface-border rounded-xl border border-surface-border bg-surface">
+          <Card padat>
+            <ul className="divide-y divide-surface-border">
             {riwayat.map((r) => (
               <li
                 key={r.id}
-                className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-badan"
               >
                 <span className="min-w-0">
                   <span className="font-medium">{r.niche}</span>
                   <span className="text-muted-foreground"> · {r.audiens}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">
+                  <span className="ml-2 text-meta text-muted-foreground">
                     {r.masalah.length} masalah ·{" "}
                     {new Date(r.created_at).toLocaleDateString("id-ID")}
                   </span>
@@ -454,7 +456,8 @@ export function PanelRiset() {
                 </button>
               </li>
             ))}
-          </ul>
+            </ul>
+          </Card>
         )}
       </section>
     </div>

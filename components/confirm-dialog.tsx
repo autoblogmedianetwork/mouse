@@ -40,16 +40,16 @@ export function ConfirmDialog({
         e.preventDefault();
         onBatal();
       }}
-      className="m-auto w-[min(92vw,26rem)] rounded-xl border border-surface-border bg-surface p-0 text-foreground backdrop:bg-black/50"
+      className="m-auto w-[min(92vw,26rem)] border-2 border-foreground bg-surface p-0 text-foreground backdrop:bg-black/50"
     >
       <div className="p-5">
-        <h2 className="text-base font-semibold">{judul}</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{pesan}</p>
+        <h2 className="text-isi font-semibold">{judul}</h2>
+        <p className="mt-2 text-badan text-muted-foreground">{pesan}</p>
         <div className="mt-5 flex justify-end gap-3">
           <button
             type="button"
             onClick={onBatal}
-            className="h-9 rounded-lg border border-surface-border px-4 text-sm font-medium hover:bg-muted"
+            className="h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
           >
             Batal
           </button>
@@ -58,7 +58,7 @@ export function ConfirmDialog({
             onClick={onKonfirmasi}
             autoFocus
             className={cn(
-              "h-9 rounded-lg px-4 text-sm font-medium text-primary-foreground transition-colors",
+              "h-9 px-4 text-badan font-medium text-primary-foreground transition-colors",
               destructive
                 ? "bg-status-failed hover:opacity-90"
                 : "bg-primary hover:bg-primary-hover",

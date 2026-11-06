@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@/components/card";
 import { panduanFotoCandid, type ProdukUntukPanduan } from "@/lib/produk/panduan-foto";
 
 /**
@@ -11,21 +12,21 @@ export function PanduanFotoCandid({ produk }: { produk: ProdukUntukPanduan }) {
   const panduan = panduanFotoCandid(produk);
 
   return (
-    <section className="mt-4 rounded-xl border border-surface-border bg-surface p-4">
-      <h3 className="text-sm font-semibold">{panduan.judul}</h3>
-      <p className="mt-1 text-xs text-muted-foreground">{panduan.ringkas}</p>
+    <Card padat className="mt-4 p-4">
+      <h3 className="text-badan font-semibold">{panduan.judul}</h3>
+      <p className="mt-1 text-meta text-muted-foreground">{panduan.ringkas}</p>
       <ol className="mt-3 space-y-2">
         {panduan.langkah.map((langkah, index) => (
-          <li key={index} className="flex gap-2 text-xs leading-5">
+          <li key={index} className="flex gap-2 text-meta leading-5">
             <span className="text-muted-foreground tabular-nums">{index + 1}.</span>
             <span>{langkah}</span>
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-xs text-muted-foreground">
+      <p className="mt-3 text-meta text-muted-foreground">
         Panduan ini tidak membuat gambar dan tidak menyimpan apa pun; semua foto
         diambil dan diunggah sendiri oleh user.
       </p>
-    </section>
+    </Card>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Konten } from "@/lib/konten/skema";
@@ -25,11 +26,11 @@ interface CatatanLink {
 const DEFAULT_CATATAN: CatatanLink = { klik: 0, komisi: 0 };
 
 const inputClass =
-  "w-full rounded-none border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary font-mono text-xs";
+  "w-full border border-surface-border bg-surface px-3 py-2 font-mono text-meta outline-none focus:border-primary";
 const btnGhost =
-  "rounded-none border border-surface-border px-3 py-1.5 text-xs font-mono font-medium hover:bg-muted transition-colors";
+  "border border-surface-border px-3 py-1.5 font-mono text-meta font-medium transition-colors hover:bg-muted";
 const btnPrimary =
-  "rounded-none bg-primary px-4 py-2 text-xs font-mono font-medium text-primary-foreground hover:bg-primary-hover transition-colors";
+  "bg-primary px-4 py-2 font-mono text-meta font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
 
 export function TabelLink() {
   const [konten] = useLocalState<Konten[]>("autothreads-konten", []);
@@ -207,25 +208,25 @@ export function TabelLink() {
       {/* Header Bar Actions & Ringkasan */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="grid gap-3 sm:grid-cols-3 flex-1">
-          <div className="rounded-none border border-surface-border bg-surface p-4">
-            <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">
+          <div className="border border-surface-border bg-surface p-4">
+            <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
               Total klik
             </p>
-            <p className="mt-1 text-2xl font-mono font-semibold tabular-nums">{totalKlik}</p>
+            <p className="mt-1 font-mono text-hero font-semibold tabular-nums">{totalKlik}</p>
           </div>
-          <div className="rounded-none border border-surface-border bg-surface p-4">
-            <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">
+          <div className="border border-surface-border bg-surface p-4">
+            <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
               Total komisi
             </p>
-            <p className="mt-1 text-2xl font-mono font-semibold tabular-nums text-status-success">
+            <p className="mt-1 font-mono text-hero font-semibold tabular-nums text-status-ready">
               Rp {totalKomisi.toLocaleString("id-ID")}
             </p>
           </div>
-          <div className="rounded-none border border-surface-border bg-surface p-4">
-            <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">
+          <div className="border border-surface-border bg-surface p-4">
+            <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
               Program teratas
             </p>
-            <p className="mt-1 truncate text-sm font-mono font-medium">
+            <p className="mt-1 truncate font-mono text-badan font-medium">
               {teratas && teratas.klik > 0 ? teratas.nama_program : "—"}
             </p>
           </div>
@@ -238,9 +239,9 @@ export function TabelLink() {
 
       {/* Form Tambah/Edit Program Modal/Panel */}
       {bukaForm ? (
-        <section className="rounded-none border border-surface-border bg-surface p-4 sm:p-6 space-y-4">
+        <Card className="space-y-4">
           <div className="flex items-center justify-between border-b border-surface-border pb-3">
-            <h2 className="text-sm font-mono font-semibold uppercase tracking-wider">
+            <h2 className="font-mono text-badan font-semibold uppercase tracking-meta">
               {editId ? "Edit program affiliate" : "Tambah program affiliate baru"}
             </h2>
             <button
@@ -255,7 +256,7 @@ export function TabelLink() {
           <form onSubmit={simpanProgram} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-mono uppercase text-muted-foreground">
+                <label className="mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   Nama program <span className="text-status-failed">*</span>
                 </label>
                 <input
@@ -268,7 +269,7 @@ export function TabelLink() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-mono uppercase text-muted-foreground">
+                <label className="mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   Link affiliate URL <span className="text-status-failed">*</span>
                 </label>
                 <input
@@ -281,7 +282,7 @@ export function TabelLink() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="mb-1 block text-xs font-mono uppercase text-muted-foreground">
+                <label className="mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   Catatan aturan program (ditampilkan sebagai pengingat di alur posting)
                 </label>
                 <textarea
@@ -291,13 +292,13 @@ export function TabelLink() {
                   placeholder="mis. Dilarang menyebut nama brand di headline; wajib cantumkan kupon diskon 20%; dilarang klaim garansi palsu."
                   className={inputClass}
                 />
-                <p className="mt-1 text-xs text-muted-foreground font-mono">
+                <p className="mt-1 font-mono text-meta text-muted-foreground">
                   Aturan ini akan otomatis muncul sebagai banner pengingat saat Anda membuat posting untuk produk/link ini.
                 </p>
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-mono uppercase text-muted-foreground">
+                <label className="mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   Catatan klik awal
                 </label>
                 <input
@@ -310,7 +311,7 @@ export function TabelLink() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-mono uppercase text-muted-foreground">
+                <label className="mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   Catatan komisi awal (Rp)
                 </label>
                 <input
@@ -327,7 +328,7 @@ export function TabelLink() {
             </div>
 
             {formError ? (
-              <p className="text-xs font-mono text-status-failed" role="alert">
+              <p className="font-mono text-meta text-status-failed" role="alert">
                 {formError}
               </p>
             ) : null}
@@ -345,7 +346,7 @@ export function TabelLink() {
               </button>
             </div>
           </form>
-        </section>
+        </Card>
       ) : null}
 
       {/* Tabel Program & Link */}
@@ -364,10 +365,10 @@ export function TabelLink() {
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-none border border-surface-border bg-surface">
-          <table className="w-full min-w-[720px] text-sm">
+        <Card padat className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-badan">
             <thead>
-              <tr className="border-b border-surface-border text-left text-xs font-mono uppercase tracking-wider text-muted-foreground bg-muted/20">
+              <tr className="border-b border-surface-border bg-muted/20 text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Program / Penawaran</th>
                 <th className="px-4 py-3 font-medium">Link Affiliate</th>
                 <th className="px-4 py-3 font-medium">Catatan Aturan</th>
@@ -376,13 +377,13 @@ export function TabelLink() {
                 <th className="px-4 py-3 font-medium text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-surface-border font-mono text-xs">
+            <tbody className="divide-y divide-surface-border font-mono text-meta">
               {daftarGabungan.map((b) => (
                 <tr key={b.url} className="hover:bg-muted/10">
                   <td className="px-4 py-3 font-medium text-foreground">
                     <div>{b.nama_program}</div>
                     {b.jumlahKonten > 0 ? (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-mikro text-muted-foreground">
                         {b.jumlahKonten} posting dibuat
                       </span>
                     ) : null}
@@ -399,11 +400,11 @@ export function TabelLink() {
                   </td>
                   <td className="max-w-[260px] px-4 py-3">
                     {b.catatan_aturan ? (
-                      <div className="rounded border border-amber-500/30 bg-amber-500/10 p-1.5 text-[11px] text-amber-600 dark:text-amber-400">
-                        <span className="font-semibold">⚠️ Aturan:</span> {b.catatan_aturan}
+                      <div className="border border-warning/40 bg-warning/10 p-1.5 text-meta text-warning">
+                        <span className="font-semibold">Aturan:</span> {b.catatan_aturan}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-[11px]">
+                      <span className="text-meta text-muted-foreground">
                         Tidak ada aturan khusus
                       </span>
                     )}
@@ -459,7 +460,7 @@ export function TabelLink() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </div>
   );

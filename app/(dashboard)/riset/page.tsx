@@ -1,9 +1,12 @@
 import { PageHeader } from "@/components/page-header";
 import { PanelRiset } from "@/features/riset/panel-riset";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 
 export const metadata = { title: "Riset audiens" };
 
-export default function RisetPage() {
+export default async function RisetPage() {
+  await wajibSesiHalaman("/riset");
+
   return (
     <div className="space-y-6">
       <PageHeader

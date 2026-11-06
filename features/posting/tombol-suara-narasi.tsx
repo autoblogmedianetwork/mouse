@@ -61,11 +61,11 @@ export function TombolSuaraNarasi({ statuses }: { statuses: string[] }) {
         type="button"
         onClick={berjalan ? hentikan : putar}
         disabled={kosong}
-        className="h-9 rounded-lg border border-surface-border px-3 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-40"
+        className="h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted disabled:opacity-40"
       >
         {berjalan ? "Hentikan suara" : "Putar suara narasi"}
       </button>
-      <span className="text-xs text-muted-foreground">
+      <span className="text-meta text-muted-foreground">
         Preview cepat di browser (Web Speech API), bukan pengganti TTS provider.
       </span>
     </div>

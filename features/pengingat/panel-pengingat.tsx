@@ -12,6 +12,7 @@
  */
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Card } from "@/components/card";
 import {
   evaluasiPengingat,
   filterTertutup,
@@ -105,13 +106,10 @@ export function PanelPengingat() {
   if (sekarang === null || items.length === 0) return null;
 
   return (
-    <section
-      aria-label="Pengingat"
-      className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-6"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold">Pengingat</h2>
-        <span className="text-xs text-muted-foreground">
+    <Card aria-label="Pengingat" nada="aksen">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-isi font-semibold">Pengingat</h2>
+        <span className="text-badan text-muted-foreground">
           {items.length} perlu perhatian · muncul lagi besok jika ditutup
         </span>
       </div>
@@ -124,26 +122,26 @@ export function PanelPengingat() {
             <div className="min-w-0">
               <p
                 className={cn(
-                  "text-[11px] font-medium uppercase tracking-wide",
+                  "font-mono text-meta font-medium uppercase tracking-meta",
                   GAYA_JENIS[item.jenis],
                 )}
               >
                 {LABEL_JENIS[item.jenis]}
               </p>
-              <p className="truncate text-sm font-medium">{item.judul}</p>
-              <p className="text-xs text-muted-foreground">{item.detail}</p>
+              <p className="truncate text-badan font-medium">{item.judul}</p>
+              <p className="text-meta text-muted-foreground">{item.detail}</p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <button
                 type="button"
                 onClick={() => tutup(item.id, kunciHariIni(new Date(sekarang)))}
-                className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                className="text-meta text-muted-foreground underline-offset-2 hover:underline"
               >
                 Tutup
               </button>
               <Link
                 href={item.href}
-                className="inline-flex h-8 items-center rounded-lg border border-surface-border bg-surface px-3 text-sm font-medium transition-colors hover:bg-muted"
+                className="inline-flex h-8 items-center border border-surface-border bg-surface px-3 text-meta font-medium transition-colors hover:bg-muted"
               >
                 {item.labelAksi}
               </Link>
@@ -151,6 +149,6 @@ export function PanelPengingat() {
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }

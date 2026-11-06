@@ -2,6 +2,7 @@
  * Tampilan ringkasan performa affiliate, dipakai Dashboard dan halaman
  * Analitik supaya angka yang dilihat selalu berasal dari perhitungan yang sama.
  */
+import { Card } from "@/components/card";
 import { StatCard } from "@/components/stat-card";
 import { MARKETPLACE_LABEL } from "@/lib/impor/marketplace";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
@@ -10,7 +11,9 @@ import type { RingkasanPerforma } from "@/lib/impor/performa";
 function Bar({ nilai, maks, kelas = "bg-primary" }: { nilai: number; maks: number; kelas?: string }) {
   const lebar = maks > 0 ? Math.max(2, Math.round((Math.abs(nilai) / maks) * 100)) : 0;
   return (
-    <div className="h-2 w-full rounded-full bg-muted">
+    // Bar track keeps its round caps on purpose (ADR 0013 exception: progress
+    // track), so the radius survives the global chrome rule.
+    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
       <div className={`h-2 rounded-full ${kelas}`} style={{ width: `${lebar}%` }} />
     </div>
   );
@@ -64,12 +67,12 @@ function KartuPerforma({ ringkas }: { ringkas: RingkasanPerforma }) {
 function DaftarMarketplace({ ringkas }: { ringkas: RingkasanPerforma }) {
   const maks = Math.max(...ringkas.per_marketplace.map((m) => Math.abs(m.komisi)), 1);
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-      <h2 className="text-base font-semibold">Komisi per marketplace</h2>
+    <Card>
+      <h2 className="text-isi font-semibold">Komisi per marketplace</h2>
       <ul className="mt-4 space-y-4">
         {ringkas.per_marketplace.map((m) => (
           <li key={m.marketplace} className="space-y-1.5">
-            <div className="flex items-baseline justify-between gap-3 text-sm">
+            <div className="flex items-baseline justify-between gap-3 text-badan">
               <span className="font-medium">{MARKETPLACE_LABEL[m.marketplace]}</span>
               <span className="tabular-nums text-muted-foreground">
                 {formatRupiah(m.komisi)} · {formatAngka(m.pesanan)} pesanan
@@ -79,66 +82,66 @@ function DaftarMarketplace({ ringkas }: { ringkas: RingkasanPerforma }) {
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
 function DaftarProduk({ ringkas, jumlah = 5 }: { ringkas: RingkasanPerforma; jumlah?: number }) {
   const maks = Math.max(...ringkas.teratas.map((p) => Math.abs(p.komisi)), 1);
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-      <h2 className="text-base font-semibold">Produk paling menghasilkan</h2>
+    <Card>
+      <h2 className="text-isi font-semibold">Produk paling menghasilkan</h2>
       {ringkas.teratas.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">Belum ada nama produk yang terbaca.</p>
+        <p className="mt-3 text-badan text-muted-foreground">Belum ada nama produk yang terbaca.</p>
       ) : (
         <ul className="mt-4 space-y-4">
           {ringkas.teratas.slice(0, jumlah).map((p) => (
             <li key={`${p.produk}-${p.marketplace}`} className="space-y-1.5">
-              <div className="flex items-baseline justify-between gap-3 text-sm">
+              <div className="flex items-baseline justify-between gap-3 text-badan">
                 <span className="min-w-0 truncate font-medium">{p.produk}</span>
                 <span className="shrink-0 tabular-nums text-muted-foreground">
                   {formatRupiah(p.komisi)}
                 </span>
               </div>
               <Bar nilai={p.komisi} maks={maks} />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 {MARKETPLACE_LABEL[p.marketplace]} · GMV {formatRupiah(p.gmv)}
               </p>
             </li>
           ))}
         </ul>
       )}
-    </section>
+    </Card>
   );
 }
 
 function DaftarBulanan({ ringkas }: { ringkas: RingkasanPerforma }) {
   const maks = Math.max(...ringkas.bulanan.map((b) => Math.abs(b.komisi)), 1);
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-      <h2 className="text-base font-semibold">Tren komisi per bulan</h2>
+    <Card>
+      <h2 className="text-isi font-semibold">Tren komisi per bulan</h2>
       {ringkas.bulanan.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-3 text-badan text-muted-foreground">
           Kolom tanggal tidak terbaca, jadi tren bulanan belum bisa dihitung.
         </p>
       ) : (
         <div className="mt-5 flex items-end gap-3">
           {ringkas.bulanan.map((b) => (
             <div key={b.bulan} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-              <span className="text-[11px] tabular-nums text-muted-foreground">
+              <span className="text-meta tabular-nums text-muted-foreground">
                 {formatAngka(Math.round(b.komisi / 1000))}rb
               </span>
               <div
-                className="w-full rounded-t-md bg-primary"
+                className="w-full bg-primary"
                 style={{ height: `${Math.max(6, Math.round((Math.abs(b.komisi) / maks) * 120))}px` }}
                 title={`${b.label}: ${formatRupiah(b.komisi)}`}
               />
-              <span className="text-xs text-muted-foreground">{b.label}</span>
+              <span className="text-meta text-muted-foreground">{b.label}</span>
             </div>
           ))}
         </div>
       )}
-    </section>
+    </Card>
   );
 }
 

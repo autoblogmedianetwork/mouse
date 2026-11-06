@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useSyncExternalStore } from "react";
+import { Card } from "@/components/card";
 import { bookmarkletQuickCapture } from "@/lib/impor/prefill";
 import { salinKeClipboard } from "@/lib/konten/salin";
 
@@ -38,9 +39,9 @@ export function KartuQuickCapture() {
   );
 
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-      <h2 className="text-base font-semibold">4. Quick Capture (bookmarklet)</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <Card>
+      <h2 className="text-isi font-semibold">4. Quick Capture (bookmarklet)</h2>
+      <p className="mt-1 text-badan text-muted-foreground">
         Seret tombol di bawah ke bilah bookmark browser Anda. Saat dibuka di halaman
         produk marketplace, bookmarklet itu mengisi form ini dengan judul, harga, dan
         deskripsi singkat yang tampak di layar — Anda tetap meninjau dan menyimpan
@@ -53,7 +54,7 @@ export function KartuQuickCapture() {
             ref={pasangTautan}
             draggable
             onClick={(e) => e.preventDefault()}
-            className="inline-flex h-9 cursor-grab items-center rounded-lg border border-primary bg-primary/10 px-4 text-sm font-medium text-primary"
+            className="inline-flex h-9 cursor-grab items-center border-2 border-primary bg-primary/10 px-4 text-badan font-medium text-primary"
             title="Seret saya ke bilah bookmark"
           >
             Quick Capture → Heaviliate
@@ -64,12 +65,12 @@ export function KartuQuickCapture() {
               const ok = await salinKeClipboard(kode);
               setHasilSalin(ok ? "ya" : "gagal");
             }}
-            className="h-9 rounded-lg border border-surface-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+            className="h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted"
           >
             Salin kode bookmarklet
           </button>
           {hasilSalin !== "belum" ? (
-            <span className="text-xs text-muted-foreground" aria-live="polite">
+            <span className="text-meta text-muted-foreground" aria-live="polite">
               {hasilSalin === "ya"
                 ? "Kode tersalin. Tempel di bilah bookmark kalau browser Anda tidak mendukung seret."
                 : "Gagal menyalin. Salin manual dari kotak kode di bawah bila perlu."}
@@ -77,25 +78,25 @@ export function KartuQuickCapture() {
           ) : null}
         </div>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="mt-4 text-badan text-muted-foreground">
           Bookmarklet dibuat setelah halaman selesai dimuat.
         </p>
       )}
 
       <details className="mt-3">
-        <summary className="cursor-pointer text-xs text-muted-foreground">
+        <summary className="cursor-pointer text-meta text-muted-foreground">
           Lihat kode bookmarklet
         </summary>
-        <pre className="mt-2 max-h-40 overflow-auto rounded-lg border border-surface-border bg-background p-3 text-[11px] leading-5">
+        <pre className="mt-2 max-h-40 overflow-auto border border-surface-border bg-background p-3 font-mono text-meta leading-5">
           {kode || "—"}
         </pre>
       </details>
 
-      <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+      <ul className="mt-3 space-y-1 text-meta text-muted-foreground">
         <li>• Bookmarklet hanya membaca yang terlihat di layar; tidak ada scraping dari server kami.</li>
         <li>• URL halaman dibersihkan dari query dan hash supaya parameter pelacak tidak ikut terkirim.</li>
         <li>• Tidak ada token, cookie, atau data login yang dikirim di URL.</li>
       </ul>
-    </section>
+    </Card>
   );
 }

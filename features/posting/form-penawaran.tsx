@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Card } from "@/components/card";
 import { FormProdukManual, type SavedProduct } from "./form-produk-manual";
 import {
   KATEGORI_PENAWARAN,
@@ -15,9 +16,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const inputClass =
-  "w-full rounded-none border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary font-mono text-xs";
-const labelClass = "mb-1 block text-xs font-mono uppercase tracking-wider text-muted-foreground";
-const errorClass = "mt-1 text-xs text-status-failed font-mono";
+  "w-full border border-surface-border bg-surface px-3 py-2 outline-none focus:border-primary font-mono text-meta";
+const labelClass = "mb-1 block font-mono text-meta uppercase tracking-meta text-muted-foreground";
+const errorClass = "mt-1 font-mono text-meta text-status-failed";
 
 export interface PenawaranSaved extends SavedProduct {
   sumber_penawaran?: SumberPenawaran;
@@ -198,13 +199,13 @@ export function FormPenawaran({
   return (
     <div className="space-y-6">
       {/* Tab Sumber Penawaran */}
-      <section className="border border-surface-border bg-surface p-4 sm:p-5">
+      <Card padat className="p-4 sm:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wider font-mono">
+            <h2 className="font-mono text-badan font-semibold uppercase tracking-meta">
               [ 1. SUMBER PENAWARAN ]
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground font-mono">
+            <p className="mt-1 font-mono text-meta text-muted-foreground">
               Pilih tipe penawaran: Marketplace (Shopee), Manual (Hosting/SaaS), atau Dari Link.
             </p>
           </div>
@@ -215,7 +216,7 @@ export function FormPenawaran({
                 type="button"
                 onClick={() => setSumber(s)}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-mono font-medium transition-colors",
+                  "px-3 py-1.5 font-mono text-meta font-medium transition-colors",
                   sumber === s
                     ? "bg-primary text-primary-foreground font-semibold"
                     : "text-muted-foreground hover:text-foreground",
@@ -226,7 +227,7 @@ export function FormPenawaran({
             ))}
           </div>
         </div>
-      </section>
+      </Card>
 
       {/* Mode 1: Marketplace */}
       {sumber === "marketplace" && (
@@ -245,12 +246,12 @@ export function FormPenawaran({
       {/* Mode 2: Manual (Hosting, SaaS, Kursus, dll) */}
       {sumber === "manual" && (
         <form onSubmit={handleSimpanManual} className="space-y-6" noValidate>
-          <section className="border border-surface-border bg-surface p-4 sm:p-6 space-y-4">
+          <Card className="space-y-4">
             <div>
-              <h3 className="text-sm font-semibold font-mono uppercase tracking-wider">
+              <h3 className="font-mono text-badan font-semibold uppercase tracking-meta">
                 [ PENAWARAN MANUAL (HOSTING / SAAS / KURSUS) ]
               </h3>
-              <p className="mt-0.5 text-xs text-muted-foreground font-mono">
+              <p className="mt-0.5 font-mono text-meta text-muted-foreground">
                 Isi informasi penawaran affiliate non-marketplace Anda di sini.
               </p>
             </div>
@@ -338,7 +339,7 @@ export function FormPenawaran({
                   placeholder="misal: Dilarang sebut nama brand di headline; wajib cantumkan kupon diskon 20%."
                   className={inputClass}
                 />
-                <p className="mt-1 text-[11px] text-muted-foreground font-mono">
+                <p className="mt-1 font-mono text-meta text-muted-foreground">
                   Aturan ini akan muncul sebagai banner pengingat saat Anda menyusun ide dan konten posting.
                 </p>
               </div>
@@ -358,24 +359,24 @@ export function FormPenawaran({
             <div className="pt-2">
               <button
                 type="submit"
-                className="h-9 px-5 bg-primary text-primary-foreground font-mono text-xs uppercase font-medium hover:bg-primary-hover transition-colors"
+                className="h-9 bg-primary px-5 font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
               >
                 Simpan Penawaran &gt;&gt;
               </button>
             </div>
-          </section>
+          </Card>
         </form>
       )}
 
       {/* Mode 3: Dari Link */}
       {sumber === "link" && (
         <div className="space-y-6">
-          <section className="border border-surface-border bg-surface p-4 sm:p-6 space-y-4">
+          <Card className="space-y-4">
             <div>
-              <h3 className="text-sm font-semibold font-mono uppercase tracking-wider">
+              <h3 className="font-mono text-badan font-semibold uppercase tracking-meta">
                 [ EKSTRAKSI DATA DARI LINK ]
               </h3>
-              <p className="mt-0.5 text-xs text-muted-foreground font-mono">
+              <p className="mt-0.5 font-mono text-meta text-muted-foreground">
                 Tempelkan tautan halaman web produk untuk mengambil judul dan deskripsi OpenGraph secara otomatis.
               </p>
             </div>
@@ -392,7 +393,7 @@ export function FormPenawaran({
                 type="button"
                 onClick={handleAmbilDariLink}
                 disabled={loadingAmbil}
-                className="h-9 px-4 bg-muted border border-surface-border font-mono text-xs uppercase font-medium hover:bg-muted/80 disabled:opacity-50"
+                className="h-9 border border-surface-border bg-muted px-4 font-mono text-meta font-medium uppercase hover:bg-muted/80 disabled:opacity-50"
               >
                 {loadingAmbil ? "Mengambil…" : "Ambil Data Link"}
               </button>
@@ -401,22 +402,22 @@ export function FormPenawaran({
             {pesanLink && (
               <div
                 className={cn(
-                  "p-3 border text-xs font-mono",
+                  "border p-3 font-mono text-meta",
                   pesanLink.tipe === "sukses"
-                    ? "border-status-approved/30 bg-status-approved/10 text-status-approved"
+                    ? "border-status-ready/30 bg-status-ready/10 text-status-ready"
                     : "border-status-failed/30 bg-status-failed/10 text-status-failed",
                 )}
               >
                 {pesanLink.teks}
               </div>
             )}
-          </section>
+          </Card>
 
           {/* Form Hasil Ekstraksi Link (Bisa diisi / diedit user) */}
           <form onSubmit={handleSimpanLink} className="space-y-6" noValidate>
-            <section className="border border-surface-border bg-surface p-4 sm:p-6 space-y-4">
+            <Card className="space-y-4">
               <div>
-                <h4 className="text-xs font-semibold font-mono uppercase tracking-wider text-muted-foreground">
+                <h4 className="font-mono text-meta font-semibold uppercase tracking-meta text-muted-foreground">
                   Konfirmasi &amp; Lengkapi Data Penawaran
                 </h4>
               </div>
@@ -504,7 +505,7 @@ export function FormPenawaran({
                     placeholder="misal: Dilarang sebut nama brand di headline; wajib cantumkan kupon diskon 20%."
                     className={inputClass}
                   />
-                  <p className="mt-1 text-[11px] text-muted-foreground font-mono">
+                  <p className="mt-1 font-mono text-meta text-muted-foreground">
                     Aturan ini akan muncul sebagai banner pengingat saat Anda menyusun ide dan konten posting.
                   </p>
                 </div>
@@ -524,12 +525,12 @@ export function FormPenawaran({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="h-9 px-5 bg-primary text-primary-foreground font-mono text-xs uppercase font-medium hover:bg-primary-hover transition-colors"
+                  className="h-9 px-5 bg-primary font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
                 >
                   Simpan Penawaran &gt;&gt;
                 </button>
               </div>
-            </section>
+            </Card>
           </form>
         </div>
       )}

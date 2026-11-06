@@ -8,6 +8,7 @@
  */
 import Link from "next/link";
 import { useState } from "react";
+import { Card } from "@/components/card";
 import { StatusBadge } from "@/components/status-badge";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
 import { LABEL_GAYA_HOOK, LABEL_LETAK_LINK } from "@/lib/konten/skema";
@@ -20,15 +21,16 @@ import type {
 import { useAtribusi } from "./use-atribusi";
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
-const btnGhost = "rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium hover:bg-muted";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
+const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 const btnUtama =
-  "inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
+  "inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
 
 function Bar({ nilai, maks }: { nilai: number; maks: number }) {
   const lebar = maks > 0 ? Math.max(2, Math.round((Math.abs(nilai) / maks) * 100)) : 0;
   return (
-    <div className="h-2 w-full rounded-full bg-muted">
+    // Round track is a documented exception (ADR 0013: progress track).
+    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
       <div className="h-2 rounded-full bg-primary" style={{ width: `${lebar}%` }} />
     </div>
   );
@@ -74,11 +76,11 @@ function BagianDimensi({
   const maks = Math.max(...terurut.map((d) => Math.abs(urut === "klik" ? d.klik : d.komisi)), 1);
 
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+    <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">{judul}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">{keterangan}</p>
+          <h2 className="text-isi font-semibold">{judul}</h2>
+          <p className="mt-1 text-badan text-muted-foreground">{keterangan}</p>
         </div>
         <div className="flex gap-1" role="group" aria-label={`Urutkan ${judul}`}>
           {(
@@ -93,7 +95,7 @@ function BagianDimensi({
               aria-pressed={urut === p.value}
               onClick={() => setUrut(p.value)}
               className={cn(
-                "rounded-lg border border-surface-border px-2.5 py-1 text-xs font-medium transition-colors",
+                "border border-surface-border px-2.5 py-1 text-meta font-medium transition-colors",
                 urut === p.value ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted",
               )}
             >
@@ -106,53 +108,53 @@ function BagianDimensi({
       <ul className="mt-4 space-y-4">
         {terurut.map((d) => (
           <li key={d.kunci} className="space-y-1.5">
-            <div className="flex items-baseline justify-between gap-3 text-sm">
+            <div className="flex items-baseline justify-between gap-3 text-badan">
               <span className="min-w-0 truncate font-medium">{d.label}</span>
               <span className="shrink-0 tabular-nums text-muted-foreground">
                 {formatRupiah(d.komisi)} · {d.konversi.toFixed(1)}%
               </span>
             </div>
             <Bar nilai={urut === "klik" ? d.klik : d.komisi} maks={maks} />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-meta text-muted-foreground">
               {formatAngka(d.konten)} konten ({satuan}) · {formatAngka(d.klik)} klik ·{" "}
               {formatAngka(d.pesanan)} pesanan
             </p>
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
 function KartuRingkas({ daftar, catatan }: { daftar: RingkasanKontenPerforma[]; catatan: string }) {
   return (
-    <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
+    <Card>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold">Konten paling menghasilkan</h2>
-          <p className="mt-1 text-xs text-muted-foreground">{catatan}</p>
+          <h2 className="text-isi font-semibold">Konten paling menghasilkan</h2>
+          <p className="mt-1 text-badan text-muted-foreground">{catatan}</p>
         </div>
-        <Link href="/analitik" className="text-sm text-primary underline-offset-2 hover:underline">
+        <Link href="/analitik" className="text-badan text-primary underline-offset-2 hover:underline">
           Lihat detail
         </Link>
       </div>
       <ul className="mt-4 space-y-4">
         {daftar.map((k) => (
           <li key={k.konten_id} className="space-y-1.5">
-            <div className="flex items-baseline justify-between gap-3 text-sm">
+            <div className="flex items-baseline justify-between gap-3 text-badan">
               <span className="min-w-0 truncate font-medium">{k.judul}</span>
               <span className="shrink-0 tabular-nums text-muted-foreground">
                 {formatRupiah(k.komisi)}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-meta text-muted-foreground">
               {formatAngka(k.klik_dipakai)} klik · {formatAngka(k.pesanan)} pesanan ·{" "}
               {k.konversi.toFixed(1)}% konversi
             </p>
           </li>
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
@@ -161,11 +163,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
   const [pilihan, setPilihan] = useState<Record<string, string>>({});
 
   if (!siap) {
-    return (
-      <div className="rounded-xl border border-surface-border bg-surface p-6 text-sm text-muted-foreground">
-        Memuat atribusi konten…
-      </div>
-    );
+    return <Card className="text-badan text-muted-foreground">Memuat atribusi konten…</Card>;
   }
 
   // Tanpa satu pun konten, sub_id tak dikenal, atau baris tanpa sub_id, tidak ada
@@ -203,24 +201,25 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
   return (
     <div className="space-y-6">
       {/* Tabel per konten */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-        <h2 className="text-base font-semibold">Performa per konten</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Dihitung dari kolom Sub_id/Creator pada laporan yang Anda impor. Kode pelacak tiap konten
-          bisa disalin di halaman Pustaka konten.
-        </p>
-
+      <Card padat>
+        <div className="px-4 pt-4 sm:px-6 sm:pt-6">
+          <h2 className="text-isi font-semibold">Performa per konten</h2>
+          <p className="mt-1 text-badan text-muted-foreground">
+            Dihitung dari kolom Sub_id/Creator pada laporan yang Anda impor. Kode pelacak tiap konten
+            bisa disalin di halaman Antrian review.
+          </p>
+        </div>
         {hasil.per_konten.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 px-4 text-badan text-muted-foreground sm:px-6">
             Belum ada konten yang bisa dipasangkan dengan baris laporan. Salin kode pelacak konten di
-            halaman Pustaka konten, pasang di link affiliate, lalu impor laporan berikutnya.
+            halaman Antrian review, pasang di link affiliate, lalu impor laporan berikutnya.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[46rem] text-sm">
+            <table className="w-full min-w-[46rem] text-badan">
               <caption className="sr-only">Performa per konten</caption>
               <thead>
-                <tr className="border-b border-surface-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   <th className="py-2 pr-3 font-medium">Konten</th>
                   <th className="py-2 pr-3 font-medium">Sub ID</th>
                   <th className="py-2 pr-3 font-medium">Komisi</th>
@@ -233,18 +232,18 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
               </thead>
               <tbody>
                 {hasil.per_konten.map((k) => (
-                  <tr key={k.konten_id} className="border-b border-surface-border/60 align-top">
+                  <tr key={k.konten_id} className="border-b border-surface-border align-top">
                     <td className="max-w-[16rem] py-2 pr-3">
                       <p className="truncate font-medium">{k.judul}</p>
-                      <p className="truncate text-xs text-muted-foreground">
+                      <p className="truncate text-meta text-muted-foreground">
                         {k.angle || "Tanpa angle"} · {k.produk_nama || "tanpa produk"}
                       </p>
-                      <p className="truncate text-[11px] text-muted-foreground">
+                      <p className="truncate text-meta text-muted-foreground">
                         Hook: {LABEL_GAYA_HOOK[k.gaya_hook] ?? k.gaya_hook} · Link:{" "}
                         {LABEL_LETAK_LINK[k.letak_link] ?? k.letak_link}
                       </p>
                     </td>
-                    <td className="py-2 pr-3 font-mono text-xs text-muted-foreground">
+                    <td className="py-2 pr-3 font-mono text-meta text-muted-foreground">
                       {k.sub_ids.join(", ") || "—"}
                     </td>
                     <td className="py-2 pr-3 tabular-nums">{formatRupiah(k.komisi)}</td>
@@ -255,7 +254,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
                     <td className="py-2 pr-3 tabular-nums">
                       {formatAngka(k.klik_dipakai)}
                       {k.klik_impor === 0 && k.klik_manual > 0 ? (
-                        <span className="ml-1 text-xs text-muted-foreground">(manual)</span>
+                        <span className="ml-1 text-meta text-muted-foreground">(manual)</span>
                       ) : null}
                     </td>
                     <td className="py-2 pr-3 tabular-nums">{formatRupiah(k.komisi_per_klik)}</td>
@@ -267,7 +266,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
           </div>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-3 px-4 pb-4 text-meta text-muted-foreground sm:px-6 sm:pb-6">
           <span>
             {formatAngka(hasil.total.baris_terpetakan)} baris laporan sudah tersambung ke konten.
           </span>
@@ -281,7 +280,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
             <span>{formatAngka(hasil.konten_tanpa_data)} konten belum punya komisi tercatat.</span>
           ) : null}
         </div>
-      </section>
+      </Card>
 
       {/* A/B per variabel (Fase 6): angle, gaya hook, letak link */}
       <BagianDimensi
@@ -305,11 +304,11 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
 
       {/* Pemetaan sub_id */}
       {belumDipetakan > 0 ? (
-        <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-          <h2 className="text-base font-semibold">
+        <Card>
+          <h2 className="text-isi font-semibold">
             Sub ID belum ditautkan ({formatAngka(belumDipetakan)})
           </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-badan text-muted-foreground">
             Kode ini muncul di laporan tetapi belum dikenali. Pilih konten yang memakainya, lalu
             terapkan. Pemetaan tersimpan di peramban ini.
           </p>
@@ -318,11 +317,11 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
             {hasil.belum_terpetakan.map((b) => (
               <div
                 key={b.sub_id}
-                className="flex flex-wrap items-center gap-3 rounded-lg border border-surface-border p-3 text-sm"
+                className="flex flex-wrap items-center gap-3 border border-surface-border p-3 text-badan"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-mono text-xs">{b.sub_id}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="truncate font-mono text-meta">{b.sub_id}</p>
+                  <p className="text-meta text-muted-foreground">
                     {formatRupiah(b.komisi)} · {formatAngka(b.pesanan)} pesanan ·{" "}
                     {formatAngka(b.klik)} klik · {formatAngka(b.baris)} baris
                   </p>
@@ -372,17 +371,17 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
                 Batalkan pilihan
               </button>
             ) : (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-meta text-muted-foreground">
                 Belum ada pilihan yang siap diterapkan.
               </span>
             )}
           </div>
-        </section>
+        </Card>
       ) : null}
 
       {/* Sub_id yang sudah dipetakan manual tetap perlu bisa dilepas */}
       {belumDipetakan === 0 && hasil.per_konten.length > 0 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-meta text-muted-foreground">
           Semua sub_id pada laporan sudah dikenali.{" "}
           <Link href="/antrian" className="text-primary underline-offset-2 hover:underline">
             Buka Antrian review
@@ -391,9 +390,9 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
         </p>
       ) : null}
 
-      {pesan ? <p className="text-sm text-status-failed">{pesan}</p> : null}
+      {pesan ? <p className="text-badan text-status-failed">{pesan}</p> : null}
 
-      <div className="rounded-xl border border-surface-border bg-surface p-4 text-xs text-muted-foreground">
+      <Card className="text-meta text-muted-foreground">
         <p className="font-medium text-foreground">Cara memasang kode pelacak</p>
         <p className="mt-1">
           Setiap konten punya kode seperti <span className="font-mono">at-3f9c21</span>. Tempel kode itu
@@ -404,7 +403,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
           Status konten di tabel bersifat informasi:{" "}
           <StatusBadge status="terkirim" /> berarti utas itu sudah diposting.
         </p>
-      </div>
+      </Card>
     </div>
   );
 }

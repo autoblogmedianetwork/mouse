@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { Card } from "@/components/card";
 import { MAX_CLEAN_DESCRIPTION_LENGTH, charLength, cleanDescription } from "@/lib/produk/bersihkan-deskripsi";
 import { productFormSchema, type ProductFormValues } from "@/lib/produk/skema";
 import { cn } from "@/lib/utils";
@@ -27,9 +28,9 @@ function loadSavedProducts(): SavedProduct[] {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm outline-none focus:border-primary";
-const labelClass = "mb-1 block text-sm font-medium";
-const errorClass = "mt-1 text-xs text-status-failed";
+  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
+const labelClass = "mb-1 block text-badan font-medium";
+const errorClass = "mt-1 text-meta text-status-failed";
 
 export function FormProdukManual({
   onSaved,
@@ -88,9 +89,9 @@ export function FormProdukManual({
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
       {/* Block 2: Produk & link affiliate (UI-Spec 3.2) */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-        <h2 className="text-base font-semibold">2. Produk &amp; link affiliate</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <Card>
+        <h2 className="text-isi font-semibold">2. Produk &amp; link affiliate</h2>
+        <p className="mt-1 text-badan text-muted-foreground">
           Isi manual dulu. Ambil dari link (scraping) default mati sesuai K5.
         </p>
 
@@ -174,12 +175,12 @@ export function FormProdukManual({
             ) : null}
           </div>
         </div>
-      </section>
+      </Card>
 
       {/* Block 3: Deskripsi (UI-Spec 3.2) */}
-      <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-        <h2 className="text-base font-semibold">3. Deskripsi</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <Card>
+        <h2 className="text-isi font-semibold">3. Deskripsi</h2>
+        <p className="mt-1 text-badan text-muted-foreground">
           Salin deskripsi dari listing Shopee. Sistem membersihkan link, hashtag,
           emoji berlebihan, teks berulang, dan memotong 3.000 karakter (PRD 10.1).
         </p>
@@ -192,7 +193,7 @@ export function FormProdukManual({
             id="deskripsi"
             rows={8}
             {...register("deskripsi")}
-            className={cn(inputClass, "font-mono text-xs leading-5")}
+            className={cn(inputClass, "font-mono text-meta leading-5")}
             aria-describedby="deskripsi-error deskripsi-counter"
           />
           {errors.deskripsi ? (
@@ -202,50 +203,50 @@ export function FormProdukManual({
           ) : null}
         </div>
 
-        <div className="mt-4 rounded-lg border border-surface-border p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="mt-4 border border-surface-border p-3">
+          <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
             Deskripsi bersih (hasil pembersihan)
           </p>
-          <pre className="mt-2 max-h-48 overflow-y-auto whitespace-pre-wrap break-words font-mono text-xs leading-5">
+          <pre className="mt-2 max-h-48 overflow-y-auto font-mono text-meta leading-5 whitespace-pre-wrap break-words">
             {cleaned || "—"}
           </pre>
-          <p id="deskripsi-counter" className="mt-2 text-xs text-muted-foreground">
+          <p id="deskripsi-counter" className="mt-2 text-meta text-muted-foreground">
             {cleanedLength} / {MAX_CLEAN_DESCRIPTION_LENGTH} karakter
           </p>
         </div>
-      </section>
+      </Card>
 
       <div className="flex items-center gap-3">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+          className="inline-flex h-10 items-center bg-primary px-5 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
         >
           Simpan produk
         </button>
-        {savedMessage ? <p className="text-sm text-status-ready">{savedMessage}</p> : null}
+        {savedMessage ? <p className="text-badan text-status-ready">{savedMessage}</p> : null}
       </div>
 
       {saved.length > 0 ? (
-        <section className="rounded-xl border border-surface-border bg-surface p-4 sm:p-6">
-          <h2 className="text-base font-semibold">
+        <Card>
+          <h2 className="text-isi font-semibold">
             Produk tersimpan ({saved.length})
           </h2>
           <ul className="mt-3 divide-y divide-surface-border">
             {saved.map((product) => (
-              <li key={product.id} className="flex items-center justify-between py-2 text-sm">
+              <li key={product.id} className="flex items-center justify-between py-2 text-badan">
                 <span>{product.nama_internal}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-meta text-muted-foreground">
                   {new Date(product.saved_at).toLocaleString("id-ID")}
                 </span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-3 text-meta text-muted-foreground">
             Sementara disimpan di localStorage. Pindah ke tabel Supabase setelah
             project Supabase terhubung (prasyarat P3).
           </p>
-        </section>
+        </Card>
       ) : null}
     </form>
   );

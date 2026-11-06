@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Card } from "@/components/card";
 import {
   isHyperFramesAvailable,
   kirimRenderHyperFrames,
@@ -62,18 +63,17 @@ export function TombolRenderVideo({
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-surface-border bg-surface p-4">
+    <Card padat className="mt-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-badan font-semibold">
             <span>Video Motion Template (HyperFrames)</span>
             <span
-              className={`inline-block h-2 w-2 rounded-full ${
-                tersedia ? "bg-green-500" : "bg-amber-500"
-              }`}
+              aria-hidden
+              className={`inline-block size-2 ${tersedia ? "bg-status-ready" : "bg-warning"}`}
             />
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-meta text-muted-foreground">
             {tersedia
               ? "Service lokal port 7002 aktif. Siap render video 9:16 (TikTok/Reels/Shorts)."
               : "Service lokal belum aktif. Jalankan `npm run media:video` di terminal untuk render langsung."}
@@ -84,9 +84,9 @@ export function TombolRenderVideo({
           type="button"
           onClick={handleRender}
           disabled={!tersedia || loading || statuses.length === 0}
-          className={`h-9 px-4 rounded-lg text-sm font-medium transition-colors ${
+          className={`h-9 px-4 text-badan font-medium transition-colors ${
             tersedia
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              ? "bg-primary text-primary-foreground hover:bg-primary-hover"
               : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
           }`}
         >
@@ -95,8 +95,8 @@ export function TombolRenderVideo({
       </div>
 
       {pesan ? (
-        <p className="mt-2 text-xs font-medium text-primary">{pesan}</p>
+        <p className="mt-2 text-meta font-medium text-primary">{pesan}</p>
       ) : null}
-    </div>
+    </Card>
   );
 }

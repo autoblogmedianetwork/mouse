@@ -4,7 +4,9 @@
  * instructions.
  */
 import { redirect } from "next/navigation";
+import { wajibSesiHalaman } from "@/lib/supabase/server";
 
-export default function KontenPage() {
+export default async function KontenPage() {
+  await wajibSesiHalaman("/konten");
   redirect("/antrian");
 }

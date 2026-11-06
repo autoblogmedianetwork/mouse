@@ -29,13 +29,13 @@ export function ActionBar({
   const bisaTandai = semuaChecklist && semuaValid && status !== "siap_posting";
 
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 border-t border-surface-border bg-background/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+    <div className="sticky bottom-0 z-20 -mx-4 border-t border-surface-border bg-background px-4 py-3 sm:-mx-6 sm:px-6">
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={onSimpanDraft}
           disabled={busy}
-          className="h-10 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+          className="h-10 bg-primary px-5 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
         >
           Simpan draft
         </button>
@@ -50,7 +50,7 @@ export function ActionBar({
                 ? "Lengkapi checklist dulu"
                 : undefined
           }
-          className="h-10 rounded-lg border border-surface-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-10 border border-surface-border px-5 text-badan font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
         >
           Tandai siap posting
         </button>
@@ -58,14 +58,14 @@ export function ActionBar({
           type="button"
           onClick={onSalin}
           disabled={busy}
-          className="h-10 rounded-lg border border-surface-border px-5 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60"
+          className="h-10 border border-surface-border px-5 text-badan font-medium transition-colors hover:bg-muted disabled:opacity-60"
         >
           Salin utas lengkap
         </button>
 
         <div className="ml-auto flex items-center gap-3">
           {tersimpanPukul ? (
-            <span className="text-xs text-muted-foreground" aria-live="polite">
+            <span className="text-meta text-muted-foreground" aria-live="polite">
               Tersimpan pukul {tersimpanPukul}
             </span>
           ) : null}

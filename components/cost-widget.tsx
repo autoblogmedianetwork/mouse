@@ -8,6 +8,7 @@
  * Pure presentation: the caller supplies the numbers, so this stays testable
  * and never reads env on its own.
  */
+import { Card } from "@/components/card";
 import { cn } from "@/lib/utils";
 
 const rupiahPerUsd = 16_300; // rough conversion for display only (K8 pending)
@@ -36,28 +37,29 @@ export function CostWidget({
   const hampirHabis = persen >= 80;
 
   return (
-    <div className="min-w-56 rounded-xl border border-surface-border bg-surface px-4 py-3">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+    <Card padat className="min-w-56 px-4 py-3">
+      <p className="font-mono text-meta uppercase tracking-meta text-muted-foreground">
         Biaya AI
       </p>
 
       {adaCatatan ? (
         <>
-          <dl className="mt-1 flex items-baseline gap-4 text-sm">
+          <dl className="mt-1 flex items-baseline gap-4 text-badan">
             <div>
-              <dt className="text-xs text-muted-foreground">Hari ini</dt>
+              <dt className="text-meta text-muted-foreground">Hari ini</dt>
               <dd className="font-medium tabular-nums">
                 {hariIniUsd === null ? "—" : formatUsd(hariIniUsd)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-muted-foreground">Bulan ini</dt>
+              <dt className="text-meta text-muted-foreground">Bulan ini</dt>
               <dd className="font-medium tabular-nums">
                 {bulanIniUsd === null ? "—" : formatUsd(bulanIniUsd)}
               </dd>
             </div>
           </dl>
 
+          {/* Round track is a documented exception (ADR 0013: progress track). */}
           <div
             className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted"
             role="progressbar"
@@ -81,7 +83,7 @@ export function CostWidget({
 
           <p
             className={cn(
-              "mt-1.5 text-xs",
+              "mt-1.5 text-meta tabular-nums",
               persen >= 100 ? "text-status-failed" : "text-muted-foreground",
             )}
           >
@@ -91,11 +93,11 @@ export function CostWidget({
           </p>
         </>
       ) : (
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-badan text-muted-foreground">
           Belum ada panggilan AI tercatat. Batas bulanan {formatUsd(batasUsd)} (
           {formatRupiah(batasUsd)}).
         </p>
       )}
-    </div>
+    </Card>
   );
 }

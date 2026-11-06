@@ -6,6 +6,10 @@ import { cn } from "@/lib/utils";
 /**
  * ThreadsPreview (UI-Spec 3.2 kolom kanan / section 4): read-only, real-time
  * from form state. Always dark background (UI-Spec section 6).
+ *
+ * Documented exception (ADR 0013 butir 5 dan 6): warna platform langsung
+ * (#101010, #2f2f2f, orange-500), gradient, dan avatar bulat dipertahankan
+ * karena blok ini harus menyerupai Threads, bukan menyerupai chrome aplikasi.
  */
 export function ThreadsPreview({
   statuses,
