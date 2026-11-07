@@ -36,8 +36,13 @@ struktur berkas, belum kualitas output AI.
 
 | Perintah | Fungsi |
 |---|---|
-| `npm run test:golden` | Jalankan prompt ke semua produk (tersedia mulai Fase 2) |
+| `npm run test:golden` | Jalankan prompt ke semua produk, periksa tahap 1, lalu nilai exit criteria Fase 3 |
+| `npm run test:golden -- --dry-run` | Hanya periksa berkas dan harness; tanpa panggilan AI |
 | `npm test` | Tes unit dan fixture; tidak memanggil API |
+
+Runner menulis bukti ke `golden/hasil/<stempel-waktu>/` (`laporan.md` dan
+`ringkasan.json`). Tabel dari `laporan.md` disalin ke `docs/penilaian.md`
+beserta skor manual. Prosedur lengkap ada di `docs/penilaian.md`.
 
 Tahap 1 (validasi otomatis, wajib lulus): JSON valid, jumlah ide tepat 10, label format sesuai
 daftar, tidak ada status di atas 500 karakter, tidak ada harga, jumlah status sesuai pengaturan uji.

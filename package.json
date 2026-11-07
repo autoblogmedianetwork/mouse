@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:golden": "node scripts/test-golden.mjs",
     "test:rls": "node tests/rls-dua-akun.mjs",
     "media:video": "node scripts/hyperframes-service.mjs"
   },

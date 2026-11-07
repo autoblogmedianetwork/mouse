@@ -21,6 +21,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `Workflow-Heaviliate.md` | alur user per tahap, state konten, error dan recovery |
 | `Rencana-Pengembangan-Heaviliate.md` | fase, exit criteria, strategi pengujian, definisi selesai |
 | `rencana-testing.md` | rincian lapisan tes, tes per fase, tes RLS, tes kegagalan |
+| `penilaian.md` | cara menjalankan golden set, tabel skor rubrik, status exit criteria Fase 3 |
 | `skema-database.md` | tabel, enum, storage, migrasi yang sudah ada dan draft migrasi berikutnya |
 | `ai-provider.md` | endpoint provider AI, harga, provider per fungsi, tools media |
 | `keputusan.md` | jawaban K1–K14, status prasyarat P1–P11, pilihan tooling |
