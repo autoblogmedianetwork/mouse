@@ -4,10 +4,13 @@
  * The page itself is a server component so the client form can read the
  * `?galat=` query with useSearchParams inside a Suspense boundary (Next.js
  * requires that for statically prerendered routes).
+ *
+ * The form card owns the page heading (`h1`) instead of a PageHeader: the
+ * previous version printed "Masuk" twice above the fold plus once more on the
+ * button, which read as a template placeholders rather than a gate.
  */
 import { Suspense } from "react";
 import { Card } from "@/components/card";
-import { PageHeader } from "@/components/page-header";
 import { FormMasuk } from "./form-masuk";
 
 export const metadata = { title: "Masuk" };
@@ -15,11 +18,6 @@ export const metadata = { title: "Masuk" };
 export default function MasukPage() {
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Masuk"
-        description="Login dipakai supaya Bank Konten, laporan performa, dan peta atribusi tersimpan di akun Anda, bukan hanya di peramban ini."
-      />
-
       <Suspense
         fallback={
           <Card className="max-w-xl text-badan text-muted-foreground">Memuat formulir…</Card>
@@ -28,9 +26,9 @@ export default function MasukPage() {
         <FormMasuk />
       </Suspense>
 
-      <p className="text-meta text-muted-foreground">
-        Sampai semua halaman bicara ke Supabase, data yang sudah ada di peramban ini belum ikut
-        terpindah. Menyalin isi Pustaka lewat Ekspor JSON tetap aman sebagai cadangan.
+      <p className="max-w-xl text-meta text-muted-foreground">
+        Bank Konten, laporan performa, dan peta atribusi tersimpan di akun Anda. Isi Pustaka yang
+        sudah ada di peramban belum ikut pindah; Ekspor JSON tetap aman sebagai cadangan.
       </p>
     </div>
   );

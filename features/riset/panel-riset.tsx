@@ -14,6 +14,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/card";
+import { PesanGalat } from "@/components/pesan-galat";
 import { EmptyState } from "@/components/empty-state";
 import { csvPeluang, csvRiset, NAMA_BERKAS } from "@/lib/riset/ekspor";
 import {
@@ -57,7 +58,7 @@ export function PanelRiset() {
   const [peluang, setPeluang] = useState<Peluang[]>([]);
   const [riwayat, setRiwayat] = useState<Riset[]>([]);
   const [sibuk, setSibuk] = useState<"riset" | "peluang" | null>(null);
-  const [galat, setGalat] = useState<string | null>(null);
+  const [galat, setGalat] = useState<{ pesan: string; perluMasuk: boolean } | null>(null);
   const [catatan, setCatatan] = useState<string | null>(null);
   const [produkDiproses, setProdukDiproses] = useState<string | null>(null);
 
@@ -66,7 +67,7 @@ export function PanelRiset() {
     try {
       setRiwayat(await daftarRiset());
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : "Riwayat riset gagal dimuat.");
+      setGalat({ pesan: e instanceof Error ? e.message : "Riwayat riset gagal dimuat.", perluMasuk: false });
     }
   }, [siap]);
 
@@ -81,7 +82,12 @@ export function PanelRiset() {
         const data = await daftarRiset();
         if (aktif) setRiwayat(data);
       } catch (e) {
-        if (aktif) setGalat(e instanceof Error ? e.message : "Riwayat riset gagal dimuat.");
+        if (aktif) {
+          setGalat({
+            pesan: e instanceof Error ? e.message : "Riwayat riset gagal dimuat.",
+            perluMasuk: false,
+          });
+        }
       }
     };
     void jalan();
@@ -104,7 +110,10 @@ export function PanelRiset() {
         error?: string;
       };
       if (!res.ok || !data.ok) {
-        setGalat(data.error ?? `Peluang gagal disusun (HTTP ${res.status}).`);
+        setGalat({
+          pesan: data.error ?? `Peluang gagal disusun (HTTP ${res.status}).`,
+          perluMasuk: res.status === 401,
+        });
         return;
       }
       const baris = (data.peluang ?? [])
@@ -117,7 +126,7 @@ export function PanelRiset() {
           : "Peluang tersimpan, tapi tidak ada baris yang bisa dibaca.",
       );
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : "Peluang gagal disusun.");
+      setGalat({ pesan: e instanceof Error ? e.message : "Peluang gagal disusun.", perluMasuk: false });
     } finally {
       setSibuk(null);
     }
@@ -140,7 +149,10 @@ export function PanelRiset() {
         error?: string;
       };
       if (!res.ok || !data.ok || !data.riset) {
-        setGalat(data.error ?? `Riset gagal (HTTP ${res.status}).`);
+        setGalat({
+          pesan: data.error ?? `Riset gagal (HTTP ${res.status}).`,
+          perluMasuk: res.status === 401,
+        });
         return;
       }
       setRiset(data.riset);
@@ -149,7 +161,7 @@ export function PanelRiset() {
       setSibuk(null);
       await susunPeluang(data.riset.id);
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : "Riset gagal dijalankan.");
+      setGalat({ pesan: e instanceof Error ? e.message : "Riset gagal dijalankan.", perluMasuk: false });
     } finally {
       setSibuk(null);
     }
@@ -168,7 +180,7 @@ export function PanelRiset() {
         setCatatan("Riset ini belum punya peluang. Tekan “Susun ulang peluang” untuk membuatnya.");
       }
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : "Peluang gagal dimuat.");
+      setGalat({ pesan: e instanceof Error ? e.message : "Peluang gagal dimuat.", perluMasuk: false });
       setPeluang([]);
     }
   }, []);
@@ -191,7 +203,7 @@ export function PanelRiset() {
             : `Produk “${p.kategori}” sudah ada, jadi dipakai ulang.`,
         );
       } catch (e) {
-        setGalat(e instanceof Error ? e.message : "Produk gagal dibuat.");
+        setGalat({ pesan: e instanceof Error ? e.message : "Produk gagal dibuat.", perluMasuk: false });
       } finally {
         setProdukDiproses(null);
       }
@@ -203,7 +215,7 @@ export function PanelRiset() {
     <div className="space-y-6">
       {/* 1. Input riset */}
       <Card>
-        <h2 className="text-isi font-semibold">1. Riset audiens</h2>
+        <h2 className="text-isi font-semibold">1. Niche &amp; audiens</h2>
         <p className="mt-1 text-badan text-muted-foreground">
           Satu niche dan satu target audiens menghasilkan 10 masalah nyata, lalu 20 kategori
           produk yang berpotensi dipromosikan di Threads. Semua hasil berstatus draft.
@@ -266,12 +278,11 @@ export function PanelRiset() {
           </p>
         ) : null}
         {galat ? (
-          <p
-            role="alert"
-            className="mt-3 border border-status-failed/40 bg-muted px-3 py-2 text-badan text-status-failed"
-          >
-            {galat}
-          </p>
+          <PesanGalat
+            pesan={galat.pesan}
+            perluMasuk={galat.perluMasuk}
+            className="mt-3 border border-status-failed/40 bg-muted px-3 py-2"
+          />
         ) : null}
         {catatan ? (
           <p role="status" className="mt-3 bg-muted px-3 py-2 text-badan">

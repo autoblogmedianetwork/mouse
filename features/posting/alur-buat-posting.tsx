@@ -11,6 +11,7 @@ import { TombolSuaraNarasi } from "./tombol-suara-narasi";
 import { TombolRenderVideo } from "./tombol-render-video";
 import { PanduanFotoCandid } from "./panduan-foto-candid";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -116,6 +117,8 @@ interface ApiResult<T> {
   ok: boolean;
   data?: T;
   error?: string;
+  /** HTTP status, so a 401 can offer the sign-in link. */
+  status?: number;
 }
 
 async function postJson<T>(url: string, body: unknown): Promise<ApiResult<T>> {
@@ -126,7 +129,7 @@ async function postJson<T>(url: string, body: unknown): Promise<ApiResult<T>> {
       body: JSON.stringify(body),
     });
     const json = (await res.json()) as ApiResult<T>;
-    return json;
+    return { ...json, status: res.status };
   } catch {
     return { ok: false, error: "Jaringan bermasalah. Coba lagi." };
   }
@@ -150,6 +153,8 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
   const [langkah, setLangkah] = useState<Langkah>("produk");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Last error was a 401, so the banner must offer /masuk. */
+  const [errorSesi, setErrorSesi] = useState(false);
   const [tersimpanPukul, setTersimpanPukul] = useState<string | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
   const [programs] = useLocalState<ProgramAffiliate[]>("autothreads-link-programs", []);
@@ -299,6 +304,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     if (!draft.produk) return;
     setBusy("analisis");
     setError(null);
+    setErrorSesi(false);
     const result = await postJson<Analisis>("/api/analisis", {
       deskripsi: draft.produk.deskripsi_bersih || draft.produk.deskripsi,
       nama: draft.produk.nama || draft.produk.nama_internal,
@@ -312,6 +318,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       setLangkah("analisis");
     } else {
       setError(result.error ?? "Analisis gagal.");
+      setErrorSesi(result.status === 401);
     }
   };
 
@@ -324,6 +331,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     }
     setBusy("ide");
     setError(null);
+    setErrorSesi(false);
     const fiturList =
       draft.analisis?.fitur && draft.analisis.fitur.length > 0
         ? draft.analisis.fitur
@@ -349,6 +357,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       });
     } else {
       setError("AI sedang tidak tersedia. Silakan tulis ide manual.");
+      setErrorSesi(result.status === 401);
     }
   };
 
@@ -394,6 +403,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     }
     setBusy("generate");
     setError(null);
+    setErrorSesi(false);
     setPesan(null);
 
     const kontenBaru: Array<KontenKerja> = [];
@@ -640,7 +650,15 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
           role="alert"
           className="flex items-center justify-between gap-3 border border-status-failed/40 bg-status-failed/10 px-4 py-3 text-badan font-mono"
         >
-          <span>{error}</span>
+          <span>
+            {error}
+            {errorSesi ? (
+              <>
+                {" "}
+                <TautanMasuk tujuan="/posting/baru" />
+              </>
+            ) : null}
+          </span>
           <button
             type="button"
             onClick={() => setError(null)}
@@ -737,7 +755,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       {langkah === "analisis" ? (
         <div className="space-y-6">
           <Card>
-            <h2 className="text-base font-semibold">Analisis penawaran</h2>
+            <h2 className="text-isi font-semibold">Analisis penawaran</h2>
             <p className="mt-1 text-badan text-muted-foreground">
               Hasil AI bersifat draft dan bisa dikoreksi sebelum lanjut (PRD 10.3).
             </p>
@@ -874,7 +892,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold">Ide konten</h2>
+                <h2 className="text-isi font-semibold">Ide konten</h2>
                 <p className="mt-1 text-badan text-muted-foreground">
                   AI membuat 10 ide. Pilih satu atau beberapa (PRD F2).
                 </p>
@@ -917,14 +935,15 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   const dipilih = draft.ideDipilih.includes(ide.judul);
                   return (
                     <li key={ide.judul}>
-                      <label
-                        className={cn(
-                          "flex h-full cursor-pointer flex-col border p-4 transition-colors",
-                          dipilih
-                            ? "border-primary bg-primary/5"
-                            : "border-surface-border bg-surface hover:bg-muted/50",
-                        )}
-                      >
+                      <label className="block h-full cursor-pointer">
+                        <Card
+                          nada={dipilih ? "aksen" : "netral"}
+                          padat
+                          className={cn(
+                            "flex h-full flex-col p-4 transition-colors",
+                            !dipilih && "hover:bg-muted/50",
+                          )}
+                        >
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-badan font-semibold leading-5">{ide.judul}</span>
                           <input
@@ -943,6 +962,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                         <p className="mt-2 text-meta text-muted-foreground">
                           Jembatan: {ide.jembatan}
                         </p>
+                        </Card>
                       </label>
                     </li>
                   );
@@ -958,7 +978,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
           {/* Ide manual: PRD F1 — input manual tidak pernah dihapus, AI hanya pelengkap. */}
           <Card>
-            <h2 className="text-base font-semibold">Ide manual</h2>
+            <h2 className="text-isi font-semibold">Ide manual</h2>
             <p className="mt-1 text-badan text-muted-foreground">
               Tanpa AI pun alur tetap berjalan: tulis idemu di sini, lanjut, lalu ketik
               statusnya sendiri di editor.

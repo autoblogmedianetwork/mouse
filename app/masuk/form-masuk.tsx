@@ -126,9 +126,9 @@ export function FormMasuk() {
               [ AKSES ] HEAVILIATE DASHBOARD &nbsp;·&nbsp; REV 2026.10
             </p>
             <div className="px-4 pt-6 pb-2 sm:px-6">
-              <h2 id="masuk-judul" className={JUDUL}>
+              <h1 id="masuk-judul" className={JUDUL}>
                 MASUK
-              </h2>
+              </h1>
               <p className="mt-3 max-w-md text-badan text-muted-foreground sm:text-base">
                 Satu email, tanpa kata sandi. Tautan sekali pakai dikirim ke kotak masuk Anda dan
                 berlaku sebentar.
@@ -161,9 +161,7 @@ export function FormMasuk() {
                 <button type="submit" className={TOMBOL_UTAMA} disabled={sibuk}>
                   {sibuk ? "MENGIRIM…" : "KIRIM TAUTAN LOGIN >>>"}
                 </button>
-                <p className={`${mikro} text-muted-foreground`}>
-                  ENTER = kirim &nbsp;·&nbsp; tanpa kata sandi
-                </p>
+                <p className={`${mikro} text-muted-foreground`}>ENTER = KIRIM</p>
               </div>
 
               {pesan ? (

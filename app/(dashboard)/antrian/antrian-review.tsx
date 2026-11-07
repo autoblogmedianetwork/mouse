@@ -12,6 +12,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { CostWidget } from "@/components/cost-widget";
 import { EmptyState } from "@/components/empty-state";
@@ -405,8 +406,19 @@ export function AntrianReview() {
   return (
     <div className="space-y-4">
       {pesan ? (
-        <p className="text-badan text-status-ready" aria-live="polite">
+        <p
+          className={
+            posting.perluMasuk ? "text-badan text-status-failed" : "text-badan text-status-ready"
+          }
+          aria-live="polite"
+        >
           {pesan}
+          {posting.perluMasuk ? (
+            <>
+              {" "}
+              <TautanMasuk tujuan="/antrian" />
+            </>
+          ) : null}
         </p>
       ) : null}
 

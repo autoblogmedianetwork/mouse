@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { cn } from "@/lib/utils";
 import {
@@ -42,32 +43,47 @@ export function DaftarAkun() {
     [],
   );
   const [memuat, setMemuat] = useState(true);
+  /** GET /api/akun menjawab `butuhSesi` (bukan 401) saat belum masuk. */
+  const [butuhSesi, setButuhSesi] = useState(false);
 
-  // Muat akun dari API server / Supabase
-  const muatAkunDariServer = async () => {
-    try {
-      const res = await fetch("/api/akun");
-      const data = await res.json();
-      if (res.ok && data.ok && Array.isArray(data.akun)) {
-        if (data.akun.length > 0) {
-          // Gabungkan akun server dengan akun lokal unik
-          const map = new Map<string, AkunSosial>();
-          for (const a of data.akun as AkunSosial[]) map.set(a.id, a);
-          for (const a of akunLokal) {
-            if (!map.has(a.id)) map.set(a.id, a);
-          }
-          setAkunLokal(Array.from(map.values()));
-        }
-      }
-    } catch {
-      // Offline / fallback ke local state
-    } finally {
-      setMemuat(false);
-    }
-  };
-
+  // Muat akun dari API server / Supabase. Ditulis di dalam effect supaya
+  // setState hanya terjadi setelah await (react-hooks/set-state-in-effect),
+  // dan merge memakai bentuk fungsional sehingga `akunLokal` tidak perlu jadi
+  // dependency.
   useEffect(() => {
-    muatAkunDariServer();
+    let aktif = true;
+
+    const muatAkunDariServer = async () => {
+      try {
+        const res = await fetch("/api/akun");
+        const data = await res.json();
+        if (!aktif) return;
+        if (res.status === 401 || data.butuhSesi) {
+          setButuhSesi(true);
+        }
+        if (res.ok && data.ok && Array.isArray(data.akun) && data.akun.length > 0) {
+          const dariServer = data.akun as AkunSosial[];
+          // Gabungkan akun server dengan akun lokal unik.
+          setAkunLokal((lokal) => {
+            const map = new Map<string, AkunSosial>();
+            for (const a of dariServer) map.set(a.id, a);
+            for (const a of lokal) {
+              if (!map.has(a.id)) map.set(a.id, a);
+            }
+            return Array.from(map.values());
+          });
+        }
+      } catch {
+        // Offline / fallback ke local state
+      } finally {
+        if (aktif) setMemuat(false);
+      }
+    };
+
+    void muatAkunDariServer();
+    return () => {
+      aktif = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -132,6 +148,12 @@ export function DaftarAkun() {
           {pesan.teks}
         </div>
       )}
+
+      {butuhSesi ? (
+        <p className="border border-status-failed/30 bg-status-failed/10 p-3.5 text-badan text-status-failed">
+          Daftar akun di server hanya bisa dimuat setelah masuk. <TautanMasuk />
+        </p>
+      ) : null}
 
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">

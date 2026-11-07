@@ -18,6 +18,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
@@ -188,6 +189,12 @@ export default function KalenderKlien() {
       {pesan ? (
         <Card padat className="px-3 py-2 text-badan text-muted-foreground" role="status">
           {pesan}
+          {posting.perluMasuk ? (
+            <>
+              {" "}
+              <TautanMasuk tujuan="/kalender" />
+            </>
+          ) : null}
         </Card>
       ) : null}
 

@@ -35,6 +35,8 @@ export interface PakaiPosting {
   bisaKirimApi: boolean;
   /** Pesan error terakhir, ditampilkan di UI. */
   pesan: string | null;
+  /** Pesan terakhir berasal dari 401: UI harus menawarkan tautan masuk. */
+  perluMasuk: boolean;
   setPesan: (pesan: string | null) => void;
   /** Periksa apakah konten ini boleh dikirim sekarang (jeda, batas, jadwal). */
   izinKirim: (konten: Konten) => HasilPeriksa;
@@ -47,6 +49,7 @@ export function usePosting(): PakaiPosting {
   const [efektif, setEfektif] = useState<PenyediaPosting>("manual");
   const [tersedia, setTersedia] = useState<KetersediaanProvider[]>([]);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [perluMasuk, setPerluMasuk] = useState(false);
 
   useEffect(() => {
     let hidup = true;
@@ -108,6 +111,7 @@ export function usePosting(): PakaiPosting {
             riwayat,
           }),
         });
+        setPerluMasuk(res.status === 401);
         const data = (await res.json()) as HasilKirim;
         catatKirim({
           konten_id: konten.id,
@@ -125,6 +129,7 @@ export function usePosting(): PakaiPosting {
           error: "Tidak bisa menghubungi server. Coba lagi atau salin utas manual.",
           jatuh_ke_manual: true,
         };
+        setPerluMasuk(false);
         setPesan(gagal.error);
         return gagal;
       }
@@ -138,6 +143,7 @@ export function usePosting(): PakaiPosting {
     tersedia,
     bisaKirimApi: tersedia.some((p) => p.id === "threads_api" && p.tersedia),
     pesan,
+    perluMasuk,
     setPesan,
     izinKirim,
     kirim,

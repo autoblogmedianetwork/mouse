@@ -124,6 +124,15 @@ sumber:
   dimatikan — itu memang tujuannya.
 - Warna peringatan yang sudah ada harus dipetakan ke `--warning` saat
   pass komponen, bukan dibiarkan sebagai amber langsung.
+- Pass komponen halaman Buat posting menetapkan batas untuk
+  `features/posting/threads-preview.tsx`: hanya header panel (label
+  "Preview Threads" dan catatan "Selalu latar gelap") yang memakai token
+  tipografi aplikasi (`font-mono`, `text-meta`/`text-mikro`, tracking
+  token). Warna, avatar, glyph, dan teks status tetap nilai platform
+  (#101010, #2f2f2f, orange-500) karena panel ini selalu gelap dan harus
+  menyerupai Threads. `alur-buat-posting.tsx` ikut selesai pada pass ini:
+  tiga `text-base` menjadi `text-isi`, dan kartu ide manual memakai
+  `Card nada="aksen"` alih-alih string kartu salinan.
 - Bagian 4 UI-Spec (komponen inti) belum menyebut `Card` dan
   `FeatureToggle`; penambahannya menyusul pada pass 2 agar dokumen tidak
   mendahului kode yang belum ada.

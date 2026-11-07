@@ -8,6 +8,7 @@
  */
 import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import { StatusBadge } from "@/components/status-badge";
 import { muatKonten } from "@/lib/konten/store";
 import { RIWAYAT_LIMIT, belumDikirim } from "@/lib/konten/supabase-konten";
@@ -138,9 +139,15 @@ export function RiwayatSupabase() {
 
       {keadaan === "tidak-tersedia" ? (
         <p className="mt-3 text-badan text-muted-foreground">
-          {alasan === "sesi"
-            ? "Masuk dulu untuk melihat riwayat dari database. Selama belum masuk, riwayat tidak ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan."
-            : `${PESAN_ENV_KURANG} Selama belum tersambung, riwayat di bawah ini tidak ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan.`}
+          {alasan === "sesi" ? (
+            <>
+              Masuk dulu untuk melihat riwayat dari database. Selama belum masuk, riwayat tidak
+              ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan.{" "}
+              <TautanMasuk tujuan="/riwayat" />
+            </>
+          ) : (
+            `${PESAN_ENV_KURANG} Selama belum tersambung, riwayat di bawah ini tidak ditampilkan supaya tidak ada data yang tampak padahal belum tersimpan.`
+          )}
         </p>
       ) : null}
 

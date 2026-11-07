@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card } from "@/components/card";
+import { TautanMasuk } from "@/components/pesan-galat";
 import { FormProdukManual, type SavedProduct } from "./form-produk-manual";
 import {
   KATEGORI_PENAWARAN,
@@ -52,7 +53,12 @@ export function FormPenawaran({
   // State Form Dari Link
   const [linkInputUrl, setLinkInputUrl] = useState("");
   const [loadingAmbil, setLoadingAmbil] = useState(false);
-  const [pesanLink, setPesanLink] = useState<{ tipe: "sukses" | "error"; teks: string } | null>(null);
+  const [pesanLink, setPesanLink] = useState<{
+    tipe: "sukses" | "error";
+    teks: string;
+    /** Server answered 401: the message needs a way to sign in. */
+    perluMasuk?: boolean;
+  } | null>(null);
   const [linkForm, setLinkForm] = useState({
     nama: "",
     link_affiliate: "",
@@ -138,6 +144,7 @@ export function FormPenawaran({
         setPesanLink({
           tipe: "error",
           teks: json.error || "Gagal mengambil metadata. Silakan isi form di bawah secara manual.",
+          perluMasuk: res.status === 401,
         });
       }
     } catch {
@@ -409,6 +416,12 @@ export function FormPenawaran({
                 )}
               >
                 {pesanLink.teks}
+                {pesanLink.tipe === "error" && pesanLink.perluMasuk ? (
+                  <>
+                    {" "}
+                    <TautanMasuk />
+                  </>
+                ) : null}
               </div>
             )}
           </Card>

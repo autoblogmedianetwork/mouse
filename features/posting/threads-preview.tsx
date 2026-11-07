@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils";
  * Documented exception (ADR 0013 butir 5 dan 6): warna platform langsung
  * (#101010, #2f2f2f, orange-500), gradient, dan avatar bulat dipertahankan
  * karena blok ini harus menyerupai Threads, bukan menyerupai chrome aplikasi.
+ *
+ * Batas yang disepakati pada pass komponen: hanya header panel yang memakai
+ * token tipografi aplikasi (mono, text-meta/text-mikro, tracking token), karena
+ * header itu chrome kita. Avatar, glyph, teks status, dan metadata waktu tetap
+ * nilai platform supaya kemiripan dengan Threads tidak hilang.
  */
 export function ThreadsPreview({
   statuses,
@@ -33,8 +38,12 @@ export function ThreadsPreview({
   return (
     <div className="overflow-hidden rounded-xl border border-[#2f2f2f] bg-[#101010] text-[#e7e5e4]">
       <div className="flex items-center justify-between border-b border-[#2f2f2f] px-4 py-2">
-        <span className="text-xs font-medium text-[#a8a2a0]">Preview Threads</span>
-        <span className="text-[10px] uppercase tracking-wide text-[#78716c]">Selalu latar gelap</span>
+        <span className="font-mono text-meta font-medium uppercase tracking-meta text-[#a8a2a0]">
+          Preview Threads
+        </span>
+        <span className="font-mono text-mikro uppercase tracking-badge text-[#78716c]">
+          Selalu latar gelap
+        </span>
       </div>
 
       <div className="max-h-[60vh] space-y-4 overflow-y-auto px-4 py-4">
