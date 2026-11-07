@@ -123,7 +123,7 @@ export function FormMasuk() {
         /* Belum masuk: blok struktural dengan judul raksasa. */ (
           <>
             <p className={`${mikro} border-b-2 border-foreground bg-muted px-4 py-2 sm:px-6`}>
-              [ AKSES ] HEAVILIATE DASHBOARD &nbsp;·&nbsp; REV 2026.10
+              [ AKSES ] HEAVILIATE DASHBOARD &nbsp;·&nbsp; REV 2026.11
             </p>
             <div className="px-4 pt-6 pb-2 sm:px-6">
               <h1 id="masuk-judul" className={JUDUL}>
