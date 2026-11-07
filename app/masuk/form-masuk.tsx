@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { tujuanAman } from "@/lib/auth/tujuan";
 import { klienPeramban, PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
+import { FormKataSandi } from "./form-kata-sandi";
 
 /** Label form, metadata, dan tombol memakai gaya terminal: mono + uppercase. */
 const mikro = "font-mono text-meta uppercase tracking-meta";
@@ -117,6 +118,12 @@ export function FormMasuk() {
                 Buka Antrian review &gt;&gt;&gt;
               </Link>
             </div>
+            <details className="px-4 py-3 sm:px-6">
+              <summary className={`${mikro} cursor-pointer`}>Atur kata sandi</summary>
+              <div className="mt-4">
+                <FormKataSandi mode="atur" />
+              </div>
+            </details>
           </div>
         )
       ) : (
@@ -188,6 +195,14 @@ export function FormMasuk() {
                 </p>
               ) : null}
             </form>
+            <details className="border-t-2 border-foreground">
+              <summary className={`${mikro} cursor-pointer px-4 py-3 hover:bg-muted sm:px-6`}>
+                Masuk dengan kata sandi (tanpa email)
+              </summary>
+              <div className="border-t-2 border-foreground p-4 sm:p-6">
+                <FormKataSandi mode="masuk" tujuan={tujuan} />
+              </div>
+            </details>
           </>
         )
       )}

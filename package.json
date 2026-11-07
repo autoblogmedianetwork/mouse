@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:golden": "node scripts/test-golden.mjs",
     "test:rls": "node tests/rls-dua-akun.mjs",
+    "akun:kata-sandi": "node scripts/akun-kata-sandi.mjs",
     "media:video": "node scripts/hyperframes-service.mjs"
   },
   "dependencies": {

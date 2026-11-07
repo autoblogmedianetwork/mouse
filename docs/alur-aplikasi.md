@@ -7,14 +7,21 @@ bawah; dokumen ini fokus **alur dan cara kerjanya**, bukan keputusan desain.
 ## 1. Masuk (Login)
 
 - Halaman `/masuk` memakai **login tautan sekali pakai (magic link)** lewat
-  email — tanpa kata sandi.
+  email, dengan **kata sandi sebagai jalur cadangan** (ADR 0016).
 - Isi email → klik **Kirim tautan login** → buka email → klik tautan →
   aplikasi menukar kode sesi di `/auth/callback` lalu menempatkan Anda ke
   dashboard.
 - Sampai semua halaman terhubung Supabase, aplikasi tetap bisa dipakai dari
   penyimpanan peramban (localStorage); login dipakai supaya Bank Konten,
   laporan performa, dan atribusi bisa ikut ke akun Anda nantinya.
-- Sudah masuk? Halaman yang sama menampilkan email aktif dan tombol keluar.
+- Sudah masuk? Halaman yang sama menampilkan email aktif, tombol keluar, dan
+  form **Atur kata sandi** untuk memasang kata sandi pada akun itu.
+- Bila email tidak datang (mailer bawaan Supabase dibatasi 2 email/jam dan
+  hanya untuk anggota tim project), buka bagian **Masuk dengan kata sandi** di
+  halaman yang sama. Akun dengan kata sandi dibuat dari komputer sendiri:
+  `npm run akun:kata-sandi -- nama@email.com` — kata sandi diketik tanpa
+  tampil di layar, tidak pernah dicetak, dan email tetap ditandai terkonfirmasi
+  sehingga tidak perlu tautan.
 
 ## 2. Alur utama: Buat posting (`/posting/baru`)
 
