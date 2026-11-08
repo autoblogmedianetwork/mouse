@@ -42,7 +42,7 @@ import {
 import {
   buildGenerateStatusPrompt,
   PROMPT_VERSION as VERSI_STATUS,
-} from "@/lib/ai/prompts/generate-status.v6";
+} from "@/lib/ai/prompts/generate-status.v7";
 import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
 
 const AKAR = process.cwd();
