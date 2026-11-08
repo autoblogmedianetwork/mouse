@@ -28,6 +28,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `glosarium.md` | istilah Indonesia ke nama kode (dipakai di semua berkas) |
 | `fitur-mode-kerja.md` | mode kerja, antrian review, skor ide, kontrol biaya |
 | `fitur-carousel.md` | struktur slide, template, renderer, checklist carousel |
+| `fitur-video-flow.md` | jalur video prompt manual: storyboard ChatGPT, prompt Google Flow, dua checkpoint |
 | `Template-Video-Affiliate.md` | acuan modul video (storyboard, JSON Google Flow, checklist) |
 | `dependency.md` | semua tool dan layanan beserta status dan fasenya |
 | `adr/` | keputusan teknis 0001 sampai sekarang |

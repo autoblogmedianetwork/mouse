@@ -37,6 +37,8 @@ export const MENU_ITEMS: MenuItem[] = [
   // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
   { label: "Riset audiens", href: "/riset", group: "workspace", fase: "MVP" },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", fase: "MVP" },
+  // Jalur video prompt manual: storyboard ChatGPT, video Google Flow.
+  { label: "Prompt video", href: "/video", group: "workspace", fase: "MVP" },
   { label: "Antrian review", href: "/antrian", group: "workspace", fase: "MVP" },
   { label: "Riwayat posting", href: "/riwayat", group: "workspace", fase: "MVP" },
   // Tools

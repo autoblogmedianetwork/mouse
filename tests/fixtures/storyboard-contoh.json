@@ -1,0 +1,35 @@
+{
+  "durasi_total_detik": 10,
+  "rasio": "9:16",
+  "scenes": [
+    {
+      "urutan": 1,
+      "durasi_detik": 3,
+      "visual": "Nasi di rice cooker mulai dingin, uap hilang",
+      "gerakan_kamera": "push in lambat ke mangkuk nasi",
+      "teks_layar": "Nasi cepat dingin?",
+      "narasi": "Nasi baru matang cepat dingin kalau tidak ditutup.",
+      "suara_latar": "ambience dapur"
+    },
+    {
+      "urutan": 2,
+      "durasi_detik": 4,
+      "visual": "Rice cooker 1,8 liter dinyalakan, panel warm menyala",
+      "gerakan_kamera": "statis, close up panel",
+      "teks_layar": "Mode warm 12 jam",
+      "narasi": "Mode warm menjaga nasi tetap hangat.",
+      "suara_latar": null
+    },
+    {
+      "urutan": 3,
+      "durasi_detik": 3,
+      "visual": "Nasi diambil dan diletakkan di piring, uap terlihat",
+      "gerakan_kamera": "tangan mengambil nasi, kamera tetap",
+      "teks_layar": "Hangat sampai jam makan",
+      "narasi": null,
+      "suara_latar": "ambience dapur"
+    }
+  ],
+  "klaim_perlu_cek": ["warm 12 jam sesuai deskripsi"],
+  "catatan": "Kapasitas 1,8 liter, harga tidak disebut."
+}

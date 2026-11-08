@@ -143,23 +143,28 @@ Jika tool dipilih tapi tidak tersedia, tombol tampil dengan label "Tidak tersedi
 
 ## 5. Foto ke Video (F7.1)
 
+Jalur ini **tidak memanggil AI dari aplikasi** (ADR 0018): storyboard dibuat di
+ChatGPT, video dibuat di Google Flow, aplikasi hanya menyusun dan memeriksa teks.
+
 ```
-Upload foto (F0)
+Data produk + foto (di /video)                 ← input manual, foto tidak diunggah
       ↓
-Hapus background (jika aktif)
+Aplikasi menyusun prompt storyboard (prompt 04 v1)
       ↓
-Pilih durasi (default 10 detik) dan rasio (default 9:16)
+User salin ke ChatGPT → balasan JSON
       ↓
-Sistem menyusun prompt final dengan template tetap
+Tempel JSON di aplikasi → tabel scene + peringatan
+      ↓  Checkpoint 1: durasi, teks layar, klaim diperiksa user
+Aplikasi menyusun prompt per scene (template 07 v1, kunci produk di tiap scene)
       ↓
-Checkpoint: user konfirmasi prompt
-      ↓
-Video dibuat manual di Google Flow, atau di render lokal (jika aktif)
-      ↓
-Checklist cek hasil (bandingkan dengan foto asli)
-      ↓
-Status: siap_posting
+User salin prompt scene 1..n ke Google Flow, satu klip per scene
+      ↓  Checkpoint 2: bandingkan tiap klip dengan foto asli
+Tempel link video + checklist → simpan sebagai draft di arsip video
 ```
+
+Prompt Flow tidak bisa disalin sebelum checkpoint 1 selesai, dan draft tidak
+bisa disimpan sebelum checklist checkpoint 2 lengkap. Bila klip meleset,
+generate ulang klip itu — jangan diperbaiki dengan cara lain.
 
 ---
 
