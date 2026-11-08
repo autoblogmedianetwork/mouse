@@ -118,9 +118,14 @@ export function FormMasuk() {
                 Buka Antrian review &gt;&gt;&gt;
               </Link>
             </div>
-            <details className="px-4 py-3 sm:px-6">
-              <summary className={`${mikro} cursor-pointer`}>Atur kata sandi</summary>
+            <details className="p-4 sm:p-6">
+              <summary className={`${mikro} cursor-pointer border-2 border-foreground px-3 py-2 hover:bg-muted`}>
+                Atur / ganti kata sandi &gt;&gt;&gt;
+              </summary>
               <div className="mt-4">
+                <p className={`${mikro} mb-4 text-muted-foreground`}>
+                  Pasang kata sandi agar bisa masuk tanpa menunggu email.
+                </p>
                 <FormKataSandi mode="atur" />
               </div>
             </details>
