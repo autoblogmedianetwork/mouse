@@ -16,6 +16,7 @@ import { FORMAT_LABELS } from "@/lib/ai/schemas";
 import { salinKeClipboard } from "@/lib/konten/salin";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { susunPromptStoryboard } from "@/lib/video/prompt-storyboard";
+import { LANGKAH_PROMPT_CEPAT, susunPromptCepat } from "@/lib/video/prompt-cepat";
 import { GAYA_FLOW, susunPromptFlowScene, susunSemuaPromptFlow } from "@/lib/video/prompt-flow";
 import {
   JUMLAH_SCENE_MAX,
@@ -37,7 +38,10 @@ import {
 
 const KUNCI_DRAF = "autothreads-video-draf";
 
+type Mode = "json" | "cepat";
+
 interface DrafVideo {
+  mode: Mode;
   namaProduk: string;
   varian: string;
   ringkasan: string;
@@ -56,6 +60,7 @@ interface DrafVideo {
 }
 
 const DRAF_AWAL: DrafVideo = {
+  mode: "json",
   namaProduk: "",
   varian: "",
   ringkasan: "",
@@ -131,6 +136,20 @@ export function AlurVideo() {
     [storyboard, opsiFlow],
   );
 
+  // Mode cepat: satu prompt panjang gaya Gemini Omni, tanpa storyboard JSON.
+  const promptCepat = useMemo(
+    () =>
+      susunPromptCepat({
+        namaProduk: draf.namaProduk,
+        varian: draf.varian,
+        deskripsi: draf.ringkasan,
+        durasiDetik: draf.durasiDetik,
+        jumlahScene: draf.jumlahScene,
+        instruksiTambahan: draf.instruksiTambahan,
+      }),
+    [draf.namaProduk, draf.varian, draf.ringkasan, draf.durasiDetik, draf.jumlahScene, draf.instruksiTambahan],
+  );
+
   const salin = async (teks: string, label: string) => {
     const berhasil = await salinKeClipboard(teks);
     setPesan(
@@ -173,6 +192,29 @@ export function AlurVideo() {
           {pesan}
         </p>
       ) : null}
+
+      <nav aria-label="Mode alur video" className="flex flex-wrap gap-2">
+        {(
+          [
+            { id: "json", label: "Mode JSON (diperiksa)" },
+            { id: "cepat", label: "Mode cepat (satu prompt)" },
+          ] as const
+        ).map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => ubah({ mode: m.id })}
+            aria-pressed={draf.mode === m.id}
+            className={
+              draf.mode === m.id
+                ? "border border-primary bg-primary px-3 py-1.5 font-mono text-meta font-semibold text-primary-foreground"
+                : "border border-surface-border bg-surface px-3 py-1.5 font-mono text-meta hover:bg-muted"
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </nav>
 
       {/* ------------------------------ 1. Data produk ----------------------------- */}
       <Card>
@@ -338,6 +380,8 @@ export function AlurVideo() {
         </label>
       </Card>
 
+      {draf.mode === "json" ? (
+        <>
       {/* --------------------------- 2. Prompt ChatGPT ---------------------------- */}
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -589,6 +633,43 @@ export function AlurVideo() {
           </ul>
         )}
       </Card>
+        </>
+      ) : (
+        <>
+          <Card>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-isi font-semibold">Prompt cepat (Gemini Omni di Google Flow)</h2>
+                <p className="mt-1 text-badan text-muted-foreground">
+                  Satu prompt panjang: storyboard, audio, larangan ikon keranjang, tanpa orang.
+                  Tidak ada storyboard JSON yang diperiksa, jadi tidak ada checkpoint 1.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => salin(promptCepat, "Prompt cepat")}
+                className={primaryBtn}
+              >
+                Salin prompt
+              </button>
+            </div>
+            <pre className={`mt-4 ${preCls}`}>{promptCepat}</pre>
+          </Card>
+
+          <Card>
+            <h2 className="text-isi font-semibold">Langkah selanjutnya</h2>
+            <ol className="mt-3 list-decimal space-y-2 pl-5 text-badan">
+              {LANGKAH_PROMPT_CEPAT.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ol>
+            <p className="mt-4 border border-warning/40 bg-warning/10 p-3 text-meta">
+              Mode cepat tidak menyimpan storyboard dan tidak memeriksa klaim. Untuk video yang perlu
+              diperiksa lebih dulu, pakai mode JSON.
+            </p>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

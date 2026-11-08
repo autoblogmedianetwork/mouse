@@ -1,6 +1,6 @@
 # Fitur: Prompt video (storyboard ChatGPT + Google Flow)
 
-Halaman: `/video`. Keputusan teknis: ADR 0018.
+Halaman: `/video`. Keputusan teknis: ADR 0018 dan ADR 0019.
 Template asal: `prompts/04-storyboard-json.md` (storyboard, v1) dan
 `prompts/07-prompt-foto-ke-video.md` (prompt Flow, v1).
 
@@ -12,7 +12,22 @@ Template asal: `prompts/04-storyboard-json.md` (storyboard, v1) dan
   melewati dua checkpoint.
 - Produk tidak boleh berubah bentuk, warna, atau isi paket di setiap klip.
 
-## Alur
+## Dua mode
+
+| Mode | Keluaran | Checkpoint 1 | Arsip |
+|---|---|---|---|
+| **JSON (diperiksa)** | Prompt storyboard untuk ChatGPT, lalu prompt Flow per scene | Ada | Ada |
+| **Cepat (satu prompt)** | Satu prompt panjang untuk Gemini Omni di Google Flow | Tidak ada | Tidak ada |
+
+Mode cepat meniru alur komunitas: 3–6 scene, sound effect, bubble text, tanpa
+orang, dan negative prompt rinci (ikon keranjang, "klik keranjang", "check out",
+"stok habis", kualitas rendah, wajah distorsi). Mode JSON tetap dipakai bila
+storyboard perlu diperiksa lebih dulu.
+
+Kedua mode memakai `NEGATIVE_PROMPT` yang sama dan sama-sama melarang wajah
+atau tubuh orang di video (ADR 0019).
+
+## Alur mode JSON
 
 | Langkah | Yang dilakukan | Di mana |
 |---|---|---|
@@ -29,7 +44,10 @@ Template asal: `prompts/04-storyboard-json.md` (storyboard, v1) dan
 |---|---|
 | JSON harus bisa diurai, punya minimal satu scene, tiap scene punya deskripsi visual, durasi > 0 | `lib/video/storyboard.ts` |
 | Jumlah scene 3–5, total durasi scene = durasi total, teks layar ≤ 8 kata, narasi ≤ 2 kata/detik, nomor scene tidak dobel | peringatan di `lib/video/storyboard.ts` |
-| Setiap prompt Flow memuat kunci produk + larangan harga/klaim/logo | `lib/video/prompt-flow.ts` |
+| Setiap prompt Flow memuat kunci produk + larangan harga/klaim/logo + negative prompt | `lib/video/prompt-flow.ts` |
+| Sound effect dari storyboard ikut ke prompt Flow | `lib/video/prompt-flow.ts` |
+| Jumlah scene 3–6 | `lib/video/storyboard.ts` |
+| Prompt cepat tanpa wajah/tubuh orang dan dengan negative prompt | `lib/video/prompt-cepat.ts` |
 | Prompt Flow tidak bisa disalin sebelum checkpoint 1 | `features/video/alur-video.tsx` |
 | Draft tidak bisa disimpan sebelum checklist lengkap | `lib/video/store.ts` |
 

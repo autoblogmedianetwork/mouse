@@ -25,8 +25,34 @@ const LARANGAN = [
   "Jangan menampilkan harga, diskon, atau angka penjualan.",
   'Jangan menambahkan klaim berlebihan seperti "terbaik", "100% aman", atau "paling murah".',
   "Jangan menambahkan logo atau merek yang tidak ada di foto.",
-  "Jangan membuat tangan atau wajah yang menyerupai tokoh nyata.",
+  "Jangan menampilkan wajah atau tubuh orang sama sekali.",
 ];
+
+/**
+ * Negative prompt dari alur Gemini Omni di Google Flow yang terbukti dipakai
+ * user (ADR 0019). Sebagian besar isinya mencegah pelanggaran platform:
+ * ikon keranjang Shopee, teks ajakan checkout, dan klaim stok. Nilainya
+ * dijadikan konstanta supaya tidak perlu diketik ulang di setiap scene.
+ */
+export const NEGATIVE_PROMPT = [
+  "no shopping cart icon",
+  "no yellow cart",
+  "no click cart button",
+  'no text "klik keranjang"',
+  'no text "check out"',
+  'no text "sebelum kehabisan stock"',
+  'no text "stok habis"',
+  "no price tag",
+  "no discount badge",
+  "no low quality",
+  "no distorted product shape",
+  "no changing product color",
+  "no changing product details or shape",
+  "no extra logo or watermark",
+  "no human face",
+  "no human body",
+  "no morphing",
+].join(", ");
 
 export interface OpsiPromptFlow {
   namaProduk: string;
@@ -73,7 +99,12 @@ export function susunPromptFlowScene(scene: SceneStoryboard, opsi: OpsiPromptFlo
     baris.push("Tanpa narasi voice-over.");
   }
 
+  if (scene.suara_latar) {
+    baris.push(`Sound effect: ${scene.suara_latar}.`);
+  }
+
   baris.push("", "Larangan:", ...LARANGAN.map((l) => `- ${l}`));
+  baris.push("", `Negative prompt: ${NEGATIVE_PROMPT}`);
 
   const tambahan = opsi.instruksiTambahan?.trim();
   if (tambahan) {

@@ -166,6 +166,12 @@ Prompt Flow tidak bisa disalin sebelum checkpoint 1 selesai, dan draft tidak
 bisa disimpan sebelum checklist checkpoint 2 lengkap. Bila klip meleset,
 generate ulang klip itu — jangan diperbaiki dengan cara lain.
 
+Untuk pemakaian cepat ada **mode cepat** (ADR 0019): satu prompt panjang untuk
+Gemini Omni di Google Flow — 3–6 scene, sound effect, bubble text, negative
+prompt ikon keranjang/teks checkout, dan larangan menampilkan wajah atau tubuh
+orang. Mode cepat tidak melewati pemeriksaan JSON, jadi tidak punya checkpoint 1
+maupun arsip.
+
 ---
 
 ## 6. Affiliate: Deteksi Marketplace

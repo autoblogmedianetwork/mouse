@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { PROMPT_STORYBOARD_VERSI, susunPromptStoryboard } from "./prompt-storyboard";
 import {
   KUNCI_PRODUK,
+  NEGATIVE_PROMPT,
   PROMPT_FLOW_VERSI,
   batasKataNarasi,
   susunPromptFlowScene,
@@ -67,7 +68,7 @@ const storyboard = (() => {
     JSON.stringify({
       durasi_total_detik: 10,
       scenes: [
-        { urutan: 1, durasi_detik: 3, visual: "Nasi dingin di mangkuk", gerakan_kamera: "push in", teks_layar: "Nasi cepat dingin?", narasi: "Nasi cepat dingin." },
+        { urutan: 1, durasi_detik: 3, visual: "Nasi dingin di mangkuk", gerakan_kamera: "push in", teks_layar: "Nasi cepat dingin?", narasi: "Nasi cepat dingin.", suara_latar: "ambience dapur" },
         { urutan: 2, durasi_detik: 4, visual: "Panel warm menyala", gerakan_kamera: "close up", teks_layar: "Warm 12 jam", narasi: null },
         { urutan: 3, durasi_detik: 3, visual: "Nasi di piring beruap", gerakan_kamera: "statis", teks_layar: "Hangat sampai makan", narasi: null },
       ],
@@ -89,6 +90,19 @@ describe("susunPromptFlowScene", () => {
       expect(prompt).toContain("Jangan menampilkan harga");
       expect(prompt).toContain("Jangan menambahkan logo");
     }
+  });
+
+  it("menyertakan sound effect dari storyboard", () => {
+    expect(susunPromptFlowScene(storyboard.scenes[0], { namaProduk: "X" })).toContain(
+      "Sound effect: ambience dapur.",
+    );
+  });
+
+  it("selalu membawa negative prompt larangan keranjang dan orang", () => {
+    const prompt = susunPromptFlowScene(storyboard.scenes[0], { namaProduk: "X" });
+    expect(prompt).toContain(`Negative prompt: ${NEGATIVE_PROMPT}`);
+    expect(prompt).toContain("no shopping cart icon");
+    expect(prompt).toContain("no human face");
   });
 
   it("memuat visual, kamera, durasi, dan teks layar scene", () => {

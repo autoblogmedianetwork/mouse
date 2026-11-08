@@ -10,10 +10,13 @@
 import { z } from "zod";
 import { parseModelJson } from "@/lib/ai/parse-json";
 
-/** Batas dari prompt 04: durasi total 10 detik, 3 sampai 5 scene. */
+/**
+ * Batas scene prompt 04 (v1). Awalnya 3–5; dilonggarkan ke 6 pada ADR 0019
+ * karena alur cepat yang dipakai user memakai 6 scene pendek.
+ */
 export const DURASI_TOTAL_DETIK = 10;
 export const JUMLAH_SCENE_MIN = 3;
-export const JUMLAH_SCENE_MAX = 5;
+export const JUMLAH_SCENE_MAX = 6;
 export const MAKS_KATA_TEKS_LAYAR = 8;
 /** Narasi maksimal 2 kata per detik durasi scene. */
 export const KATA_NARASI_PER_DETIK = 2;
