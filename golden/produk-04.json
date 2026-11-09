@@ -1,23 +1,23 @@
 {
   "id": "produk-04",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "kecantikan",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Serum Niacinamide 10% 20ml",
+    "varian": "Reguler, 20 ml",
+    "harga": 65000,
+    "deskripsi_bersih": "Serum wajah dengan kandungan niacinamide 10 persen dan zinc PCA 1 persen untuk membantu menenangkan kulit berminyak dan menyeimbangkan produksi sebum. Teksturnya ringan, cepat serap, tidak lengket saat dipakai sebelum sunscreen. Formula tanpa alkohol dan tanpa pewangi, sudah diuji pada panel kulit sensitif. Kemasan pump gelas gel 20 ml supaya isi tidak cepat teroksidasi. Dipakai malam hari dua sampai tiga tetes setelah cuci muka.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["niacinamide 10 persen", "zinc PCA 1 persen", "tanpa alkohol dan pewangi", "kemasan pump gelas gel"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

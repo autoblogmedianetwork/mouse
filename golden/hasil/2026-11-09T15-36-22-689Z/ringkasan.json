@@ -1,0 +1,160 @@
+{
+  "waktu": "2026-11-09T15-36-22-689Z",
+  "prompt": {
+    "analisis": "analisis-penawaran.v3",
+    "ide": "ide-konten.v2",
+    "status": "generate-status.v7"
+  },
+  "produk": [
+    {
+      "id": "produk-01",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 2816 (line 1 column 2817) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 2816 (line 1 column 2817) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-02",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 5863 (line 1 column 5864) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 5863 (line 1 column 5864) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-03",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 3060 (line 1 column 3061) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 3060 (line 1 column 3061) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-04",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 3434 (line 1 column 3435) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 3434 (line 1 column 3435) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-05",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 3888 (line 1 column 3889) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 3888 (line 1 column 3889) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-06",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 4128 (line 1 column 4129) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 4128 (line 1 column 4129) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-07",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 3679 (line 1 column 3680) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 3679 (line 1 column 3680) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-08",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 3592 (line 1 column 3593) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 3592 (line 1 column 3593) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-09",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 2773 (line 1 column 2774) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 2773 (line 1 column 2774) (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-10",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "Unexpected non-whitespace character after JSON at position 2400 (line 1 column 2401) (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "Unexpected non-whitespace character after JSON at position 2400 (line 1 column 2401) (gagal setelah 2 percobaan)"
+    }
+  ]
+}

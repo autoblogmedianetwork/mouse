@@ -1,23 +1,23 @@
 {
   "id": "produk-09",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "hobi-edukasi",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Buku Latihan Kaligrafi Pemula",
+    "varian": "A5, 64 halaman",
+    "harga": 35000,
+    "deskripsi_bersih": "Buku latihan kaligrafi untuk pemula berukuran A5 setebal 64 halaman. Isinya pola latihan bertahap: goresan dasar, huruf kapital, huruf kecil, lalu kalimat pendek. Kertasnya tebal 120 gsm sehingga tinta spidol brush pen tidak tembus ke halaman sebelah. Setiap halaman punya garis bantu empat garis yang menjelaskan tinggi huruf. Cocok untuk remaja dan dewasa yang baru mulai belajar, tanpa perlu alat khusus selain brush pen biasa.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["pola latihan bertahap", "kertas 120 gsm anti tembus", "garis bantu empat garis", "64 halaman"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

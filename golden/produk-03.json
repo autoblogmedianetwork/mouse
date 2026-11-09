@@ -1,23 +1,23 @@
 {
   "id": "produk-03",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "makanan",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Keripik Singkong Balado Pedas 250g",
+    "varian": "Balado, level pedas sedang",
+    "harga": 18000,
+    "deskripsi_bersih": "Keripik singkong dipotong tipis lalu digoreng dua tahap supaya gurih tanpa berasa berminyak. Bumbu balado digoreng terpisah dari cabai segar dan bawang, lalu disiramkan ke keripik saat masih hangat supaya meresap. Kemasan foil zip stand membuat keripik tetap renyah sampai dua minggu setelah dibuka. Tanpa pengawet dan tanpa penyedap rasa. Produksi tiap minggu, tanggal produksi tercetak di belakang kemasan.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["digoreng dua tahap", "bumbu balado meresap", "kemasan zip stand", "tanpa pengawet"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

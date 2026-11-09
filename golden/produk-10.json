@@ -1,23 +1,23 @@
 {
   "id": "produk-10",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "kesehatan",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Minyak Kelapa Murni 250ml",
+    "varian": "250 ml, cold pressed",
+    "harga": 42000,
+    "deskripsi_bersih": "Minyak kelapa murni hasil perasan dingin (cold pressed) dari kelapa tua pilihan, tanpa campuran minyak lain. Warnanya jernih dan aromanya wangi kelapa alami, tidak asap saat dipakai menumis dengan api kecil. Diproses tanpa panas tinggi supaya kandungan asam laurat alaminya terjaga. Kemasan botol kaca gelap 250 ml dengan tutup pump supaya tidak tumpah dan lebih tahan simpan. Bisa dipakai untuk memasak ringan, perawatan rambut, dan pelembap kulit.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["cold pressed", "tanpa campuran minyak lain", "botol kaca gelap dengan pump", "asam laurat terjaga"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

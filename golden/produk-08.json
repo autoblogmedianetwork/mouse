@@ -1,23 +1,23 @@
 {
   "id": "produk-08",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "elektronik",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Rice Cooker Mini 0.6L",
+    "varian": "0,6 liter, untuk 1-2 porsi",
+    "harga": 185000,
+    "deskripsi_bersih": "Rice cooker mini kapasitas 0,6 liter pas untuk satu sampai dua porsi nasi. Ada tiga mode: masak nasi, menghangatkan, dan membuat bubur. Panci dalam berlapis ceramic nonstick yang aman disentuh spatula kayu. Ukuran ringkas sehingga muat di meja kos atau kamar kontrakan, kabel bisa dilepas supaya gampang dibawa. Ada pengukur beras dan sendok kecil di dalam paket. Otomatis pindah ke mode hangat setelah nasi matang.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["kapasitas 0,6 liter", "tiga mode", "panci ceramic nonstick", "kabel lepas pasang"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

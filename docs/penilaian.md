@@ -12,9 +12,16 @@ versi prompt jadi tidak bisa dibandingkan.
 
 | Hal | Nilai |
 |---|---|
-| Produk berstatus `siap` | 0 dari 10 (semua masih `belum_diisi`, prasyarat P5) |
-| Golden set terakhir dijalankan | belum pernah |
-| Exit criteria Fase 3 | **belum bisa dinilai** — menunggu P5 |
+| Produk berstatus `siap` | 10 dari 10 — **SEMUA DUMMY (SAMPEL)**, diisi 9 Nov 2026 |
+| Golden set terakhir dijalankan | 9 Nov 2026 — **tahap 1 LULUS penuh: 10/10 JSON valid, kepatuhan karakter 5/5** (model `agnes-2.5-flash` via router lokal 9router) |
+| Exit criteria Fase 3 | tahap 2 (penilaian manual) belum diisi — dan set dummy harus diganti produk nyata dulu |
+
+> **Peringatan:** set saat ini adalah produk dummy lintas kategori (fashion,
+> elektronik, makanan, kecantikan, rumah tangga, jasa, hobi, kesehatan)
+> yang ditulis agent. Setiap berkas diberi `keterangan: SAMPEL DUMMY`.
+> Hasil run dengan set ini hanya **smoke test** (membuktikan harness dan
+> prompt berjalan), BUKAN pengukuran kualitas. Ganti dengan produk nyata
+> sebelum memakai hasil sebagai gate Fase 3.
 
 Selama P5 belum selesai, `npm run test:golden` berhenti di pemeriksaan
 prasyarat dan **tidak** memanggil AI, sehingga tidak ada biaya yang keluar.
@@ -108,6 +115,18 @@ Diisi dari `laporan.md` putaran terakhir. Kolom skor memakai rubrik 1 sampai 5.
 | Tanggal | Versi prompt | Model | JSON valid | Lolos manual | Catatan |
 |---|---|---|---|---|---|
 | – | analisis v3, ide v2, status v6 | – | – | – | belum dijalankan |
+| 2026-11-09 | analisis v3, ide v2, status v6 | nvidia/nemotron-3.5-lightning:free | 0/10 | – | **gagal jalan**: OpenRouter 401 "User not found" (key mati); DeepSeek key juga 401; router lokal 9router/FreeLLMPool mati. Set: dummy 10/10 |
+| 2026-11-09 | analisis v3, ide v2, status v6 | agnes-2.5-flash (via 9router lokal) | **10/10** | – | **SMOKE TEST LULUS** — tahap 1 bersih setelah 2 perbaikan: (1) `parse-json.ts` kini membuang teks penutup setelah JSON; (2) `generate-json.ts` kini menoleransi body respons yang dicatut `data: [DONE]` oleh proxy SSE. Exit criteria masih menunggu penilaian manual (by design) |
+
+### Perbaikan kode yang lahir dari run ini
+
+1. `lib/ai/parse-json.ts` — output yang **diawali `{` lalu ditutup teks
+   penjelasan** kini bisa diparse (sebelumnya hanya preamble yang dibuang).
+2. `lib/ai/generate-json.ts` — helper `bacaJsonRespons()` membuang penanda
+   SSE `data: [DONE]` yang menempel di akhir body non-streaming dari proxy
+   lokal. Ditemukan berkat smoke test ini; tanpa itu, SEMUA panggilan lewat
+   9router pasti gagal.
+3. Test baru: 4 buah (2 parse-json, 2 generate-json). Total suite 610 lulus.
 
 ## Catatan terbuka
 

@@ -1,23 +1,23 @@
 {
   "id": "produk-01",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "fashion",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Kaos Polos Katun Combed 30s",
+    "varian": "Hitam, ukuran XL",
+    "harga": 75000,
+    "deskripsi_bersih": "Kaos polos pria berbahan katun combed 30s, lembut dan adem dipakai harian. Jahitan rantai di bagian kerah dan bahu membuat kaos tidak mudah melar meski sering dicuci mesin. Warna hitam pekat tidak cepat pudar karena pewarnaan reaktif. Tersedia ukuran S sampai XXL dengan potongan reguler yang rapi untuk badan sedang. Cocok dipakai sendiri atau dijadikan baju pasangan dan komunitas.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["katun combed 30s", "jahitan rantai", "warna tidak cepat pudar", "ukuran S sampai XXL"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

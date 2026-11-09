@@ -1,0 +1,160 @@
+{
+  "waktu": "2026-11-09T15-22-52-340Z",
+  "prompt": {
+    "analisis": "analisis-penawaran.v3",
+    "ide": "ide-konten.v2",
+    "status": "generate-status.v7"
+  },
+  "produk": [
+    {
+      "id": "produk-01",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-02",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-03",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-04",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-05",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-06",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-07",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-08",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-09",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    },
+    {
+      "id": "produk-10",
+      "json_valid": false,
+      "panjang_maks": null,
+      "cek": [
+        {
+          "nama": "JSON analisis valid",
+          "lulus": false,
+          "wajib": true,
+          "detail": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+        }
+      ],
+      "peringatan": [],
+      "galat": "HTTP 401: User not found. (gagal setelah 2 percobaan)"
+    }
+  ]
+}

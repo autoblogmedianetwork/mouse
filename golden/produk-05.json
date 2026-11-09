@@ -1,23 +1,23 @@
 {
   "id": "produk-05",
-  "status": "belum_diisi",
-  "keterangan": "Isi dengan produk nyata. Lihat golden/README.md.",
-  "kategori": null,
+  "status": "siap",
+  "keterangan": "SAMPEL DUMMY — bukan produk nyata. Ganti dengan produk yang pernah dipromosikan sebelum memakai hasil sebagai gate kualitas.",
+  "kategori": "rumah-tangga",
   "input": {
-    "nama": null,
-    "varian": null,
-    "harga": null,
-    "deskripsi_bersih": null,
+    "nama": "Termos Vacuum Flask 500ml",
+    "varian": "Stainless 500 ml, tutup geser",
+    "harga": 95000,
+    "deskripsi_bersih": "Termos dengan dinding stainless 304 dua lapis dan vakum di antaranya, menjaga air tetap panas sampai 8 jam dan dingin sampai 12 jam. Tutup geser satu tangan jadi gampang dibuka sambil menyetir. Mulut botol lebar 4 cm memudahkan mengisi air dan membersihkan bagian dalam dengan sikat. Bagian laris dilapisi cat matte anti gores ringan. Tidak boleh dimasukkan ke microwave; aman untuk air panas bukan untuk minuman bersoda.",
     "foto": []
   },
   "harapan": {
     "analisis": {
-      "wajib_ada_fitur": [],
+      "wajib_ada_fitur": ["stainless 304 dua lapis", "panas 8 jam dingin 12 jam", "tutup geser satu tangan", "mulut botol lebar 4 cm"],
       "tidak_boleh_ada": ["harga", "klaim berlebihan yang tidak ada di deskripsi"]
     },
     "ide": {
       "jumlah": 10,
-      "wajib_ada_format": ["Pengalaman"]
+      "wajib_ada_format": ["Storytelling"]
     },
     "status": {
       "maks_karakter": 500,
@@ -32,6 +32,6 @@
     "tanpa_klaim_tak_terbukti": null,
     "variasi_antarstatus": null,
     "kepatuhan_karakter": null,
-    "catatan": ""
+    "catatan": "Produk dummy (sampel) — hasil hanya smoke test, bukan penilaian kualitas sesungguhnya."
   }
 }

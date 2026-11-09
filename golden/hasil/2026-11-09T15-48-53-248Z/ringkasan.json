@@ -1,0 +1,369 @@
+{
+  "waktu": "2026-11-09T15-48-53-248Z",
+  "prompt": {
+    "analisis": "analisis-penawaran.v3",
+    "ide": "ide-konten.v2",
+    "status": "generate-status.v7"
+  },
+  "produk": [
+    {
+      "id": "produk-01",
+      "json_valid": true,
+      "panjang_maks": 150,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: warna tidak cepat pudar, ukuran S sampai XXL"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 150 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-02",
+      "json_valid": true,
+      "panjang_maks": 201,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: baterai 6 jam, bobot 220 gram"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 201 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-03",
+      "json_valid": true,
+      "panjang_maks": 301,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: bumbu balado meresap, kemasan zip stand"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 301 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-04",
+      "json_valid": true,
+      "panjang_maks": 185,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: niacinamide 10 persen, zinc PCA 1 persen, tanpa alkohol dan pewangi, kemasan pump gelas gel"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 185 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-05",
+      "json_valid": true,
+      "panjang_maks": 204,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: panas 8 jam dingin 12 jam"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 204 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-06",
+      "json_valid": true,
+      "panjang_maks": 175,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: dua alternatif desain, satu kali revisi, file PNG JPG dan SVG, dikerjakan tiga hari kerja"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 175 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-07",
+      "json_valid": true,
+      "panjang_maks": 155,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 155 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-08",
+      "json_valid": true,
+      "panjang_maks": 162,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: kapasitas 0,6 liter, tiga mode, kabel lepas pasang"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 162 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-09",
+      "json_valid": true,
+      "panjang_maks": 224,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: kertas 120 gsm anti tembus"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 224 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    },
+    {
+      "id": "produk-10",
+      "json_valid": true,
+      "panjang_maks": 202,
+      "cek": [
+        {
+          "nama": "Fitur wajib muncul di analisis",
+          "lulus": false,
+          "wajib": false,
+          "detail": "tidak muncul: botol kaca gelap dengan pump, asam laurat terjaga"
+        },
+        {
+          "nama": "Format ide yang diminta muncul",
+          "lulus": true,
+          "wajib": false
+        },
+        {
+          "nama": "Tidak ada status di atas 500 karakter",
+          "lulus": true,
+          "wajib": true,
+          "detail": "terpanjang 202 karakter"
+        },
+        {
+          "nama": "Tidak menyebut harga",
+          "lulus": true,
+          "wajib": true
+        },
+        {
+          "nama": "Menyebut satu kekurangan (saran, bukan gate)",
+          "lulus": true,
+          "wajib": false
+        }
+      ],
+      "peringatan": [],
+      "galat": null
+    }
+  ]
+}
