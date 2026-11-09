@@ -475,7 +475,7 @@ export function AlurVideo() {
                 className="mt-1 h-4 w-4 accent-[var(--primary)]"
               />
               <span>
-                <strong>Checkpoint 1 selesai:</strong> durasi, teks layar, dan klaim sudah saya
+                <strong>Pemeriksaan 1 selesai:</strong> durasi, teks layar, dan klaim sudah saya
                 periksa. Buka prompt Flow di langkah 4.
               </span>
             </label>

@@ -290,14 +290,14 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
         daftar={hasil.per_angle.map(dariAngle)}
       />
       <BagianDimensi
-        judul="Performa per gaya hook"
-        satuan="hook"
-        keterangan="Gaya hook pembuka yang dipakai saat generate (Pengaturan generate). Ubah untuk A/B."
+        judul="Performa per gaya pembuka"
+        satuan="gaya pembuka"
+        keterangan="Gaya pembuka status yang dipakai saat generate (Pengaturan generate). Ubah untuk A/B."
         daftar={hasil.per_hook}
       />
       <BagianDimensi
-        judul="Performa per letak link"
-        satuan="letak link"
+        judul="Performa per posisi link"
+        satuan="posisi link"
         keterangan="Posisi link affiliate di dalam utas: status terakhir, balasan terpisah, atau tanpa link."
         daftar={hasil.per_letak_link}
       />

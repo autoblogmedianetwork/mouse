@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
+import { TurAwal } from "@/features/onboarding/tur-awal";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
 
 export const metadata = { title: "Dashboard" };
@@ -23,6 +24,8 @@ export default async function DashboardPage() {
       </PageHeader>
 
       <RingkasanDashboard />
+
+      <TurAwal />
     </div>
   );
 }

@@ -290,14 +290,14 @@ export function FormPengaturan() {
           />
           <Toggle
             id="p-slop"
-            label="Anti AI Slop"
+            label="Filter bahasa AI"
             deskripsi="Panjang antarstatus tidak seragam, bentuk tiap status berbeda."
             checked={value.anti_ai_slop}
             onChange={(next) => setValue({ ...value, anti_ai_slop: next })}
           />
           <div>
             <label htmlFor="p-hook" className="mb-1 block text-badan font-medium">
-              Gaya hook default
+              Gaya pembuka default
             </label>
             <select
               id="p-hook"

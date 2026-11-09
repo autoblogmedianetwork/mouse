@@ -1,8 +1,8 @@
 # Workflow Heaviliate
 
-**Versi:** 0.3
-**Acuan:** PRD-Heaviliate.md, UI-Spec-Heaviliate.md, Rencana-Pengembangan-Heaviliate.md, ADR 0001 sampai 0003
-**Menggantikan:** Workflow v0.1 dan v0.2
+**Versi:** 0.4
+**Acuan:** PRD-Heaviliate.md, UI-Spec-Heaviliate.md, Rencana-Pengembangan-Heaviliate.md, ADR 0001 sampai 0020
+**Menggantikan:** Workflow v0.1, v0.2, dan v0.3
 
 ---
 
@@ -195,7 +195,7 @@ Aturan konten per marketplace disimpan di `lib/affiliate/rules.ts` dan diperiksa
 |---|---|
 | JSON AI tidak valid | Retry satu kali, lalu pesan dan tombol coba lagi |
 | Rate limit provider | Tunggu, lalu coba lagi. Jika terus gagal, user bisa pilih provider cadangan di Pengaturan |
-| Status lewat 500 karakter | Retry status itu (maksimal dua kali), lalu tandai untuk edit manual |
+| Status lewat batas karakter platform | Retry status itu (maksimal dua kali), lalu tandai untuk edit manual. Batas: Threads/X 500, WhatsApp Status 700, TikTok caption 2.200 (ADR 0020) |
 | Scraping diblokir | Kembali ke input manual |
 | Autosave gagal karena jaringan | Simpan lokal sementara, banner "Offline", sinkron saat online |
 | Tool media tidak tersedia | Tombol nonaktif dengan petunjuk, alur tetap lanjut |
@@ -230,8 +230,9 @@ Arsitektur disiapkan sejak awal, tapi hanya Threads yang aktif di UI pada MVP.
 | Fase | Platform aktif |
 |---|---|
 | MVP (M1 sampai M3) | Threads |
+| Fase 1 (Nov 2026) | + WhatsApp Status (teks, 700) dan TikTok caption (teks, 2.200) — ADR 0020 |
 | Setelah M5 | Instagram dan Facebook (satu API Meta) |
-| Setelah itu | TikTok, WhatsApp Saluran |
+| Setelah itu | TikTok video, WhatsApp Saluran |
 
 Saat platform diaktifkan, hal berikut ditambahkan:
 - Varian konten per platform (`content_variants`, lihat rencana migrasi 0002 di skema).
@@ -251,3 +252,25 @@ Saat platform diaktifkan, hal berikut ditambahkan:
 6. **Idempotent:** klik dua kali tidak menggandakan aksi.
 7. **Fallback otomatis:** provider gagal kembali ke manual, tool tidak tersedia kembali ke jalur lain.
 8. **Serial untuk MVP:** generate satu per satu dengan jeda, paralel ditunda sampai diperlukan.
+
+## 11. Tur awal (Fase 1)
+
+User baru yang pertama membuka dashboard melihat dialog 3 langkah: pengenalan,
+alur 4 langkah, lalu pilihan memulai dengan produk contoh atau produk sendiri.
+Produk contoh mengisi draft Buat posting sehingga Tahap 1 sudah terisi; alur
+Tahap 1 sampai 10 tidak berubah. Flag localStorage
+`autothreads-onboarding-selesai` mencegah tur muncul lagi. Detail lengkap di
+`docs/spesifikasi-onboarding.md`.
+
+Di Tahap 5 (Generate), pemula hanya melihat empat pengaturan inti: mode output,
+panjang thread, jumlah status, panjang per status. Sisanya terlipat di balik
+tombol "Pengaturan lanjutan". Label memakai bahasa awam (lihat UI-Spec).
+
+---
+
+## Riwayat versi
+
+- **v0.4 (10 Nov 2026):** mode teks WhatsApp Status dan caption TikTok aktif
+  (ADR 0020, plafon DB 2.200); batas karakter per platform di Error/Recovery;
+  label UI diganti bahasa awam; tur awal onboarding + produk contoh; pilahan
+  "Pengaturan lanjutan". Versi sebelumnya: lihat riwayat git.

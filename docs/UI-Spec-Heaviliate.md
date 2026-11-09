@@ -305,3 +305,22 @@ Acuan: ADR 0009 (Swiss Industrial Print) dan ADR 0013 (token). Semua nilai diamb
 1. Apakah preview perlu menampilkan contoh foto dengan rasio asli Threads, atau cukup thumbnail?
 2. Apakah tombol "Simpan draft" dan "Tandai siap posting" cukup dua, atau perlu opsi "Simpan sebagai template"?
 3. Berapa lama arsip konten disimpan sebelum dihapus (sesuai F15.4 di PRD)?
+
+## Tur awal untuk pemula (Fase 1)
+
+- Komponen `features/onboarding/tur-awal.tsx` menampilkan dialog 3 langkah saat
+  pertama membuka dashboard. Flag `autothreads-onboarding-selesai` di
+  localStorage; setiap cara keluar (termasuk Esc) menandai selesai.
+- Langkah 3 punya tiga pilihan: "Coba dengan produk contoh" (menulis draft
+  berisi produk contoh lalu membuka `/posting/baru` dengan langkah Produk
+  terisi), "Isi produk saya sendiri", dan "Jelajahi dulu".
+- Produk contoh didefinisikan di `features/onboarding/produk-contoh.ts`,
+  nama internal diawali "Contoh:" supaya mudah dikenali dan dihapus.
+- Pengaturan generate memilah: mode output, panjang thread, jumlah status,
+  dan panjang status selalu terlihat; sisanya (gaya pembuka, kerangka,
+  gaya bahasa, posisi link, instruksi, filter bahasa AI, wajib sebut
+  kekurangan, disclosure) berada di balik tombol "Pengaturan lanjutan".
+- Label istilah memakai bahasa awam: "Filter bahasa AI" (dulu Anti AI Slop),
+  "Wajib sebut kekurangan" (dulu Aturan kepercayaan), "Posisi link affiliate"
+  (dulu Letak link), "Gaya pembuka status" (dulu Gaya hook). Tooltip `?`
+  (`components/info-hint.tsx`) menjelaskan istilah di tempat.

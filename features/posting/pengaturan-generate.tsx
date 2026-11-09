@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+
 import { Card } from "@/components/card";
+import { InfoHint } from "@/components/info-hint";
 import type { Pengaturan } from "@/lib/ai/schemas";
 import { PENGATURAN_AWAL } from "@/lib/ai/schemas";
 import { PERSONA_LIST, ambilPersona } from "@/lib/ai/persona";
@@ -20,7 +23,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Generate settings block (PRD F3 + F3a):
- * jumlah status, panjang per status, instruksi, Anti AI Slop, persona,
+ * jumlah status, panjang per status, instruksi, filter bahasa AI, persona,
  * gaya hook, aturan kepercayaan, letak link.
  */
 
@@ -106,6 +109,10 @@ export function PengaturanGenerate({
   const set = <K extends keyof Pengaturan>(key: K, next: Pengaturan[K]) =>
     onChange({ ...value, [key]: next });
 
+  // Pengaturan lanjutan dilipat default (Fase 1 task C): pemula cukup melihat
+  // mode output, panjang thread, jumlah dan panjang status.
+  const [lanjutanTerbuka, setLanjutanTerbuka] = useState(false);
+
   return (
     <Card className={cn(disabled && "opacity-60")}>
       <div className="flex items-center justify-between">
@@ -121,7 +128,13 @@ export function PengaturanGenerate({
       </div>
 
       <div className="mt-4">
-        <span className={labelClass}>Mode output</span>
+        <span className={labelClass}>
+          Mode output
+          <InfoHint
+            text="Bentuk konten yang dihasilkan: utas Threads, posting singkat X, teks WhatsApp Status, caption TikTok, naskah video, atau slide carousel."
+            className="ml-1 align-middle"
+          />
+        </span>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Mode output">
           {MODE_OUTPUT_IDS.map((mode) => {
             const aktif = value.mode_output === mode;
@@ -207,9 +220,22 @@ export function PengaturanGenerate({
             { value: "panjang", label: "Panjang" },
           ]}
         />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setLanjutanTerbuka((t) => !t)}
+        aria-expanded={lanjutanTerbuka}
+        className="mt-4 text-meta text-muted-foreground underline-offset-2 hover:underline"
+      >
+        {lanjutanTerbuka ? "Sembunyikan pengaturan lanjutan" : "Pengaturan lanjutan"}
+      </button>
+
+      {lanjutanTerbuka ? (
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <SelectField
           id="gaya_hook"
-          label="Gaya hook pembuka"
+          label="Gaya pembuka status"
           value={value.gaya_hook}
           onChange={(next) => set("gaya_hook", next)}
           options={[
@@ -232,14 +258,14 @@ export function PengaturanGenerate({
             options={KERANGKA_IDS.map((id) => ({ value: id, label: LABEL_KERANGKA[id] }))}
           />
           <p className="mt-1 text-meta text-muted-foreground">
-            {KETERANGAN_KERANGKA[value.kerangka]} Gaya hook di atas tetap dipakai untuk status
+            {KETERANGAN_KERANGKA[value.kerangka]} Gaya pembuka di atas tetap dipakai untuk status
             pertama.
           </p>
         </div>
         <div>
           <SelectField
             id="persona"
-            label="Persona (arah konten)"
+            label="Gaya bahasa (persona)"
             value={value.persona}
             onChange={(next) => set("persona", next)}
             // Pilihan datang dari data (lib/ai/persona.ts), bukan hardcode di sini.
@@ -255,7 +281,7 @@ export function PengaturanGenerate({
         </div>
         <SelectField
           id="letak_link"
-          label="Letak link affiliate"
+          label="Posisi link affiliate"
           value={value.letak_link}
           onChange={(next) => set("letak_link", next)}
           options={[
@@ -280,15 +306,15 @@ export function PengaturanGenerate({
         <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
           <ToggleField
             id="anti_ai_slop"
-            label="Anti AI Slop"
-            description="Panjang antarstatus tidak seragam, bentuk tiap status berbeda, tanpa pembuka generik."
+            label="Filter bahasa AI"
+            description="Panjang antarstatus tidak seragam, bentuk tiap status berbeda, tanpa pembuka generik seperti 'Dalam dunia yang serba cepat'."
             checked={value.anti_ai_slop}
             onChange={(next) => set("anti_ai_slop", next)}
           />
           <ToggleField
             id="aturan_kepercayaan"
-            label="Aturan kepercayaan"
-            description="Minimal satu status menyebut kekurangan atau batasan produk."
+            label="Wajib sebut kekurangan"
+            description="Minimal satu status menyebut kekurangan atau batasan produk — jujur, tidak menjual berlebihan."
             checked={value.aturan_kepercayaan}
             onChange={(next) => set("aturan_kepercayaan", next)}
           />
@@ -303,6 +329,7 @@ export function PengaturanGenerate({
           </div>
         </div>
       </div>
+      ) : null}
     </Card>
   );
 }
