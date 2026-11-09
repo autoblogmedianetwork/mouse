@@ -998,3 +998,27 @@ Alasan: mode output teks bertambah WhatsApp Status (700) dan Caption TikTok
 (2200) — ADR 0020. Constraint lama 500 memblokir konten platform tersebut.
 Batas per-platform tetap dijaga di kode (`lib/platforms/batas.ts`); database
 hanya menjaga plafon tertinggi. Tidak ada data yang diubah.
+
+## 17. draft_posting (Fase 2-C)
+
+Sinkronisasi draft wizard ke Supabase. Satu baris per user; localStorage
+(`autothreads-draft-posting`) tetap sumber kebenaran utama, Supabase cadangan
+agar draft ikut pindah browser/perangkat.
+
+```sql
+create table if not exists draft_posting (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+```
+
+- RLS: hanya pemilik baris (empat policy `*_own`, lihat `0012_draft_posting.sql`).
+- Kolom `data` menyimpan seluruh DraftState wizard (produk, analisis, ide,
+  pengaturan, konten, checklist, status, updatedAt).
+- Resolusi konflik (`pilihTerbaru` di `lib/supabase/draft-sync.ts`): updatedAt
+  terbaru menang; seri atau tidak valid → lokal menang; user yang sedang
+  mengetik (dirtyRef) tidak pernah ditimpa hasil server.
+- Tabel belum ada? Aplikasi tetap jalan — sinkronisasi gagal diam-diam.
+  Terapkan `0012_draft_posting.sql` lewat SQL Editor dashboard atau
+  `supabase db push` setelah `supabase link`.

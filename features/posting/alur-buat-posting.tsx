@@ -29,6 +29,11 @@ import { charLength, validateStatusList } from "@/lib/statuses/validator-500";
 import { batasKarakterMode } from "@/lib/platforms/batas";
 import { muatKonten, simpanKonten, upsertKonten } from "@/lib/konten/store";
 import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
+import {
+  muatDraftServer,
+  pilihTerbaru,
+  simpanDraftServer,
+} from "@/lib/supabase/draft-sync";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import { buatIdeManual } from "@/lib/konten/ide-manual";
@@ -224,6 +229,26 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       }
     }
     loadedRef.current = true;
+    // Fase 2-C: tarik draft dari Supabase bila lebih baru dari lokal, supaya
+    // draft ikut pindah browser/perangkat. Kalau user sudah mulai mengetik
+    // (dirtyRef), hasil server diabaikan supaya edit tidak tertimpa.
+    void muatDraftServer().then((server) => {
+      if (!server || dirtyRef.current) return;
+      const serverDraft = server as unknown as DraftState;
+      const hasil = pilihTerbaru(d, serverDraft);
+      if (hasil.sumber !== "server" || !hasil.data) return;
+      setDraft(hasil.data);
+      if (hasil.data.konten.length > 0) {
+        setLangkah("preview");
+      } else if (hasil.data.produk) {
+        setLangkah("analisis");
+      }
+      if (hasil.data.updatedAt) {
+        setTersimpanPukul(
+          new Date(hasil.data.updatedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+        );
+      }
+    });
   }, [prefill]);
 
   const update = useCallback((patch: Partial<DraftState>) => {
@@ -244,6 +269,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
         setTersimpanPukul(
           new Date(updatedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
         );
+        // Fase 2-C: dorong ke Supabase tanpa menunggu (fire-and-forget).
+        // Gagal = diam saja; localStorage tetap sumber kebenaran.
+        void simpanDraftServer(toSave);
       } catch {
         // storage penuh/di-block: abaikan, draft tetap di memori
       }
