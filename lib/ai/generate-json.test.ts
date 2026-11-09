@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   DEFAULT_BASE_URL,
   DEFAULT_MODEL,
+  bacaJsonRespons,
   generateJSON,
   resolveApiKey,
   resolveBaseURL,
@@ -192,5 +193,28 @@ describe("generateJSON memakai environment", () => {
     expect(hasil.error).toContain("AI_API_KEY (atau OPENROUTER_API_KEY) belum diisi di server");
     expect(hasil.attempts).toBe(0);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("membaca body yang dicatut penanda akhir stream data: [DONE] (proxy SSE)", async () => {
+    const body = JSON.stringify({
+      choices: [{ message: { content: '{"a": 1}' } }],
+    });
+    const respons = new Response(`${body}data: [DONE]\n\n`, {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const payload = await bacaJsonRespons(respons);
+
+    expect(payload.choices?.[0]?.message?.content).toBe('{"a": 1}');
+  });
+
+  it("tetap menolak body rusak selain penanda [DONE]", async () => {
+    const respons = new Response('{"choices": []} teks nyasar', {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    await expect(bacaJsonRespons(respons)).rejects.toThrow();
   });
 });

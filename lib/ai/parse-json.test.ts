@@ -21,6 +21,23 @@ describe("parseModelJson", () => {
     });
   });
 
+  it("strips postamble after JSON that starts with a brace", () => {
+    // Model kadang membuka jawaban dengan { lalu menempel catatan setelahnya.
+    expect(parseModelJson('{"ringkasan": "ok"}\n\nCatatan: harga tidak disebut.')).toEqual({
+      ringkasan: "ok",
+    });
+    expect(parseModelJson('{"a": {"b": 1}} penjelasan tambahan di sini')).toEqual({
+      a: { b: 1 },
+    });
+  });
+
+  it("does not corrupt values containing braces or brackets", () => {
+    expect(parseModelJson('{"kode": "x[1]"}')).toEqual({ kode: "x[1]" });
+    expect(parseModelJson('{"teks": "tutup kurung } di dalam nilai"}')).toEqual({
+      teks: "tutup kurung } di dalam nilai",
+    });
+  });
+
   it("parses top-level arrays", () => {
     expect(parseModelJson('[1, 2, 3]')).toEqual([1, 2, 3]);
     expect(parseModelJson('Hasilnya:\n[{"a": 1}]')).toEqual([{ a: 1 }]);

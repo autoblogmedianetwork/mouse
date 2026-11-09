@@ -13,19 +13,26 @@ export function parseModelJson(text: string): unknown {
     trimmed = fence[1].trim();
   }
 
-  // If there is surrounding prose, slice from the first { or [ to the last } or ].
-  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
-    const firstObj = trimmed.indexOf("{");
-    const firstArr = trimmed.indexOf("[");
-    const first = [firstObj, firstArr].filter((i) => i >= 0).sort((a, b) => a - b)[0];
-    const lastObj = trimmed.lastIndexOf("}");
-    const lastArr = trimmed.lastIndexOf("]");
-    const last = Math.max(lastObj, lastArr);
-    if (first === undefined || last <= first) {
-      throw new Error("Output AI tidak mengandung JSON.");
-    }
-    trimmed = trimmed.slice(first, last + 1);
+  // Direct parse first: a clean payload must never be touched, because slicing
+  // on the last } or ] would corrupt values that contain those characters.
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Fall through to slicing below.
   }
 
-  return JSON.parse(trimmed);
+  // If there is surrounding prose (preamble before the first { or [, or a
+  // postamble after the last } or ]), slice the payload out. This also covers
+  // output that STARTS with { but trails commentary after the closing brace.
+  const firstObj = trimmed.indexOf("{");
+  const firstArr = trimmed.indexOf("[");
+  const first = [firstObj, firstArr].filter((i) => i >= 0).sort((a, b) => a - b)[0];
+  const lastObj = trimmed.lastIndexOf("}");
+  const lastArr = trimmed.lastIndexOf("]");
+  const last = Math.max(lastObj, lastArr);
+  if (first === undefined || last <= first) {
+    throw new Error("Output AI tidak mengandung JSON.");
+  }
+
+  return JSON.parse(trimmed.slice(first, last + 1));
 }

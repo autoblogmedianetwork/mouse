@@ -123,6 +123,22 @@ function extractText(payload: ChatCompletionsResponse): string {
 }
 
 /**
+ * Baca body respons chat completion sebagai JSON secara toleran.
+ *
+ * Sebagian provider/proxy (ditemukan pada router lokal yang meneruskan SSE)
+ * menempel penanda akhir stream `data: [DONE]` di belakang body non-streaming,
+ * sehingga `response.json()` gagal dengan "Unexpected non-whitespace character
+ * after JSON". Penanda itu dibuang sebelum parsing; JSON lain tetap ditolak
+ * apa adanya supaya retry dan pesan galat tetap bekerja.
+ */
+export async function bacaJsonRespons(response: Response): Promise<ChatCompletionsResponse> {
+  let text = await response.text();
+  // Penanda akhir stream SSE bisa menempel langsung setelah } penutup.
+  text = text.replace(/\s*data:\s*\[DONE]\s*$/i, "").trim();
+  return JSON.parse(text) as ChatCompletionsResponse;
+}
+
+/**
  * Satu panggilan teks ke provider chat. Provider bebas lewat AI_BASE_URL,
  * model lewat AI_MODEL, kunci lewat AI_API_KEY (terlihat di dua baris
  * berikutnya). Parse, validasi dengan Zod, retry sekali, dan ringkas pesan
@@ -179,7 +195,7 @@ export async function generateJSON<T>(
         continue;
       }
 
-      const payload = (await response.json()) as ChatCompletionsResponse;
+      const payload = (await bacaJsonRespons(response)) as ChatCompletionsResponse;
       // Sum usage on every successful HTTP response, even when the answer is
       // invalid JSON: the user pays for those attempts too (PRD F10 logging).
       if (payload.usage && typeof payload.usage === "object") {
