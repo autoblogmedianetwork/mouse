@@ -530,8 +530,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     update({ konten, status: draft.status === "siap_posting" ? "draft" : draft.status });
   };
 
-  // Batas karakter mengikuti mode output: 500 untuk Threads, 280 untuk X,
-  // dan 500 untuk naskah video (mengikuti constraint database).
+  // Batas karakter mengikuti mode output: 500 Threads, 280 X, 700 WhatsApp
+  // Status, 2200 Caption TikTok; naskah video dan carousel tetap 500
+  // (plafon database 2200, ADR 0020).
   const batasKarakter = batasKarakterMode(draft.pengaturan.mode_output);
 
   const semuaValid = useMemo(() => {

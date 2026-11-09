@@ -138,7 +138,7 @@ Status per konten.
 | user_id | uuid | |
 | content_id | uuid | cascade delete |
 | urutan | integer | wajib, unik per konten |
-| teks | text | wajib, maksimal 500 karakter (dijaga constraint) |
+| teks | text | wajib, plafon 2200 karakter di database (migrasi 0011, ADR 0020); batas per-platform (Threads 500, X 280, WhatsApp Status 700, Caption TikTok 2200) dijaga di kode |
 | jumlah_karakter | integer | generated, dihitung otomatis |
 | edited_at | timestamptz | |
 
@@ -979,3 +979,22 @@ Catatan implementasi:
   tersimpan bila tahap 2 gagal atau anggaran AI habis.
 - Ekspor CSV (`riset.csv`, `peluang.csv`) dihasilkan di peramban dari data yang sudah
   tersimpan; Google Sheets adalah jalur tukar data, bukan sumber kebenaran.
+
+## 16. Migrasi 0011: plafon teks 2200 (platform WhatsApp Status & TikTok)
+
+Status: file `supabase/migrations/0011_plafon_teks_2200.sql` ditambahkan (9 November 2026).
+
+Perubahan:
+
+```sql
+alter table threads_statuses
+  drop constraint threads_statuses_teks_check;
+
+alter table threads_statuses
+  add constraint threads_statuses_teks_batas_check check (char_length(teks) between 1 and 2200);
+```
+
+Alasan: mode output teks bertambah WhatsApp Status (700) dan Caption TikTok
+(2200) — ADR 0020. Constraint lama 500 memblokir konten platform tersebut.
+Batas per-platform tetap dijaga di kode (`lib/platforms/batas.ts`); database
+hanya menjaga plafon tertinggi. Tidak ada data yang diubah.

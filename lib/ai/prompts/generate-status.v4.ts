@@ -12,7 +12,7 @@
 export const PROMPT_VERSION = "generate-status.v4";
 
 import { labelPersonaUntukPrompt } from "@/lib/ai/persona";
-import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
+import { batasPlatform, LABEL_PLATFORM, type PlatformId } from "@/lib/platforms/batas";
 import { BATAS_JUMLAH, type Ide, type Pengaturan } from "@/lib/ai/schemas";
 
 export interface GenerateStatusInput {
@@ -53,6 +53,10 @@ const LINK_INSTRUCTIONS: Record<Pengaturan["letak_link"], string> = {
 const GAYA_PLATFORM: Record<PlatformId, string> = {
   threads: "Gaya Threads: santai, percakapan, boleh panjang dan bernuansa cerita.",
   x: "Gaya X: ringkas dan tajam; satu ide per status; hindari basa-basi karena ruang sangat terbatas.",
+  whatsapp_status:
+    "Gaya WhatsApp Status: santai pribadi seperti update status; kalimat pendek yang enak dibaca di layar ponsel; tanpa hashtag.",
+  tiktok_caption:
+    "Gaya Caption TikTok: hook kuat di kalimat pertama, bahasa lisan sehari-hari, emoji secukupnya, dan ajakan yang jelas di akhir.",
 };
 
 export function instruksiKategori(kategori?: string): string {
@@ -103,7 +107,7 @@ export function buildGenerateStatusPrompt(input: GenerateStatusInput): string {
 
   const kategoriLine = instruksiKategori(kategori);
 
-  return `Kamu adalah kreator konten affiliate berbahasa Indonesia kasual untuk platform ${platform === "x" ? "X" : "Threads"}.
+  return `Kamu adalah kreator konten affiliate berbahasa Indonesia kasual untuk platform ${LABEL_PLATFORM[platform]}.
 
 PENAWARAN: ${input.namaProduk}
 Kategori: ${kategori || "Umum"}

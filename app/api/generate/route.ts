@@ -1,7 +1,8 @@
 /**
  * POST /api/generate — Prompt 3 (status Threads/X), server-side only.
  * One request = one content (one selected idea). Retries: 2 (PRD 10.4).
- * The Zod schema enforces the platform character limit (500 Threads, 280 X —
+ * The Zod schema enforces the platform character limit (500 Threads, 280 X,
+ * 700 WhatsApp Status, 2200 Caption TikTok — ADR 0020)
  * fitur 9, prompt v3) and the requested count, so a bad answer is retried here
  * and never reaches the UI (AGENTS rule 7). Mode naskah video memakai rute
  * sendiri: /api/naskah-video.

@@ -42,6 +42,11 @@ const LINK_INSTRUCTIONS: Record<Pengaturan["letak_link"], string> = {
 const GAYA_PLATFORM: Record<PlatformId, string> = {
   threads: "Gaya Threads: santai, percakapan, boleh panjang dan bernuansa cerita.",
   x: "Gaya X: ringkas dan tajam; satu ide per status; hindari basa-basi karena ruang sangat terbatas.",
+  // Entri additive untuk platform baru (ADR 0020); perilaku threads & x tidak berubah.
+  whatsapp_status:
+    "Gaya WhatsApp Status: santai pribadi seperti update status; kalimat pendek yang enak dibaca di layar ponsel; tanpa hashtag.",
+  tiktok_caption:
+    "Gaya Caption TikTok: hook kuat di kalimat pertama, bahasa lisan sehari-hari, emoji secukupnya, dan ajakan yang jelas di akhir.",
 };
 
 export function buildGenerateStatusPrompt(input: GenerateStatusInput): string {
