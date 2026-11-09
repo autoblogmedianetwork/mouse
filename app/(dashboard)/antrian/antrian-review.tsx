@@ -424,7 +424,7 @@ export function AntrianReview() {
 
       {/* Header antrian (UI-Spec 3.9): judul, widget biaya, jeda semua */}
       <PageHeader
-        title="Antrian review"
+        title="Antrian"
         description="Semua konten menunggu tinjauan Anda. Tidak ada yang menjadi siap posting tanpa checklist."
       >
         <CostWidget

@@ -41,7 +41,7 @@ export default async function AkunPage() {
               desc: "Isi penawaran/produk, pilih ide, generate utas, tandai siap posting.",
             },
             {
-              label: "Antrian review",
+              label: "Konten",
               href: "/antrian",
               desc: "Tinjau draft, checklist, lalu siap posting.",
             },

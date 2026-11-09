@@ -1,7 +1,7 @@
 /**
  * Menu structure per docs/UI-Spec-Heaviliate.md section 2.1 (ADR 0013).
  *
- * Nine items. Every item carries its phase instead of a permanent
+ * Eight items. Every item carries its phase instead of a permanent
  * `available: true`, so the "Segera" label only appears for routes that really
  * do not exist yet. Items with more than one page expose tabs through `tabs`,
  * and the sidebar links to the first tab so the section is always reachable.
@@ -38,9 +38,20 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Riset audiens", href: "/riset", group: "workspace", fase: "MVP" },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", fase: "MVP" },
   // Jalur video prompt manual: storyboard ChatGPT, video Google Flow.
-  { label: "Prompt video", href: "/video", group: "workspace", fase: "MVP" },
-  { label: "Antrian review", href: "/antrian", group: "workspace", fase: "MVP" },
-  { label: "Riwayat posting", href: "/riwayat", group: "workspace", fase: "MVP" },
+  { label: "Buat video", href: "/video", group: "workspace", fase: "MVP" },
+  // Antrian dan riwayat digabung jadi satu item "Konten" dengan tab
+  // (Fase 2-A, pola sama dengan Analitik/Aset).
+  {
+    label: "Konten",
+    href: "/antrian",
+    hrefs: ["/antrian", "/riwayat"],
+    group: "workspace",
+    fase: "MVP",
+    tabs: [
+      { label: "Antrian", href: "/antrian" },
+      { label: "Riwayat", href: "/riwayat" },
+    ],
+  },
   // Tools
   { label: "Kalender", href: "/kalender", group: "tools", fase: "Level 2" },
   {

@@ -45,8 +45,8 @@ Sembilan item, dua grup (ADR 0013).
 | Workspace | Dashboard | `/` | MVP |
 | | Riset audiens | `/riset` | MVP |
 | | Buat posting | `/posting/baru` | MVP |
-| | Antrian review | `/antrian` | MVP |
-| | Riwayat posting | `/riwayat` | MVP (status dasar), M6 (detail) |
+| | Konten (tab Antrian) | `/antrian` | MVP |
+| | Konten (tab Riwayat) | `/riwayat` | MVP (status dasar), M6 (detail) |
 | Tools | Kalender | `/kalender` | Level 2 |
 | | Analitik | `/analitik` | Setelah M5 |
 | | Aset | `/aset` | MVP |
@@ -55,7 +55,7 @@ Sembilan item, dua grup (ADR 0013).
 - **Analitik** memuat tab "Impor performa" (`/impor`), karena laporan komisi adalah masukan untuk analisis, bukan halaman terpisah.
 - **Aset** memuat tab "Link affiliate" (`/link`) dan "Template deskripsi" (`/template`). Kedua route lama tetap hidup sebagai tab aktif, bukan redirect.
 - **Akun sosial** tidak lagi menjadi item sidebar. Halaman `/akun` tetap hidup dan ditautkan dari Pengaturan, bagian Profil dan akun (fase M6).
-- **Pustaka konten** kini tampil sebagai Antrian review (3.9). Route `/konten` hanya mengalihkan ke `/antrian` untuk bookmark lama.
+- **Pustaka konten** kini tampil sebagai Konten (tab Antrian) (3.9). Route `/konten` hanya mengalihkan ke `/antrian` untuk bookmark lama.
 
 Setiap item membawa flag fase di `nav-config.ts`, bukan `available: true` permanen. Label "Segera" hanya tampil kalau route-nya memang belum ada; menandai fitur yang sudah berjalan sebagai "Segera" membuat label itu tidak pernah jujur.
 
@@ -204,7 +204,7 @@ Bagian:
 | `Toast` | Global | Notifikasi simpan, salin, dan error |
 | `ProviderSelector` | Pengaturan, Buat posting | Pilihan provider per fungsi dengan status ketersediaan |
 | `MediaToolToggle` | Pengaturan, Buat posting | Toggle fitur media dengan status dan petunjuk setup |
-| `ReviewTabs` | Antrian review | Tab status dengan jumlah per tab |
+| `ReviewTabs` | Konten (tab Antrian) | Tab status dengan jumlah per tab |
 | `CostWidget` | Header | Biaya AI hari ini dan bulan ini, dengan progres terhadap batas |
 | `ModeKerjaSelector` | Pengaturan | Pilihan manual, semi, atau penuh, dengan penjelasan singkat |
 | `CarouselSlideEditor` | Buat posting | Edit teks per slide dengan penghitung kata dan preview |
@@ -293,7 +293,7 @@ Acuan: ADR 0009 (Swiss Industrial Print) dan ADR 0013 (token). Semua nilai diamb
 - AppShell, Dashboard, Buat posting (manual input, generate, preview, simpan draft), Pustaka konten, Link affiliate, Template, Pengaturan.
 
 **Setelah M3:**
-- Kalender, detail Riwayat posting, Analitik. Halaman Analitik berisi ringkasan laporan yang diimpor **plus daftar produk yang lama tidak diposting** dengan filter jarak waktu sejak terkirim terakhir (aturan di `docs/daftar-produk-belum-diposting.md`).
+- Kalender, detail Konten (tab Riwayat), Analitik. Halaman Analitik berisi ringkasan laporan yang diimpor **plus daftar produk yang lama tidak diposting** dengan filter jarak waktu sejak terkirim terakhir (aturan di `docs/daftar-produk-belum-diposting.md`).
 
 **M6:**
 - Akun sosial, mode auto-posting, jadwal aktif, status terkirim dari API.
