@@ -15,6 +15,7 @@ import { TautanMasuk } from "@/components/pesan-galat";
 import type { ContentStatus } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
+import type { PengaturanApp } from "@/app/(dashboard)/pengaturan/form-pengaturan";
 import { FormPenawaran, type PenawaranSaved } from "./form-penawaran";
 import { type SavedProduct } from "./form-produk-manual";
 import { PengaturanGenerate } from "./pengaturan-generate";
@@ -44,11 +45,12 @@ import { cariAturanBerdasarkanUrl, type ProgramAffiliate } from "@/lib/program-a
 type Langkah = "produk" | "analisis" | "ide" | "generate" | "preview";
 
 const LANGKAH_LIST: Array<{ id: Langkah; label: string }> = [
+  // Fase 2-B: analisis dan ide tampil jadi satu layar; "ide" tetap ada
+  // sebagai state internal supaya logika generate ide tidak berubah.
   { id: "produk", label: "1. Penawaran" },
-  { id: "analisis", label: "2. Analisis" },
-  { id: "ide", label: "3. Ide" },
-  { id: "generate", label: "4. Generate" },
-  { id: "preview", label: "5. Preview & salin" },
+  { id: "analisis", label: "2. Analisis & ide" },
+  { id: "generate", label: "3. Generate" },
+  { id: "preview", label: "4. Preview & salin" },
 ];
 
 const DRAFT_KEY = "autothreads-draft-posting";
@@ -97,11 +99,32 @@ function loadDraft(): DraftState {
     const parsed = JSON.parse(raw) as Partial<DraftState>;
     // Draf lama menyimpan label persona ("Bawaan", "Sahabat", "Ahli");
     // normalkanPersonaId mengubahnya ke id supaya pilihan di form tidak kosong.
-    const pengaturan: Pengaturan = {
+    let pengaturan: Pengaturan = {
       ...PENGATURAN_AWAL,
       ...(parsed.pengaturan ?? {}),
       persona: normalkanPersonaId(parsed.pengaturan?.persona),
     };
+    if (!parsed.pengaturan) {
+      // Fase 2-B: default dari halaman Pengaturan, jadi pemula tidak ditanya
+      // dua kali. Pengaturan yang sudah ada di draft tidak ditimpa.
+      try {
+        const rawApp = window.localStorage.getItem("autothreads-pengaturan");
+        if (rawApp) {
+          const app = JSON.parse(rawApp) as Partial<PengaturanApp>;
+          pengaturan = {
+            ...pengaturan,
+            aturan_kepercayaan: app.sebut_kekurangan ?? pengaturan.aturan_kepercayaan,
+            anti_ai_slop: app.anti_ai_slop ?? pengaturan.anti_ai_slop,
+            gaya_hook:
+              app.gaya_hook_default && app.gaya_hook_default !== "bawaan"
+                ? app.gaya_hook_default
+                : pengaturan.gaya_hook,
+          };
+        }
+      } catch {
+        // localStorage tidak tersedia: pakai default bawaan.
+      }
+    }
     return {
       ...DRAFT_AWAL,
       ...parsed,
@@ -614,17 +637,18 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
   /* --------------------------------- Render ---------------------------------- */
 
-  const indexLangkah = LANGKAH_LIST.findIndex((l) => l.id === langkah);
+  const indexLangkah = LANGKAH_LIST.findIndex(
+    (l) => l.id === langkah || (l.id === "analisis" && langkah === "ide"),
+  );
 
   return (
     <div className="space-y-6">
       {/* Indeks langkah */}
       <nav aria-label="Tahap" className="flex flex-wrap gap-2">
         {LANGKAH_LIST.map((l, i) => {
-          const aktif = l.id === langkah;
+          const aktif = l.id === langkah || (l.id === "analisis" && langkah === "ide");
           const bisaKe =
-            i <= indexLangkah ||
-            (Boolean(draft.produk) && (l.id === "analisis" || l.id === "ide"));
+            i <= indexLangkah || (Boolean(draft.produk) && l.id === "analisis");
           return (
             <button
               key={l.id}
@@ -753,7 +777,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       ) : null}
 
       {/* ----------------------------- Tahap 2: analisis -------------------------- */}
-      {langkah === "analisis" ? (
+      {langkah === "analisis" || langkah === "ide" ? (
         <div className="space-y-6">
           <Card>
             <h2 className="text-isi font-semibold">Analisis penawaran</h2>
@@ -839,55 +863,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
             />
           </Card>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button type="button" onClick={() => setLangkah("produk")} className={ghostBtn}>
-              Kembali
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (!draft.analisisManual && draft.produk) {
-                  update({
-                    analisisManual:
-                      draft.produk.deskripsi_bersih ||
-                      draft.produk.deskripsi ||
-                      draft.produk.nama_internal,
-                  });
-                }
-                setError(null);
-                setLangkah("ide");
-              }}
-              className={ghostBtn}
-            >
-              Lewati analisis &gt;&gt;
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (!ringkasan.trim()) {
-                  if (draft.produk?.deskripsi_bersih || draft.produk?.deskripsi) {
-                    update({
-                      analisisManual:
-                        draft.produk.deskripsi_bersih || draft.produk.deskripsi,
-                    });
-                  } else {
-                    setError("Isi ringkasan penawaran dulu sebelum lanjut ke ide.");
-                    return;
-                  }
-                }
-                setError(null);
-                setLangkah("ide");
-              }}
-              className={primaryBtn}
-            >
-              Lanjut ke ide konten &gt;&gt;
-            </button>
-          </div>
         </div>
       ) : null}
 
       {/* ------------------------------- Tahap 3: ide ----------------------------- */}
-      {langkah === "ide" ? (
+      {langkah === "analisis" || langkah === "ide" ? (
         <div className="space-y-6">
           {bannerAturan}
           <Card>
@@ -1024,29 +1004,44 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
             </div>
           </Card>
 
-          <div className="flex gap-3">
-            <button type="button" onClick={() => setLangkah("analisis")} className={ghostBtn}>
-              Kembali
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (draft.ideDipilih.length === 0) {
-                  setError("Pilih minimal satu ide.");
-                  return;
-                }
-                setError(null);
-                setLangkah("generate");
-              }}
-              className={primaryBtn}
-            >
-              Lanjut ke pengaturan
-            </button>
-          </div>
         </div>
       ) : null}
 
-      {/* ----------------------------- Tahap 4: generate -------------------------- */}
+      {/* Navigasi bersama layar Analisis & ide (Fase 2-B) */}
+      {langkah === "analisis" || langkah === "ide" ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => setLangkah("produk")} className={ghostBtn}>
+            Kembali
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!ringkasan.trim()) {
+                if (draft.produk?.deskripsi_bersih || draft.produk?.deskripsi) {
+                  update({
+                    analisisManual:
+                      draft.produk.deskripsi_bersih || draft.produk.deskripsi,
+                  });
+                } else {
+                  setError("Isi ringkasan penawaran dulu sebelum lanjut ke generate.");
+                  return;
+                }
+              }
+              if (draft.ideDipilih.length === 0) {
+                setError("Pilih minimal satu ide (atau tambah ide manual).");
+                return;
+              }
+              setError(null);
+              setLangkah("generate");
+            }}
+            className={primaryBtn}
+          >
+            Lanjut ke generate &gt;&gt;
+          </button>
+        </div>
+      ) : null}
+
+      {/* ----------------------------- Tahap 3: generate -------------------------- */}
       {langkah === "generate" ? (
         <div className="space-y-6">
           {bannerAturan}

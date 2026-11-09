@@ -1,8 +1,8 @@
 # Workflow Heaviliate
 
-**Versi:** 0.4
+**Versi:** 0.5
 **Acuan:** PRD-Heaviliate.md, UI-Spec-Heaviliate.md, Rencana-Pengembangan-Heaviliate.md, ADR 0001 sampai 0020
-**Menggantikan:** Workflow v0.1, v0.2, dan v0.3
+**Menggantikan:** Workflow v0.1 sampai v0.4
 
 ---
 
@@ -270,6 +270,10 @@ tombol "Pengaturan lanjutan". Label memakai bahasa awam (lihat UI-Spec).
 
 ## Riwayat versi
 
+- **v0.5 (10 Nov 2026):** wizard 5 layar menjadi 4 — Analisis dan Ide digabung
+  jadi satu layar dengan navigasi bersama ("Lanjut ke generate"); pengaturan
+  generate mengambil default dari halaman Pengaturan (anti AI slop, wajib sebut
+  kekurangan, gaya pembuka) saat draft belum punya pengaturan sendiri.
 - **v0.4 (10 Nov 2026):** mode teks WhatsApp Status dan caption TikTok aktif
   (ADR 0020, plafon DB 2.200); batas karakter per platform di Error/Recovery;
   label UI diganti bahasa awam; tur awal onboarding + produk contoh; pilahan
