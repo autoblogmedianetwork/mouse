@@ -513,7 +513,7 @@ Isi file tersebut:
 |---|---|
 | `marketplace`, `status_pesanan` | Enum baru, sejajar `lib/impor/skema.ts` |
 | `performa_imports` | Satu baris per berkas: nama, marketplace, jumlah baris/ditolak, pemisah, skor deteksi, `komisi_total`, `gmv_total` |
-| `performa_rows` | Baris penjualan atau baris klik: `sub_id`, `klik`, `jenis`, `status_kode`, `komisi` (boleh negatif), `tanggal date` |
+| `performa_rows` | Baris penjualan atau baris klik: `sub_id`, `klik`, `jenis`, `status_kode`, `komisi` (boleh negatif), `tanggal date`, `jam smallint` (0–23, null bila laporan hanya memberi tanggal) |
 | Index | `performa_imports(user_id, created_at desc)`; `performa_rows(user_id, tanggal desc)`, `(user_id, marketplace)`, `(import_id)` |
 | RLS | `owner_all` di kedua tabel dengan `(select auth.uid()) = user_id` |
 | `affiliate_links.sub_id` | Kolom baru + unique index `(user_id, lower(sub_id))` untuk kode pelacak per konten (ADR 0005) |
@@ -529,6 +529,10 @@ Tiga hal yang berbeda dari draft lama di bagian bawah dokumen ini:
 Catatan yang masih berlaku:
 
 - `komisi` boleh negatif karena laporan memuat retur dan pembatalan.
+- `jam` diisi hanya bila kolom tanggal pada laporan juga memuat waktu (mis. "Waktu Pesanan
+  Dibuat" pada ekspor Shopee/TikTok). Null berarti tidak diketahui, bukan tengah malam; peta
+  panen komisi lalu memakai hari saja. Kolom ini ditambahkan 10 November 2026, saat file migrasi
+  **belum pernah dijalankan** di project mana pun.
 - `tanggal` boleh null dan null dianggap berbeda oleh unique index, jadi aplikasi sebaiknya mengisi
   tanggal impor untuk baris yang laporannya tidak punya kolom tanggal.
 - Agregasi (komisi cair, GMV, tren bulanan, konversi) tetap dihitung di aplikasi lewat

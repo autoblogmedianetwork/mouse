@@ -15,7 +15,14 @@ import {
   type Marketplace,
   type PetaKolom,
 } from "./marketplace";
-import { bersihkanTeks, kanonikStatus, parseAngka, parsePersen, parseTanggal } from "./normalisasi";
+import {
+  bersihkanTeks,
+  kanonikStatus,
+  parseAngka,
+  parseJam,
+  parsePersen,
+  parseTanggal,
+} from "./normalisasi";
 import { buatIdBaris, kunciBaris } from "./performa";
 import { barisPerformaSkema, hasilBacaSkema, type BarisDitolak, type HasilBaca } from "./skema";
 import { bacaXlsx } from "./xlsx";
@@ -119,6 +126,7 @@ export function bacaTabel(tabel: Tabel, opsi: OpsiBaca = {}): HasilBaca {
       produk,
       varian: ambil("varian"),
       tanggal: parseTanggal(ambil("tanggal")),
+      jam: parseJam(ambil("tanggal")),
       jumlah: jumlah === null || jumlah <= 0 ? 1 : jumlah,
       harga: jenis === "penjualan" ? harga ?? 0 : 0,
       komisi: komisi ?? 0,

@@ -30,6 +30,11 @@ export const barisPerformaSkema = z.object({
   varian: z.string().default(""),
   /** ISO date (YYYY-MM-DD) atau null bila kolom tanggal tidak ada. */
   tanggal: z.string().nullable().default(null),
+  /**
+   * Jam (0–23) bila kolom tanggal di laporan juga memuat waktu. Null berarti
+   * laporan hanya memberi tanggal — peta panen lalu memakai hari saja.
+   */
+  jam: z.number().int().min(0).max(23).nullable().default(null),
   jumlah: z.number().default(1),
   harga: z.number().default(0),
   komisi: z.number().default(0),

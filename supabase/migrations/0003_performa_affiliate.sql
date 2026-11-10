@@ -51,6 +51,9 @@ create table performa_rows (
   produk text not null default '',
   varian text not null default '',
   tanggal date,
+  -- Jam pesanan (0-23) bila laporan memuat waktu, bukan hanya tanggal.
+  -- Dipakai peta panen komisi (lib/performa/peta-panen.ts); null = tidak diketahui.
+  jam smallint check (jam between 0 and 23),
   jumlah numeric(12,2) not null default 1,
   harga numeric(14,2) not null default 0 check (harga >= 0),
   -- Komisi boleh negatif: laporan memuat retur dan pembatalan.

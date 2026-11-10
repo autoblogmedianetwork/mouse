@@ -257,9 +257,19 @@ export async function bacaXlsx(bytes: Uint8Array): Promise<string[][]> {
   return baris;
 }
 
-/** Salinan kecil dari normalisasi.serialKeIso untuk menghindari impor melingkar. */
+/**
+ * Salinan kecil dari normalisasi.serialKeIso untuk menghindari impor melingkar.
+ * Pecahan hari ikut ditulis sebagai jam: laporan yang memuat waktu pesanan bisa
+ * dipakai peta panen komisi, sedangkan sel tanggal-saja tetap "YYYY-MM-DD".
+ */
 function serialKeIso(serial: number): string {
   const epoch = Date.UTC(1899, 11, 30);
-  const d = new Date(epoch + Math.round(serial) * 86_400_000);
-  return `${d.getUTCFullYear()}-${`${d.getUTCMonth() + 1}`.padStart(2, "0")}-${`${d.getUTCDate()}`.padStart(2, "0")}`;
+  const hari = Math.floor(serial);
+  const d = new Date(epoch + hari * 86_400_000);
+  const tanggal = `${d.getUTCFullYear()}-${`${d.getUTCMonth() + 1}`.padStart(2, "0")}-${`${d.getUTCDate()}`.padStart(2, "0")}`;
+  const menitHari = Math.round((serial - hari) * 1_440);
+  if (menitHari <= 0) return tanggal;
+  const jam = Math.floor(menitHari / 60) % 24;
+  const menit = menitHari % 60;
+  return `${tanggal} ${`${jam}`.padStart(2, "0")}:${`${menit}`.padStart(2, "0")}`;
 }

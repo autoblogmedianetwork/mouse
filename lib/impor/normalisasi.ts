@@ -185,6 +185,55 @@ export function parseTanggal(raw: string | number | null | undefined): string | 
 }
 
 /**
+ * Ambil jam (0–23) dari nilai tanggal yang juga memuat waktu, atau null.
+ *
+ * Laporan marketplace kadang hanya memberi tanggal. Saat ada jamnya —
+ * `2026-10-01 14:30`, `01/10/2026 14:30`, `2026-10-01T14:30:00Z`, atau serial
+ * XLSX dengan pecahan hari — jam disimpan supaya peta panen komisi bisa
+ * menunjukkan blok jam, bukan hanya hari. Nilai tanpa jam sengaja null: lebih
+ * baik dianggap tidak diketahui daripada dianggap tengah malam.
+ */
+export function parseJam(raw: string | number | null | undefined): number | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") {
+    // Pecahan hari pada serial XLSX = jam. 0 berarti tengah malam yang tidak
+    // bisa dibedakan dari "tanpa jam", jadi diperlakukan sebagai null.
+    if (!Number.isFinite(raw)) return null;
+    const pecahan = raw - Math.floor(raw);
+    const jam = Math.floor(pecahan * 24 + 0.000001);
+    return pecahan > 0 && jam >= 0 && jam <= 23 ? jam : null;
+  }
+
+  const teks = raw.trim();
+  if (teks === "") return null;
+
+  // Buang bagian tanggal lebih dulu supaya "01.10.2026" tidak terbaca 01:10.
+  const sisa = teks
+    .replace(/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/, "")
+    .replace(/^\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}/, "")
+    .replace(/^\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}/, "")
+    .replace(/^[A-Za-z]{3,}\s+\d{1,2},?\s+\d{4}/, "")
+    .replace(/^[T\s]+/, "")
+    .trim();
+
+  const duaBelasJam = sisa.match(/(\d{1,2})[:.](\d{2})(?::\d{2})?\s*([ap])\.?m\.?/i);
+  if (duaBelasJam) {
+    const jamMentah = Number(duaBelasJam[1]) % 12;
+    const pm = duaBelasJam[3].toLowerCase() === "p";
+    return jamMentah + (pm ? 12 : 0);
+  }
+
+  const duaPuluhEmpat = sisa.match(/^(\d{1,2})[:.](\d{2})(?::\d{2})?/);
+  if (duaPuluhEmpat) {
+    const jam = Number(duaPuluhEmpat[1]);
+    const menit = Number(duaPuluhEmpat[2]);
+    return jam >= 0 && jam <= 23 && menit >= 0 && menit <= 59 ? jam : null;
+  }
+
+  return null;
+}
+
+/**
  * XLSX menyimpan tanggal sebagai jumlah hari sejak 1899-12-30.
  * Angka di bawah 2000 diperlakukan sebagai tanggal, di atas itu sebagai nilai
  * biasa (komisi sudah kami kirim sebagai string dari pembaca XLSX).
@@ -197,6 +246,7 @@ export function serialKeIso(serial: number): string {
 }
 
 export type StatusPesanan = "selesai" | "menunggu" | "batal" | "lainnya";
+
 
 const KATA_STATUS: Array<[StatusPesanan, string[]]> = [
   [

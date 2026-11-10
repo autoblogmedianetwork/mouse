@@ -4,6 +4,7 @@ import {
   formatRupiah,
   kanonikStatus,
   parseAngka,
+  parseJam,
   parsePersen,
   parseTanggal,
 } from "./normalisasi";
@@ -87,6 +88,29 @@ describe("parseTanggal", () => {
     expect(parseTanggal("31/02/2026")).toBeNull();
     expect(parseTanggal("")).toBeNull();
     expect(parseTanggal("bukan tanggal")).toBeNull();
+  });
+});
+
+describe("parseJam", () => {
+  it("membaca jam dari tanggal yang juga memuat waktu", () => {
+    expect(parseJam("2026-10-01 14:30:00")).toBe(14);
+    expect(parseJam("2026-10-01T14:30:00Z")).toBe(14);
+    expect(parseJam("01/10/2026 09.15")).toBe(9);
+    expect(parseJam("1 Okt 2026 21:05")).toBe(21);
+    expect(parseJam("Oct 1, 2026 2:30 PM")).toBe(14);
+    expect(parseJam("2026-10-01 00:05")).toBe(0);
+  });
+
+  it("tidak membaca tanggal saja atau titik tanggal sebagai jam", () => {
+    expect(parseJam("2026-10-01")).toBeNull();
+    expect(parseJam("01.10.2026")).toBeNull();
+    expect(parseJam("")).toBeNull();
+    expect(parseJam(null)).toBeNull();
+  });
+
+  it("membaca pecahan hari pada serial XLSX", () => {
+    expect(parseJam(46305.6041667)).toBe(14);
+    expect(parseJam(46305)).toBeNull();
   });
 });
 

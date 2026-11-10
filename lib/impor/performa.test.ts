@@ -11,6 +11,7 @@ function baris(ubah: Partial<BarisPerforma>): BarisPerforma {
     produk: "Tas Kanvas",
     varian: "",
     tanggal: "2026-09-15",
+    jam: null,
     jumlah: 1,
     harga: 100_000,
     komisi: 6_000,

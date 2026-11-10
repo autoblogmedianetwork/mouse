@@ -37,6 +37,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `adr/0025-pencarian-global-riwayat-favorit-tag.md` | pencarian global, riwayat riset, favorit produk, tag produk |
 | `adr/0026-mode-fokus-harian.md` | mode fokus harian dan streak |
 | `adr/0027-skor-shadowban-lampu-merah.md` | skor shadowban gabungan dan lampu merah sebelum salin |
+| `adr/0028-peta-panen-komisi.md` | peta panen komisi dari jam pesanan yang ikut diimpor |
 | `status-ide.md` | rekap ide fitur: sudah jadi, separuh, dan sisa pekerjaan |
 | `Template-Video-Affiliate.md` | acuan modul video (storyboard, JSON Google Flow, checklist) |
 | `dependency.md` | semua tool dan layanan beserta status dan fasenya |
