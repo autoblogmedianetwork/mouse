@@ -32,6 +32,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `adr/0020-ekspor-csv-kata-terlarang-dan-snippet-cta.md` | ekspor CSV antrian, kamus kata terlarang lokal, dan snippet CTA |
 | `adr/0021-kalkulator-komisi-lokal.md` | kalkulator komisi dan target cuan lokal |
 | `adr/0022-kemasan-multi-platform-dan-pembersih-dummy.md` | kemasan 1 konten jadi 3 platform dan pembersih data contoh |
+| `adr/0023-lab-konten-gelombang-3.md` | lab uji pembeli, mesin ide dari bank masalah, serial 7 hari |
 | `Template-Video-Affiliate.md` | acuan modul video (storyboard, JSON Google Flow, checklist) |
 | `dependency.md` | semua tool dan layanan beserta status dan fasenya |
 | `adr/` | keputusan teknis 0001 sampai sekarang |

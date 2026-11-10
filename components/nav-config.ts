@@ -39,6 +39,8 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Buat posting", href: "/posting/baru", group: "workspace", fase: "MVP" },
   // Jalur video prompt manual: storyboard ChatGPT, video Google Flow.
   { label: "Buat video", href: "/video", group: "workspace", fase: "MVP" },
+  // Lab konten (Gelombang 3): lab uji, ide dari masalah, serial 7 hari.
+  { label: "Lab konten", href: "/lab", group: "workspace", fase: "MVP" },
   // Antrian dan riwayat digabung jadi satu item "Konten" dengan tab
   // (Fase 2-A, pola sama dengan Analitik/Aset).
   {

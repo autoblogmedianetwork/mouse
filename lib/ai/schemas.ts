@@ -360,3 +360,77 @@ export const carouselRequestSkema = z.object({
 });
 
 export type CarouselRequest = z.infer<typeof carouselRequestSkema>;
+
+/* --------------- Gelombang 3: lab uji, ide masalah, serial (ADR 0023) --------------- */
+
+/** Tiga pembeli virtual untuk lab uji konten. */
+export const LAB_PERSONA = ["skeptis", "ibu_muda", "mahasiswa"] as const;
+export type LabPersona = (typeof LAB_PERSONA)[number];
+
+export const LABEL_LAB_PERSONA: Record<LabPersona, string> = {
+  skeptis: "Pembeli skeptis",
+  ibu_muda: "Ibu muda sibuk",
+  mahasiswa: "Mahasiswa hemat",
+};
+
+export const labUjiSkema = z.object({
+  skor: z.number().int().min(0).max(100),
+  ringkasan: z.string().min(1).max(1200),
+  penilaian: z
+    .array(
+      z.object({
+        persona: z.enum(LAB_PERSONA),
+        reaksi: z.string().min(1).max(800),
+        keberatan: z.array(z.string().min(1).max(200)).max(5).default([]),
+        saran: z.string().max(400).default(""),
+      }),
+    )
+    .length(3, "Lab uji wajib menilai dari tepat 3 persona"),
+});
+
+export const labUjiRequestSkema = z.object({
+  statuses: z.array(z.string().trim().min(1).max(2200)).min(1).max(20),
+  produk: z.string().trim().max(120).optional(),
+});
+
+export const ideMasalahSkema = z.object({
+  ide: z
+    .array(
+      z.object({
+        hook: z.string().min(1).max(280),
+        sudut: z.string().min(1).max(200),
+        jembatan: z.string().min(1).max(300),
+      }),
+    )
+    .length(3, "Mesin ide wajib menghasilkan tepat 3 hook"),
+});
+
+export const ideMasalahRequestSkema = z.object({
+  masalah: z.string().trim().min(10, "Masalah minimal 10 karakter.").max(300),
+  kategori: z.string().trim().max(120).optional(),
+  produk: z.string().trim().max(200).optional(),
+});
+
+export const serial7Skema = z.object({
+  tema: z.string().min(1).max(200),
+  hari: z
+    .array(
+      z.object({
+        hari: z.number().int().min(1).max(7),
+        judul: z.string().min(1).max(120),
+        tujuan: z.string().min(1).max(200),
+        statuses: z.array(z.string().min(1).max(MAX_STATUS_LENGTH)).min(1).max(5),
+      }),
+    )
+    .length(7, "Serial wajib berisi tepat 7 hari"),
+});
+
+export const serial7RequestSkema = z.object({
+  namaProduk: z.string().trim().min(1).max(160),
+  deskripsi: z.string().trim().min(10, "Deskripsi produk minimal 10 karakter.").max(4000),
+  masalah: z.string().trim().max(300).optional(),
+});
+
+export type LabUji = z.infer<typeof labUjiSkema>;
+export type IdeMasalah = z.infer<typeof ideMasalahSkema>;
+export type Serial7 = z.infer<typeof serial7Skema>;
