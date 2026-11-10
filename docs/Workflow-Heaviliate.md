@@ -1,6 +1,6 @@
 # Workflow Heaviliate
 
-**Versi:** 0.5
+**Versi:** 0.6
 **Acuan:** PRD-Heaviliate.md, UI-Spec-Heaviliate.md, Rencana-Pengembangan-Heaviliate.md, ADR 0001 sampai 0020
 **Menggantikan:** Workflow v0.1 sampai v0.4
 
@@ -270,6 +270,11 @@ tombol "Pengaturan lanjutan". Label memakai bahasa awam (lihat UI-Spec).
 
 ## Riwayat versi
 
+- **v0.6 (10 Nov 2026):** Fase 3 tuntas — riset audiens kini punya skor
+  kelayakan 1-5 (prompt peluang v2, migrasi 0013), kartu persona preset +
+  chip audiens ala Meta Ads, panel review pasar (copas review marketplace,
+  prompt review-pasar v1), bank masalah yang menumpuk, dan rekomendasi dari
+  data performa sendiri (lingkaran riset tertutup).
 - **v0.5 (10 Nov 2026):** wizard 5 layar menjadi 4 — Analisis dan Ide digabung
   jadi satu layar dengan navigasi bersama ("Lanjut ke generate"); pengaturan
   generate mengambil default dari halaman Pengaturan (anti AI slop, wajib sebut

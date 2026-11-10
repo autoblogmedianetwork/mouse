@@ -1022,3 +1022,14 @@ create table if not exists draft_posting (
 - Tabel belum ada? Aplikasi tetap jalan — sinkronisasi gagal diam-diam.
   Terapkan `0012_draft_posting.sql` lewat SQL Editor dashboard atau
   `supabase db push` setelah `supabase link`.
+
+## 18. Skor kelayakan peluang (Fase 3-A)
+
+Migrasi `0013_skor_peluang.sql` menambah dua kolom ke `peluang_produk`:
+
+- `skor jsonb` — empat dimensi 1-5 (permintaan, kompetisi, kemudahan_konten,
+  potensi_komisi) plus alasan satu kalimat per dimensi
+- `skor_total smallint` — jumlah keempatnya (4-20); ≥ 16 ditandai "layak duluan"
+
+Tabel lama tanpa skor tetap valid: kolom opsional, urutan tabel peluang kini
+skor_total dulu, lalu prioritas, lalu urutan asli AI.
