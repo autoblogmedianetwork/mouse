@@ -11,7 +11,7 @@
  */
 export const PROMPT_VERSION = "generate-status.v4";
 
-import { labelPersonaUntukPrompt } from "@/lib/ai/persona";
+import { labelPersonaDenganDetail } from "@/lib/ai/persona";
 import { batasPlatform, LABEL_PLATFORM, type PlatformId } from "@/lib/platforms/batas";
 import { BATAS_JUMLAH, type Ide, type Pengaturan } from "@/lib/ai/schemas";
 
@@ -91,7 +91,11 @@ export function buildGenerateStatusPrompt(input: GenerateStatusInput): string {
       ? LINK_INSTRUCTIONS.status_terakhir + link
       : LINK_INSTRUCTIONS[pengaturan.letak_link];
 
-  const personaLine = `- Persona: ${labelPersonaUntukPrompt(pengaturan.persona)}`;
+  const personaLine = `- Persona: ${labelPersonaDenganDetail(
+    pengaturan.persona,
+    pengaturan.persona_nama,
+    pengaturan.persona_gaya,
+  )}`;
 
   const trustLine = pengaturan.aturan_kepercayaan
     ? "- Wajib ada minimal satu status yang menyebut kekurangan atau batasan penawaran secara jujur."

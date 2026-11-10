@@ -6,7 +6,7 @@
  */
 export const PROMPT_VERSION = "carousel-slides.v1";
 
-import { labelPersonaUntukPrompt } from "@/lib/ai/persona";
+import { labelPersonaDenganDetail } from "@/lib/ai/persona";
 import type { Ide, Pengaturan } from "@/lib/ai/schemas";
 
 export interface CarouselPromptInput {
@@ -70,7 +70,7 @@ Fitur: ${input.fitur?.join("; ") || "-"}
 
 Pengaturan:
 - Jumlah slide: ${jumlahSlide} (antara 3 sampai 10)
-- Persona: ${labelPersonaUntukPrompt(pengaturan.persona)}
+- Persona: ${labelPersonaDenganDetail(pengaturan.persona, pengaturan.persona_nama, pengaturan.persona_gaya)}
 - Ada link affiliate: ${adaLink}
 - Sumber artikel: ${sumber || "(tidak ada)"}
 - Handle akun: ${handle || "(tidak ada)"}

@@ -267,7 +267,25 @@ export function PengaturanGenerate({
             id="persona"
             label="Gaya bahasa (persona)"
             value={value.persona}
-            onChange={(next) => set("persona", next)}
+            onChange={(next) => {
+              if (next === "bernama") {
+                let nama = value.persona_nama;
+                let gaya = value.persona_gaya;
+                try {
+                  const raw = window.localStorage.getItem("autothreads-persona-bernama");
+                  if (raw) {
+                    const p = JSON.parse(raw) as { nama?: string; gaya?: string };
+                    if (p?.nama && !nama) nama = p.nama;
+                    if (p?.gaya && !gaya) gaya = p.gaya;
+                  }
+                } catch {
+                  // abaikan
+                }
+                onChange({ ...value, persona: next, persona_nama: nama, persona_gaya: gaya });
+              } else {
+                set("persona", next);
+              }
+            }}
             // Pilihan datang dari data (lib/ai/persona.ts), bukan hardcode di sini.
             options={PERSONA_LIST.map((persona) => ({
               value: persona.id,
@@ -278,6 +296,55 @@ export function PengaturanGenerate({
           <p className="mt-1 text-meta text-muted-foreground">
             {ambilPersona(value.persona).deskripsi_nada}
           </p>
+          {value.persona === "bernama" ? (
+            <div className="mt-3 space-y-2 border border-surface-border p-3">
+              <label className="block text-badan font-medium">
+                Nama karakter
+                <input
+                  type="text"
+                  value={value.persona_nama}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    onChange({ ...value, persona_nama: v });
+                    try {
+                      window.localStorage.setItem(
+                        "autothreads-persona-bernama",
+                        JSON.stringify({ nama: v, gaya: value.persona_gaya }),
+                      );
+                    } catch {
+                      // abaikan
+                    }
+                  }}
+                  className={fieldClass + " mt-1"}
+                  placeholder="Mbak Rina"
+                />
+              </label>
+              <label className="block text-badan font-medium">
+                Gaya bicara
+                <textarea
+                  value={value.persona_gaya}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    onChange({ ...value, persona_gaya: v });
+                    try {
+                      window.localStorage.setItem(
+                        "autothreads-persona-bernama",
+                        JSON.stringify({ nama: value.persona_nama, gaya: v }),
+                      );
+                    } catch {
+                      // abaikan
+                    }
+                  }}
+                  rows={3}
+                  className={fieldClass + " mt-1 resize-y"}
+                  placeholder="Santai, hangat, suka cerita pengalaman sendiri, tidak menggurui."
+                />
+              </label>
+              <p className="text-meta text-muted-foreground">
+                Detail ini tersimpan lokal dan dipakai di semua konten dengan persona bernama.
+              </p>
+            </div>
+          ) : null}
         </div>
         <SelectField
           id="letak_link"

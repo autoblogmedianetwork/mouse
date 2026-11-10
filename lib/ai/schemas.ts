@@ -77,6 +77,9 @@ export const pengaturanSkema = z.object({
   // Persona id from lib/ai/persona.ts; legacy labels ("Bawaan", "Ahli") from
   // drafts saved before that module existed are normalized to an id here.
   persona: z.string().transform((nilai) => normalkanPersonaId(nilai)),
+  // Detail kustom untuk persona "bernama" (opsional, dipakai bila persona === "bernama").
+  persona_nama: z.string().trim().max(60).optional().default(""),
+  persona_gaya: z.string().trim().max(300).optional().default(""),
   // Urutan isi konten (lib/ai/kerangka.ts). Sengaja dipisah dari gaya_hook:
   // hook mengatur pembuka, kerangka mengatur alur. "bebas" = tidak dipaksakan,
   // sehingga draf lama dan perilaku prompt sebelumnya tidak berubah.
@@ -104,6 +107,8 @@ export const PENGATURAN_AWAL: Pengaturan = {
   instruksi: "",
   anti_ai_slop: true,
   persona: PERSONA_BAWAAN.id,
+  persona_nama: "",
+  persona_gaya: "",
   kerangka: "bebas",
   gaya_hook: "bawaan",
   aturan_kepercayaan: true,
@@ -431,6 +436,162 @@ export const serial7RequestSkema = z.object({
   masalah: z.string().trim().max(300).optional(),
 });
 
+export const serial30Skema = z.object({
+  tema: z.string().min(1).max(200),
+  hari: z
+    .array(
+      z.object({
+        hari: z.number().int().min(1).max(30),
+        judul: z.string().min(1).max(120),
+        tujuan: z.string().min(1).max(200),
+        statuses: z.array(z.string().min(1).max(MAX_STATUS_LENGTH)).min(1).max(2),
+      }),
+    )
+    .length(30, "Serial wajib berisi tepat 30 hari"),
+});
+
+export const serial30RequestSkema = z.object({
+  namaProduk: z.string().trim().min(1).max(160),
+  deskripsi: z.string().trim().min(10, "Deskripsi produk minimal 10 karakter.").max(4000),
+  masalah: z.string().trim().max(300).optional(),
+});
+
 export type LabUji = z.infer<typeof labUjiSkema>;
 export type IdeMasalah = z.infer<typeof ideMasalahSkema>;
 export type Serial7 = z.infer<typeof serial7Skema>;
+export type Serial30 = z.infer<typeof serial30Skema>;
+
+export const abHookSkema = z.object({
+  varian: z
+    .array(z.string().min(1).max(MAX_STATUS_LENGTH))
+    .length(2, "A/B otomatis wajib menghasilkan tepat 2 varian hook."),
+});
+
+export const abHookRequestSkema = z.object({
+  namaProduk: z.string().trim().min(1).max(160),
+  deskripsi: z.string().trim().min(10, "Deskripsi produk minimal 10 karakter.").max(4000),
+  masalah: z.string().trim().max(300).optional(),
+});
+
+export type AbHook = z.infer<typeof abHookSkema>;
+
+export const ghostwriterSkema = z.object({
+  tema: z.string().min(1).max(200),
+  statuses: z
+    .array(z.string().min(1).max(MAX_STATUS_LENGTH))
+    .min(1)
+    .max(5),
+});
+
+export const ghostwriterRequestSkema = z.object({
+  transcript: z.string().trim().min(20, "Transkrip minimal 20 karakter.").max(8000),
+  jumlah: z.enum(["pendek", "menengah", "panjang"]).default("menengah"),
+});
+
+export type Ghostwriter = z.infer<typeof ghostwriterSkema>;
+
+export const battleSkema = z.object({
+  tema: z.string().min(1).max(200),
+  statuses: z
+    .array(z.string().min(1).max(MAX_STATUS_LENGTH))
+    .min(1)
+    .max(5),
+});
+
+export const battleRequestSkema = z.object({
+  produk: z
+    .array(
+      z.object({
+        nama: z.string().trim().min(1).max(160),
+        deskripsi: z.string().trim().min(10, "Deskripsi minimal 10 karakter.").max(4000),
+      }),
+    )
+    .min(2, "Minimal 2 produk untuk battle.")
+    .max(4, "Maksimal 4 produk per battle."),
+});
+
+export type Battle = z.infer<typeof battleSkema>;
+
+export const jujurSkema = z.object({
+  versi_jujur: z.string().min(1).max(MAX_STATUS_LENGTH),
+  catatan: z.string().min(1).max(300),
+});
+
+export const jujurRequestSkema = z.object({
+  teks: z.string().trim().min(10, "Teks minimal 10 karakter.").max(MAX_STATUS_LENGTH),
+});
+
+export type Jujur = z.infer<typeof jujurSkema>;
+
+export const paralelSkema = z.object({
+  versi_paralel: z.string().min(1).max(MAX_STATUS_LENGTH),
+  genre: z.string().min(1).max(60),
+});
+
+export const paralelRequestSkema = z.object({
+  teks: z.string().trim().min(10, "Teks minimal 10 karakter.").max(MAX_STATUS_LENGTH),
+  genre: z.string().trim().min(1).max(60).default("sci-fi"),
+});
+
+export type Paralel = z.infer<typeof paralelSkema>;
+
+export const nyanyianSkema = z.object({
+  lirik: z.string().min(1).max(MAX_STATUS_LENGTH),
+});
+
+export const nyanyianRequestSkema = z.object({
+  teks: z.string().trim().min(10, "Teks minimal 10 karakter.").max(MAX_STATUS_LENGTH),
+});
+
+export type Nyanyian = z.infer<typeof nyanyianSkema>;
+
+export const lawanBotsSkema = z.object({
+  tema: z.string().min(1).max(200),
+  dialog: z
+    .array(
+      z.object({
+        bot: z.string().min(1).max(40),
+        teks: z.string().min(1).max(MAX_STATUS_LENGTH),
+      }),
+    )
+    .min(2)
+    .max(8),
+});
+
+export const lawanBotsRequestSkema = z.object({
+  topik: z.string().trim().min(3).max(200),
+  produkA: z.string().trim().max(160).optional(),
+  produkB: z.string().trim().max(160).optional(),
+});
+
+export type LawanBots = z.infer<typeof lawanBotsSkema>;
+
+export const fotoSkema = z.object({
+  tema: z.string().min(1).max(200),
+  statuses: z
+    .array(z.string().min(1).max(MAX_STATUS_LENGTH))
+    .min(1)
+    .max(5),
+});
+
+export const fotoRequestSkema = z.object({
+  imageUrl: z.string().trim().url("URL gambar tidak valid."),
+  konteks: z.string().trim().max(300).optional(),
+});
+
+export type Foto = z.infer<typeof fotoSkema>;
+
+export const mirrorSkema = z.object({
+  tema: z.string().min(1).max(200),
+  statuses: z
+    .array(z.string().min(1).max(MAX_STATUS_LENGTH))
+    .min(1)
+    .max(5),
+});
+
+export const mirrorRequestSkema = z.object({
+  kontenKompetitor: z.string().trim().min(20, "Konten kompetitor minimal 20 karakter.").max(4000),
+  namaProduk: z.string().trim().max(160).optional(),
+});
+
+export type Mirror = z.infer<typeof mirrorSkema>;

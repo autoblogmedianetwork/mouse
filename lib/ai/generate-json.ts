@@ -37,6 +37,8 @@ export interface GenerateJSONOptions {
   model?: string;
   temperature?: number;
   timeoutMs?: number;
+  /** URL gambar (publik) untuk mode visi; bila ada, dikirim sebagai image_url. */
+  imageUrl?: string;
 }
 
 export const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
@@ -181,7 +183,17 @@ export async function generateJSON<T>(
         },
         body: JSON.stringify({
           model,
-          messages: [{ role: "user", content: prompt }],
+          messages: [
+            {
+              role: "user",
+              content: options.imageUrl
+                ? [
+                    { type: "text", text: prompt },
+                    { type: "image_url", image_url: { url: options.imageUrl } },
+                  ]
+                : prompt,
+            },
+          ],
           temperature: options.temperature ?? 0.7,
           response_format: { type: "json_object" },
         }),

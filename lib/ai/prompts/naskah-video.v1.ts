@@ -8,7 +8,7 @@
  */
 export const PROMPT_VERSION = "naskah-video.v1";
 
-import { labelPersonaUntukPrompt } from "@/lib/ai/persona";
+import { labelPersonaDenganDetail } from "@/lib/ai/persona";
 import type { Ide, Pengaturan } from "@/lib/ai/schemas";
 
 export interface NaskahVideoInput {
@@ -42,7 +42,7 @@ KONTEN yang harus ditulis:
 - Jembatan ke produk: ${ide.jembatan}
 
 PENGATURAN:
-- Persona: ${labelPersonaUntukPrompt(pengaturan.persona)}
+- Persona: ${labelPersonaDenganDetail(pengaturan.persona, pengaturan.persona_nama, pengaturan.persona_gaya)}
 - Durasi total video: 30 sampai 60 detik.
 ${trustLine}
 ${instruksiLine}

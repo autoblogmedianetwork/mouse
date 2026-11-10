@@ -28,39 +28,53 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 | Tag/label produk + filter | `lib/produk/tag.ts`, form produk |
 | Mode fokus harian + streak | `lib/konten/fokus.ts`, halaman `/fokus` |
 | Skor shadowban gabungan + lampu merah sebelum salin | `lib/konten/skor-shadowban.ts`, `/fokus` dan `/antrian` |
+| Detektor shadowban menyeluruh (kata terlarang, klaim medis, hashtag, panjang) | `lib/konten/skor-shadowban.ts` |
+| Persona konsisten bernama (karakter + gaya bicara tetap) | `lib/ai/persona.ts`, `pengaturan-generate.tsx` |
+| A/B otomatis dua hook (AI) | `lib/ai/prompts/ab-hook.v1.ts`, `/api/ab-hook`, panel eksperimen hook |
+| Ghostwriter dari transkrip | `lib/ai/prompts/ghostwriter.v1.ts`, `/api/ghostwriter`, lab |
+| Roulette/battle gabungan produk | `lib/ai/prompts/battle.v1.ts`, `/api/battle`, lab |
+| AI kembaran jujur (rewrite jujur) | `lib/ai/prompts/jujur.v1.ts`, `/api/kembaran-jujur`, lab |
+| Mode paralel universe | `lib/ai/prompts/paralel.v1.ts`, `/api/paralel`, lab |
+| Time capsule (lokal) | `lib/konten/time-capsule.ts`, lab |
+| Mode nyanyian | `lib/ai/prompts/nyanyian.v1.ts`, `/api/nyanyian`, lab |
+| Gamifikasi (XP/level/badge) | `lib/konten/gamifikasi.ts`, lab |
+| Lawan bots (dialog debat) | `lib/ai/prompts/lawan-bots.v1.ts`, `/api/lawan-bots`, lab |
+| Notifikasi proaktif (lokal) | `features/lab/notifikasi-proaktif.tsx` |
+| Konten dari foto (visi) | `lib/ai/prompts/foto.v1.ts`, `/api/foto`, lab |
 | Kalkulator komisi & target cuan | `lib/affiliate/kalkulator-komisi.ts`, dashboard |
 | Pembangkit hashtag lokal | `lib/konten/hashtag.ts`, `/lab` bagian 4 |
 | Kemasan 1 konten → Threads + TikTok + WA | `lib/konten/kemasan-multi-platform.ts`, `/antrian` |
 | Kamus kata terlarang | `lib/konten/kata-terlarang.ts`, `StatusEditor` |
 | Mesin ide dari bank masalah (AI) | `/lab` bagian 2, `app/api/ide-masalah` |
 | Serial 7 hari (AI) | `/lab` bagian 3, `app/api/serial-7-hari` |
+| Serial 30 hari (AI) | `/lab` bagian 3b, `app/api/serial-30-hari` |
 | Lab uji / simulator 3 pembeli (AI) | `/lab` bagian 1, `app/api/lab-uji` |
 | Peta panen komisi (hari × blok jam) | `lib/performa/peta-panen.ts`, `/analitik` |
 | Eksperimen hook A/B manual (hingga 5 varian, pencatatan pemenang) | `lib/konten/eksperimen-hook.ts`, `/analitik` |
+| Batch produk 3–5 (draft + antrean review satu per satu) | `lib/konten/batch-produk.ts`, `/batch` |
 
 ## 2. Baru separuh
 
-- **Persona konsisten bernama.** Persona AI sudah ada (`lib/ai/persona.ts`) dan
-  dipakai prompt generate, tetapi belum ada "karakter" bernama dengan gaya bicara
-  tetap yang dipakai di semua konten.
+_(kosong)_
 
 ## 3. Belum dibuat — lokal, tanpa API (prioritas berikutnya)
 
-1. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
+_(kosong — semua ide lokal sudah dibuat)_
 
-## 4. Belum dibuat — butuh kunci AI hidup
+## 4. Sudah dibuat — butuh kunci AI hidup untuk diuji
 
-- A/B otomatis dua hook dengan pencatatan pemenang.
-- Serial 30 hari (sekarang baru 7 hari).
-- Roulette produk, battle mode, ghostwriter dari voice note, mirror competitor.
-- Gamifikasi (poin/level), time capsule, notifikasi proaktif.
-- "AI kembaran jujur": profil kelemahan dari konten lama, deteksi kebohongan
-  klaim vs deskripsi produk, neural link gaya pribadi.
-- Mode nyanyian, paralel universe, konten dari foto, lawan bots.
+- A/B otomatis dua hook (`/api/ab-hook`), Roulette/battle (`/api/battle`),
+  ghostwriter dari transkrip (`/api/ghostwriter`), lawan bots (`/api/lawan-bots`).
+- AI kembaran jujur (`/api/kembaran-jujur`), mode nyanyian (`/api/nyanyian`),
+  paralel universe (`/api/paralel`), konten dari foto (`/api/foto`).
+- Gamifikasi, notifikasi proaktif, time capsule (lokal).
+- Mirror competitor (manual, tanpa scraping) sudah dibuat (`/api/mirror`).
 
 Catatan: semua jalur AI di repo ini memakai `AI_BASE_URL` / `AI_API_KEY` /
-`AI_MODEL` di server. Selama kunci masih mati (401), fitur AI akan menjawab 502
-dengan pesan provider — bukan hasil palsu.
+`AI_MODEL` di server. Per 11 November 2026, kunci Sumopod sudah tersedia di
+`.env.local` (lokal), sehingga fitur AI di `/lab` bisa diuji. Fitur di atas
+masih belum diimplementasikan; kunci yang hidup tidak otomatis menandainya
+selesai.
 
 ## 5. Menunggu tindakan user (bukan pekerjaan kode)
 

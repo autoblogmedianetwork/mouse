@@ -30,7 +30,8 @@ describe("data persona", () => {
     expect(PERSONA_IDS).toContain("komedian");
     expect(PERSONA_IDS).toContain("motivator");
     expect(PERSONA_IDS).toContain("spesialis-sosmed");
-    expect(PERSONA_LIST).toHaveLength(9);
+    expect(PERSONA_LIST).toHaveLength(10);
+    expect(PERSONA_IDS).toContain("bernama");
     expect(labelPersonaUntukPrompt("pendongeng")).toContain("Pendongeng");
   });
 

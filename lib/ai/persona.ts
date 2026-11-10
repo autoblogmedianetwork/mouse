@@ -11,6 +11,7 @@
 /** Stable ids. `bawaan` is the default (F3a). */
 export const PERSONA_IDS = [
   "bawaan",
+  "bernama",
   "sahabat",
   "ahli",
   "pendongeng",
@@ -43,6 +44,13 @@ export const PERSONA_BAWAAN: Persona = {
 
 export const PERSONA_LIST: Persona[] = [
   PERSONA_BAWAAN,
+  {
+    id: "bernama",
+    judul: "Persona bernama",
+    deskripsi_nada:
+      "Karakter bernama yang Anda tentukan sendiri (nama, gaya bicara, catchphrase). Konsisten di semua konten.",
+    ikon: "🧑",
+  },
   {
     id: "sahabat",
     judul: "Sahabat",
@@ -129,6 +137,7 @@ const LABEL_LAMA: Record<string, PersonaId> = {
  */
 export function normalkanPersonaId(nilai: string | null | undefined): PersonaId {
   const kunci = (nilai ?? "").trim().toLowerCase();
+  if (kunci === "bernama") return "bernama";
   return LABEL_LAMA[kunci] ?? PERSONA_BAWAAN.id;
 }
 
@@ -142,4 +151,21 @@ export function ambilPersona(nilai: string | null | undefined): Persona {
 export function labelPersonaUntukPrompt(nilai: string | null | undefined): string {
   const persona = ambilPersona(nilai);
   return `${persona.judul} — ${persona.deskripsi_nada}`;
+}
+
+/**
+ * Label persona yang memakai detail kustom bila id-nya "bernama". Dipakai di
+ * prompt generate agar karakter bernama yang ditentukan user tetap konsisten.
+ */
+export function labelPersonaDenganDetail(
+  personaId: string | null | undefined,
+  nama?: string | null,
+  gaya?: string | null,
+): string {
+  if (normalkanPersonaId(personaId) === "bernama") {
+    const n = (nama ?? "").trim() || "Persona bernama";
+    const g = (gaya ?? "").trim() || "konsisten, sesuai karakter yang ditentukan user";
+    return `${n} — ${g}`;
+  }
+  return labelPersonaUntukPrompt(personaId);
 }

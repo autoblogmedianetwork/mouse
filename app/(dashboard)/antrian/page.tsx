@@ -6,6 +6,7 @@ export const metadata = { title: "Konten — Antrian" };
 
 const TABS = [
   { label: "Antrian", href: "/antrian" },
+  { label: "Batch", href: "/batch" },
   { label: "Riwayat", href: "/riwayat" },
 ] as const;
 

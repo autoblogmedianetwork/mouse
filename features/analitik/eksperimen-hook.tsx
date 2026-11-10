@@ -33,6 +33,11 @@ export function EksperimenHookPanel() {
   const [nama, setNama] = useState("");
   const [varian, setVarian] = useState<string[]>(Array.from({ length: MAKS_VARIAN }, () => ""));
   const [galat, setGalat] = useState<string | null>(null);
+  const [abNama, setAbNama] = useState("");
+  const [abDeskripsi, setAbDeskripsi] = useState("");
+  const [abMasalah, setAbMasalah] = useState("");
+  const [abLoading, setAbLoading] = useState(false);
+  const [abGalat, setAbGalat] = useState<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrasi localStorage harus setelah mount agar sama dengan snapshot SSR
@@ -41,6 +46,43 @@ export function EksperimenHookPanel() {
   }, []);
 
   const ringkas = ringkasanEksperimen(daftar);
+
+  const buatOtomatis = async () => {
+    setAbGalat(null);
+    if (!abNama.trim() || abDeskripsi.trim().length < 10) {
+      setAbGalat("Isi nama produk dan deskripsi (min 10 karakter).");
+      return;
+    }
+    setAbLoading(true);
+    try {
+      const res = await fetch("/api/ab-hook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          namaProduk: abNama,
+          deskripsi: abDeskripsi,
+          masalah: abMasalah || undefined,
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string; varian?: string[] };
+      if (!res.ok || !data.ok || !Array.isArray(data.varian)) {
+        setAbGalat(data.error ?? "Gagal membuat hook otomatis.");
+        return;
+      }
+      setVarian((prev) => {
+        const next = [...prev];
+        next[0] = data.varian![0] ?? "";
+        next[1] = data.varian![1] ?? "";
+        return next;
+      });
+      setNama(abNama.trim());
+      setFormTerbuka(true);
+    } catch {
+      setAbGalat("Gagal menghubungi server.");
+    } finally {
+      setAbLoading(false);
+    }
+  };
 
   const resetForm = () => {
     setNama("");
@@ -101,6 +143,49 @@ export function EksperimenHookPanel() {
           className="inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           {formTerbuka ? "Tutup" : "Buat eksperimen"}
+        </button>
+      </div>
+
+      <div className="mt-4 border-2 border-foreground p-3 sm:p-4">
+        <p className={`${mikro} mb-2`}>&lt; A/B OTOMATIS (AI, DRAFT) &gt;</p>
+        <p className="mb-2 text-badan text-muted-foreground">
+          AI membuat 2 varian hook dari produk; hasilnya mengisi form di bawah,
+          bukan posting otomatis. Butuh sesi (kredit AI).
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            type="text"
+            className={FIELD}
+            placeholder="NAMA PRODUK"
+            value={abNama}
+            onChange={(e) => setAbNama(e.target.value)}
+          />
+          <input
+            type="text"
+            className={FIELD}
+            placeholder="MASALAH AUDIENS (OPSIONAL)"
+            value={abMasalah}
+            onChange={(e) => setAbMasalah(e.target.value)}
+          />
+        </div>
+        <textarea
+          className={`${FIELD} mt-2 min-h-[4rem] resize-y`}
+          placeholder="DESKRIPSI PRODUK (MIN 10 KARAKTER)"
+          value={abDeskripsi}
+          onChange={(e) => setAbDeskripsi(e.target.value)}
+        />
+        {abGalat ? (
+          <p className={`${mikro} mt-2 border-2 border-status-failed bg-background px-3 py-2 text-status-failed`} role="alert">
+            ! {abGalat}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          onClick={buatOtomatis}
+          disabled={abLoading}
+          className="mt-2 inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+        >
+          {abLoading ? "MEMBUAT…" : "Buat 2 hook otomatis"}
         </button>
       </div>
 
