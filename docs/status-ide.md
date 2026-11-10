@@ -1,6 +1,6 @@
 # Status Ide Fitur Heaviliate
 
-Diperbarui: 11 November 2026 · Commit terakhir saat rekap: `d2e902b`
+Diperbarui: 11 November 2026 · Commit terakhir saat rekap: `b455998`
 
 Berkas ini menjawab satu pertanyaan: dari daftar ide produktivitas, mana yang
 sudah jadi, mana yang baru separuh, dan mana yang belum disentuh. Status "jadi"
@@ -22,6 +22,10 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 | Checklist pra-posting | `features/posting/checklist-gate.tsx` |
 | Pembersih sampel dummy 1-klik | `lib/konten/pembersih-dummy.ts`, Pengaturan → Data |
 | Pengingat cadangan mingguan | `lib/konten/cadangan.ts`, `PengingatCadangan` |
+| Pencarian global lintas konten/produk/masalah | `lib/cari/cari-global.ts`, halaman `/cari` |
+| Riwayat pencarian riset (niche + audiens) | `lib/riset/riwayat-pencarian.ts`, `PanelRiset` |
+| Favorit/pin produk | `lib/produk/favorit.ts`, form produk |
+| Tag/label produk + filter | `lib/produk/tag.ts`, form produk |
 | Kalkulator komisi & target cuan | `lib/affiliate/kalkulator-komisi.ts`, dashboard |
 | Pembangkit hashtag lokal | `lib/konten/hashtag.ts`, `/lab` bagian 4 |
 | Kemasan 1 konten → Threads + TikTok + WA | `lib/konten/kemasan-multi-platform.ts`, `/antrian` |
@@ -41,15 +45,10 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 
 ## 3. Belum dibuat — lokal, tanpa API (prioritas berikutnya)
 
-1. **Pencarian global** lintas konten, produk, dan bank masalah (sekarang hanya
-   ada pencarian di dalam `/antrian`).
-2. **Riwayat pencarian riset** — niche yang pernah diriset bisa dipilih ulang.
-3. **Favorit/pin produk** supaya produk yang sedang dipush ada di atas.
-4. **Tag/label produk** ("ramah pemula", "komisi besar") + filter.
-5. **Mode fokus harian + streak** — satu layar "hari ini posting apa".
-6. **Peta panen komisi** — heatmap hari/jam dari data performa yang sudah diimpor.
-7. **A/B manual 5 varian hook** + pencatatan pemenang di Analitik.
-8. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
+1. **Mode fokus harian + streak** — satu layar "hari ini posting apa".
+2. **Peta panen komisi** — heatmap hari/jam dari data performa yang sudah diimpor.
+3. **A/B manual 5 varian hook** + pencatatan pemenang di Analitik.
+4. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
 
 ## 4. Belum dibuat — butuh kunci AI hidup
 
