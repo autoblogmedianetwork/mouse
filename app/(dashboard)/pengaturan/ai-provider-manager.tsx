@@ -74,6 +74,20 @@ export function AiProviderManager() {
     await muat();
   };
 
+  const [testing, setTesting] = useState<string | null>(null);
+  const [hasilTest, setHasilTest] = useState<Record<string, string>>({});
+  const tes = async (id: string) => {
+    setTesting(id);
+    const res = await fetch("/api/ai-provider/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    const json = (await res.json()) as { ok?: boolean; error?: string };
+    setHasilTest((prev) => ({ ...prev, [id]: json.ok ? "OK" : (json.error ?? "Gagal") }));
+    setTesting(null);
+  };
+
   return (
     <Card>
       <h2 className="text-isi font-semibold">Provider AI (tersimpan di server)</h2>
@@ -96,6 +110,9 @@ export function AiProviderManager() {
                 </p>
               </div>
               <div className="flex gap-2">
+                <button type="button" onClick={() => tes(p.id)} disabled={testing === p.id} className="border border-surface-border px-2 py-1 text-meta disabled:opacity-50">
+                  {testing === p.id ? "Testing…" : "Test"}
+                </button>
                 {!p.isActive ? (
                   <button type="button" onClick={() => aktifkan(p.id)} className="border border-surface-border px-2 py-1 text-meta">
                     Aktifkan
@@ -105,6 +122,9 @@ export function AiProviderManager() {
                   Hapus
                 </button>
               </div>
+              {hasilTest[p.id] ? (
+                <p className="mt-1 text-meta text-muted-foreground">Hasil test: {hasilTest[p.id]}</p>
+              ) : null}
             </div>
           ))
         )}
