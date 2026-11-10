@@ -13,6 +13,7 @@
  */
 import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
 import { generateJSON, type GenerateJSONOptions, type GenerateJSONResult, type UsageAI } from "./generate-json";
+import { periksaRateLimit } from "@/lib/rate-limit";
 import { providerKandidat } from "./provider-store";
 import {
   catatGenerasi,
@@ -46,6 +47,18 @@ export async function jalankanAI<T>(
 ): Promise<JalankanAIResult<T>> {
   const supabase = await klienServer();
   const user = supabase ? await penggunaSaatIni() : null;
+
+  // Rate limit per user (atau anonymous) agar kredit AI tidak bisa dikuras.
+  const rl = periksaRateLimit(`ai:${user?.id ?? "anon"}`, 30, 60_000);
+  if (!rl.boleh) {
+    return {
+      result: {
+        ok: false,
+        error: "Terlalu banyak permintaan AI. Coba lagi sebentar.",
+        attempts: 0,
+      },
+    };
+  }
 
   let anggaran: KeadaanAnggaran | null = null;
   if (supabase && user) {

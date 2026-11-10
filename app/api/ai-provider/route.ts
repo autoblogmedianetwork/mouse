@@ -3,7 +3,8 @@
  * API key terenkripsi di server; tidak pernah dikembalikan terang.
  */
 import { NextResponse } from "next/server";
-import { wajibSesi } from "@/lib/supabase/server";import { z } from "zod";
+import { wajibSesi } from "@/lib/supabase/server";
+import { z } from "zod";
 import { daftarProvider,
   tambahProvider,
   hapusProvider,
@@ -19,8 +20,15 @@ const tambahSkema = z.object({
 export async function GET() {
   const sesi = await wajibSesi();
   if ("respons" in sesi) return sesi.respons;
-  const list = await daftarProvider();
-  return NextResponse.json({ ok: true, providers: list });
+  try {
+    const list = await daftarProvider();
+    return NextResponse.json({ ok: true, providers: list });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Gagal memuat provider." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(req: Request) {
@@ -37,8 +45,16 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." }, { status: 400 });
   }
-  const hasil = await tambahProvider(parsed.data);
-  return NextResponse.json(hasil, { status: hasil.ok ? 200 : 400 });
+  try {
+    const hasil = await tambahProvider(parsed.data);
+    return NextResponse.json(hasil, { status: hasil.ok ? 200 : 400 });
+  } catch (err) {
+    // Jangan biarkan error enkripsi menjadi 500 HTML: UI butuh JSON agar
+    // tombol simpan tidak berhenti di "Menyimpan…".
+    const pesan =
+      err instanceof Error ? err.message : "Gagal menyimpan provider.";
+    return NextResponse.json({ ok: false, error: pesan }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request) {

@@ -25,9 +25,13 @@ export function AiProviderManager() {
   const [memuat, setMemuat] = useState(false);
 
   const muat = async () => {
-    const res = await fetch("/api/ai-provider");
-    const json = (await res.json()) as { providers?: Provider[] };
-    if (json.providers) setList(json.providers);
+    try {
+      const res = await fetch("/api/ai-provider");
+      const json = (await res.json()) as { providers?: Provider[] };
+      if (json.providers) setList(json.providers);
+    } catch {
+      // Biarkan daftar lama tampil; error simpan/tambah yang diberi pesan.
+    }
   };
 
   useEffect(() => {
@@ -42,22 +46,28 @@ export function AiProviderManager() {
       return;
     }
     setMemuat(true);
-    const res = await fetch("/api/ai-provider", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nama, baseUrl, model, apiKey }),
-    });
-    const json = (await res.json()) as { ok?: boolean; error?: string };
-    setMemuat(false);
-    if (!res.ok || !json.ok) {
-      setGalat(json.error ?? "Gagal menambah provider.");
-      return;
+    try {
+      const res = await fetch("/api/ai-provider", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nama, baseUrl, model, apiKey }),
+      });
+      // Server bisa membalas HTML (mis. 500 dari runtime), jadi jangan asumsikan JSON.
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) {
+        setGalat(json.error ?? `Gagal menambah provider (HTTP ${res.status}).`);
+        return;
+      }
+      setNama("");
+      setBaseUrl("");
+      setModel("");
+      setApiKey("");
+      await muat();
+    } catch {
+      setGalat("Tidak bisa menghubungi server. Periksa koneksi lalu coba lagi.");
+    } finally {
+      setMemuat(false);
     }
-    setNama("");
-    setBaseUrl("");
-    setModel("");
-    setApiKey("");
-    await muat();
   };
 
   const hapus = async (id: string) => {
