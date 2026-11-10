@@ -102,6 +102,7 @@ export function AntrianReview() {
     batasUsd: BATAS_BIAYA_USD_BAWAAN,
     persenBulan: 0,
     perFungsi: {},
+    perProvider: {},
     totalTokens: 0,
   });
   const fileRef = useRef<HTMLInputElement>(null);
@@ -121,6 +122,7 @@ export function AntrianReview() {
             batasUsd: typeof d.batasUsd === "number" ? d.batasUsd : BATAS_BIAYA_USD_BAWAAN,
             persenBulan: typeof d.persenBulan === "number" ? d.persenBulan : 0,
             perFungsi: d.perFungsi ?? {},
+            perProvider: d.perProvider ?? {},
             totalTokens: typeof d.totalTokens === "number" ? d.totalTokens : 0,
           });
         }
@@ -453,6 +455,7 @@ export function AntrianReview() {
           bulanIniUsd={biaya.bulanIniUsd}
           adaCatatan={biaya.adaCatatan}
           batasUsd={biaya.batasUsd}
+          perProvider={biaya.perProvider}
         />
       </PageHeader>
 

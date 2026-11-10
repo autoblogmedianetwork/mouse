@@ -26,12 +26,19 @@ export function CostWidget({
   bulanIniUsd,
   adaCatatan,
   batasUsd,
+  perProvider = {},
 }: {
   hariIniUsd: number | null;
   bulanIniUsd: number | null;
   adaCatatan: boolean;
   batasUsd: number;
+  perProvider?: Record<string, { panggilan: number; usd: number | null }>;
 }) {
+  // Provider paling banyak dipakai bulan ini; cukup tiga supaya widget tetap ringkas.
+  const providerTeratas = Object.entries(perProvider)
+    .sort(([, a], [, b]) => b.panggilan - a.panggilan)
+    .slice(0, 3)
+    .map(([nama, r]) => `${nama === "tidak tercatat" ? "lama" : nama} (${r.panggilan})`);
   const pakai = bulanIniUsd ?? 0;
   const persen = batasUsd > 0 ? Math.min(100, (pakai / batasUsd) * 100) : 0;
   const hampirHabis = persen >= 80;
@@ -91,6 +98,12 @@ export function CostWidget({
             {persen >= 100 ? " — batas tercapai, panggilan AI berhenti" : ""}
             {persen >= 80 && persen < 100 ? " — mendekati batas" : ""}
           </p>
+
+          {providerTeratas.length > 0 ? (
+            <p className="mt-1 text-meta text-muted-foreground">
+              Provider: {providerTeratas.join(" · ")}
+            </p>
+          ) : null}
         </>
       ) : (
         <p className="mt-1 text-badan text-muted-foreground">

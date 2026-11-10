@@ -92,7 +92,9 @@ diganti lewat `AI_MODEL`. Llama, Qwen, dan Mistral free tier sudah dihapus dari 
 5. **Pindah provider tanpa ubah fitur.** Cukup ganti `AI_BASE_URL`, `AI_MODEL`, dan `AI_API_KEY` di server, skema tetap sama.
 6. **Gambar hanya dikirim jika user mengunggah.** Foto dari listing seller hanya untuk referensi internal (lihat F0 di PRD).
 7. **API key hanya di server.** `AI_API_KEY` dan `OPENROUTER_API_KEY` tidak pernah sampai ke klien (AGENTS aturan 11). Lewat Vercel → Settings → Environment Variables, tidak lewat chat.
-8. **Kesehatan provider bisa dicek dari UI.** Pengaturan → AI → **Cek koneksi AI** memanggil `GET /api/ai/kesehatan` (sesi wajib). Pemeriksaan menjalankan tiga langkah: baca konfigurasi server, baca katalog `{base}/models`, lalu satu panggilan chat sungguhan lewat `generateJSON` dengan skema kecil. Hasilnya base URL, model, jumlah model di katalog, latensi, dan pesan galat ringkas — nilai kunci hanya dilaporkan ada/tidak. Langkah chat wajib ada karena ada provider yang menjawab katalog 200 walau kuncinya tidak berlaku untuk chat.
+8. **Kesehatan provider bisa dicek dari UI.** Pengaturan → AI → **Cek koneksi AI** memanggil `GET /api/ai/kesehatan` (sesi wajib). Pemeriksaan menjalankan tiga langkah: baca konfigurasi server, baca katalog `{base}/models`, lalu satu panggilan chat sungguhan lewat `generateJSON` dengan skema kecil. Hasilnya sumber konfigurasi (provider database atau env), base URL, model, jumlah model di katalog, latensi, dan pesan galat ringkas — nilai kunci hanya dilaporkan ada/tidak. Pemeriksaan memakai **provider aktif di database** lebih dulu dan baru jatuh ke env bila belum ada provider aktif. Langkah chat wajib ada karena ada provider yang menjawab katalog 200 walau kuncinya tidak berlaku untuk chat.
+
+Panggilan AI di fitur memakai urutan yang sama: semua provider tersimpan dicoba berurutan (aktif lebih dulu), lalu **env sebagai jaring terakhir** bila seluruh provider database gagal dan `AI_API_KEY`/`OPENROUTER_API_KEY` tersedia. Respons menandai `provider` (nama provider atau `env`) dan `providerFallback: true` saat jalur env yang menyelamatkan.
 
 ---
 
@@ -104,8 +106,9 @@ Ganti model atau provider jika salah satu terjadi:
 - Rate limit provider membuat generate sering gagal (model gratis OpenRouter rentan di sini).
 - Provider mematikan atau menghapus model yang sedang dipakai.
 
-Caranya cukup ubah `AI_MODEL` (dan `AI_BASE_URL` bila pindah provider) di .env.local atau Vercel.
-Tidak perlu deploy ulang kode, karena kedua variabel dibaca saat runtime.
+Jika memakai env, caranya cukup ubah `AI_MODEL` (dan `AI_BASE_URL` bila pindah provider) di .env.local atau Vercel.
+Tidak perlu deploy ulang kode, karena kedua variabel dibaca saat runtime. Bila provider aktif tersimpan di
+Pengaturan → AI, provider itulah yang dipakai; env hanya cadangan.
 
 ---
 

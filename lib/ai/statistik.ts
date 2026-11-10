@@ -15,6 +15,8 @@ export interface BarisGenerasi {
   input_tokens: number | null;
   output_tokens: number | null;
   created_at: string;
+  /** Migrasi 0015; baris lama null/kosong. */
+  provider?: string | null;
 }
 
 export interface RingkasanFungsi {
@@ -27,6 +29,11 @@ export interface RingkasanFungsi {
   rataRata: number | null;
 }
 
+export interface RingkasanProvider {
+  panggilan: number;
+  usd: number | null;
+}
+
 export interface StatistikBiaya {
   hariIniUsd: number | null;
   bulanIniUsd: number | null;
@@ -35,6 +42,8 @@ export interface StatistikBiaya {
   /** 0..100 usage vs budget, clamped for the progress bar. */
   persenBulan: number;
   perFungsi: Record<string, RingkasanFungsi>;
+  /** Nama provider -> jumlah panggilan dan biaya bulan ini. */
+  perProvider: Record<string, RingkasanProvider>;
   totalTokens: number;
 }
 
@@ -64,6 +73,7 @@ export function agregasiGenerations(
   let adaCatatan = false;
   let totalTokens = 0;
   const buckets = new Map<string, RingkasanFungsi>();
+  const providerBuckets = new Map<string, RingkasanProvider>();
 
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!row || typeof row !== "object") continue;
@@ -85,6 +95,16 @@ export function agregasiGenerations(
       bucket.usd = (bucket.usd ?? 0) + usd;
     }
     bucket.panggilan += 1;
+
+    const namaProvider =
+      typeof row.provider === "string" && row.provider.trim()
+        ? row.provider.trim()
+        : "tidak tercatat";
+    const pBucket = providerBuckets.get(namaProvider) ?? { panggilan: 0, usd: null };
+    pBucket.panggilan += 1;
+    if (usd !== null) pBucket.usd = (pBucket.usd ?? 0) + usd;
+    providerBuckets.set(namaProvider, pBucket);
+
     bucket.inputTokens += row.input_tokens ?? 0;
     bucket.outputTokens += row.output_tokens ?? 0;
     totalTokens += row.input_tokens ?? 0;
@@ -100,6 +120,9 @@ export function agregasiGenerations(
         : { ...b, rataRata: b.usd / b.panggilan };
   }
 
+  const perProvider: Record<string, RingkasanProvider> = {};
+  for (const [nama, p] of providerBuckets) perProvider[nama] = p;
+
   const bulanIni = bulanIniUsd ?? 0;
   return {
     hariIniUsd,
@@ -108,6 +131,7 @@ export function agregasiGenerations(
     batasUsd,
     persenBulan: batasUsd > 0 ? Math.min(100, (bulanIni / batasUsd) * 100) : 0,
     perFungsi,
+    perProvider,
     totalTokens,
   };
 }

@@ -17,6 +17,7 @@
  */
 import { z } from "zod";
 import { generateJSON, resolveApiKey, resolveBaseURL, resolveModel } from "./generate-json";
+import { providerAktif } from "./provider-store";
 
 export interface ModelProvider {
   id: string;
@@ -30,6 +31,10 @@ export interface KesehatanAI {
   ok: boolean;
   baseUrl: string;
   model: string;
+  /** Dari mana konfigurasi ini dibaca: provider aktif di database atau env. */
+  sumber: "database" | "env";
+  /** Nama provider database; null bila memakai env. */
+  namaProvider: string | null;
   /** Kunci hanya dilaporkan ada/tidak, nilainya tidak pernah dikirim. */
   kunciAda: boolean;
   katalogTerbaca: boolean;
@@ -105,9 +110,16 @@ async function bacaKatalog(
  * bisa dibaca pengguna.
  */
 export async function periksaKesehatanAI(): Promise<KesehatanAI> {
-  const baseUrl = resolveBaseURL(undefined, process.env.AI_BASE_URL, process.env.AI_MODEL);
-  const model = resolveModel(undefined, process.env.AI_MODEL, process.env.AI_BASE_URL);
-  const apiKey = resolveApiKey();
+  // Provider aktif dari database menang; env hanya cadangan. Tanpa ini cek
+  // "terhubung" bisa hijau padahal panggilan AI memakai provider DB.
+  const providerDb = await providerAktif().catch(() => null);
+  const baseUrl =
+    providerDb?.baseUrl ?? resolveBaseURL(undefined, process.env.AI_BASE_URL, process.env.AI_MODEL);
+  const model =
+    providerDb?.model ?? resolveModel(undefined, process.env.AI_MODEL, process.env.AI_BASE_URL);
+  const apiKey = providerDb?.apiKey ?? resolveApiKey();
+  const sumber: KesehatanAI["sumber"] = providerDb ? "database" : "env";
+  const namaProvider = providerDb?.nama ?? null;
   const diperiksaPada = new Date().toISOString();
 
   if (!apiKey) {
@@ -115,13 +127,15 @@ export async function periksaKesehatanAI(): Promise<KesehatanAI> {
       ok: false,
       baseUrl,
       model,
+      sumber,
+      namaProvider,
       kunciAda: false,
       katalogTerbaca: false,
       modelTerdaftar: false,
       daftarModel: [],
       latensiMs: null,
       pesan:
-        "AI_API_KEY (atau OPENROUTER_API_KEY) belum diisi di server. Isi di .env.local atau Vercel Settings -> Environment Variables.",
+        "Tidak ada provider aktif di database dan AI_API_KEY (atau OPENROUTER_API_KEY) belum diisi di server. Tambahkan provider di Pengaturan -> AI, atau isi env AI_API_KEY.",
       diperiksaPada,
     };
   }
@@ -133,6 +147,11 @@ export async function periksaKesehatanAI(): Promise<KesehatanAI> {
     retries: 0,
     timeoutMs: 20_000,
     temperature: 0,
+    // Selalu teruskan konfigurasi yang dipilih di atas; tanpa ini generateJSON
+    // diam-diam jatuh ke env dan hasil cek menyesatkan.
+    model,
+    baseURL: baseUrl,
+    apiKey,
   });
   const latensiMs = hasil.ok ? Date.now() - mulai : null;
 
@@ -145,6 +164,8 @@ export async function periksaKesehatanAI(): Promise<KesehatanAI> {
     ok: hasil.ok,
     baseUrl,
     model: hasil.model ?? model,
+    sumber,
+    namaProvider,
     kunciAda: true,
     katalogTerbaca: katalog.terbaca,
     modelTerdaftar: katalog.model.some((item) => item.id === model),

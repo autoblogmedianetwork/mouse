@@ -154,6 +154,7 @@ Log setiap panggilan AI. Dipakai untuk dashboard biaya (Fase 5) dan debugging.
 | status | generation_status | |
 | attempts | integer | jumlah percobaan |
 | model | text | |
+| provider | text | nama provider tersimpan atau `env` (migrasi 0015); null untuk baris lama |
 | prompt_version | text | |
 | input_tokens, output_tokens | integer | |
 | biaya_usd | numeric(10,6) | |
@@ -1051,3 +1052,18 @@ Migrasi `0013_skor_peluang.sql` menambah dua kolom ke `peluang_produk`:
 
 Tabel lama tanpa skor tetap valid: kolom opsional, urutan tabel peluang kini
 skor_total dulu, lalu prioritas, lalu urutan asli AI.
+
+## 19. Provider per panggilan AI
+
+Migrasi `0015_generations_provider.sql` menambah `generations.provider`:
+
+```sql
+alter table generations add column if not exists provider text;
+```
+
+- Diisi `jalankanAI` dengan nama provider dari tabel `ai_provider`, atau `env`
+  bila memakai env server.
+- Baris sebelum migrasi bernilai null dan ditampilkan sebagai "lama" di widget
+  biaya.
+- `/api/biaya` mengagregasi kolom ini menjadi `perProvider` (panggilan + USD
+  bulan ini); `/api/ai-provider/*` tidak berubah.

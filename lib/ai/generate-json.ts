@@ -26,6 +26,13 @@ export interface GenerateJSONResult<T> {
   attempts: number;
   /** Model actually used (self-reported back to routes, so generations.model is accurate). */
   model?: string;
+  /**
+   * Provider label chosen by `jalankanAI` (stored provider name or "env").
+   * `generateJSON` itself does not know it; the caller fills it in.
+   */
+  provider?: string;
+  /** True bila provider DB gagal semua dan panggilan berhasil lewat env. */
+  providerFallback?: boolean;
   /** Token usage summed across every attempt (each attempt costs tokens). */
   usage?: UsageAI;
 }

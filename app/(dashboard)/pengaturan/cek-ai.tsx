@@ -100,6 +100,14 @@ export function CekKesehatanAI() {
             {hasil.ok ? "AI siap dipakai" : "AI belum bisa dipakai"}
           </p>
 
+          <Baris
+            label="Sumber"
+            nilai={
+              hasil.sumber === "database"
+                ? `Provider database${hasil.namaProvider ? ` · ${hasil.namaProvider}` : ""}`
+                : "Env server"
+            }
+          />
           <Baris label="Base URL" nilai={<code className="text-meta">{hasil.baseUrl}</code>} />
           <Baris label="Model" nilai={<code className="text-meta">{hasil.model}</code>} />
           <Baris

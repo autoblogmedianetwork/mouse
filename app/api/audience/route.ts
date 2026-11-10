@@ -92,6 +92,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     ok: true,
     riset: data,
+    provider: result.provider,
     prompt_version: PROMPT_VERSION,
   });
 }

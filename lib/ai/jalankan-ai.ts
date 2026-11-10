@@ -12,7 +12,13 @@
  * rows are owner-scoped by RLS, so there is no owner to attribute them to.
  */
 import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
-import { generateJSON, type GenerateJSONOptions, type GenerateJSONResult, type UsageAI } from "./generate-json";
+import {
+  generateJSON,
+  resolveApiKey,
+  type GenerateJSONOptions,
+  type GenerateJSONResult,
+  type UsageAI,
+} from "./generate-json";
 import { periksaRateLimit } from "@/lib/rate-limit";
 import { providerKandidat } from "./provider-store";
 import {
@@ -80,10 +86,14 @@ export async function jalankanAI<T>(
 
   // Provider dari DB (jika ada) menggantikan env; coba berurutan (failover).
   const kandidat = supabase && user ? await providerKandidat().catch(() => []) : [];
-  const daftar = kandidat.length > 0 ? kandidat : [null];
+  const daftar: ((typeof kandidat)[number] | null)[] =
+    kandidat.length > 0 ? kandidat : [null];
 
   let result!: GenerateJSONResult<T>;
+  /** Nama provider yang benar-benar dipanggil terakhir (untuk log & respons). */
+  let providerNama: string | undefined;
   for (const p of daftar) {
+    providerNama = p?.nama ?? "env";
     result = await generateJSON<T>(args.prompt, args.schema, {
       retries: args.retries,
       timeoutMs: args.timeoutMs,
@@ -94,6 +104,32 @@ export async function jalankanAI<T>(
     });
     if (result.ok) break;
   }
+
+  // Semua provider database gagal: env jadi jaring terakhir supaya fitur tetap
+  // hidup saat provider tersimpan sedang bermasalah. Hanya bila kuncinya ada.
+  let providerFallback = false;
+  if (!result.ok && kandidat.length > 0 && resolveApiKey()) {
+    const hasilEnv = await generateJSON<T>(args.prompt, args.schema, {
+      retries: args.retries,
+      timeoutMs: args.timeoutMs,
+      temperature: args.temperature,
+      model: args.model,
+    });
+    if (hasilEnv.ok) {
+      result = hasilEnv;
+      providerNama = "env";
+      providerFallback = true;
+    } else {
+      // Pertahankan error provider DB, tambahkan alasan env juga gagal.
+      result.error = `${result.error ?? "Provider database gagal."} Fallback env juga gagal: ${
+        hasilEnv.error ?? "tanpa pesan"
+      }`;
+    }
+  }
+
+  // Sertakan di hasil supaya rute bisa mengembalikannya ke UI/audit.
+  if (result && providerNama) result.provider = providerNama;
+  if (providerFallback) result.providerFallback = true;
 
 
   if (supabase && user) {
@@ -109,6 +145,7 @@ export async function jalankanAI<T>(
       attempts: result.attempts,
       promptVersion: args.promptVersion,
       model: result.model,
+      provider: providerNama,
       ukurans: usage,
       biayaUsd: biaya,
       error: result.error ?? null,

@@ -57,5 +57,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ ok: true, hasil: result.data });
+  return NextResponse.json({ ok: true, hasil: result.data, provider: result.provider });
 }

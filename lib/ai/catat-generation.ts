@@ -62,6 +62,8 @@ export interface CatatanGenerasi {
   promptVersion: string;
   /** Model self-reported by the caller (result.model) beats the env fallback. */
   model?: string;
+  /** Nama provider tersimpan, atau "env" bila memakai env server. */
+  provider?: string;
   ukurans?: UsageAI;
   biayaUsd?: number | null;
   error?: string | null;
@@ -75,13 +77,14 @@ export interface CatatanGenerasi {
 export async function catatGenerasi(
   supabase: SupabaseClient,
   userId: string,
-  { jenis, status, attempts, promptVersion, model, ukurans, biayaUsd, error }: CatatanGenerasi,
+  { jenis, status, attempts, promptVersion, model, provider, ukurans, biayaUsd, error }: CatatanGenerasi,
 ): Promise<boolean> {
   const modelJalan = model?.trim() || process.env.AI_MODEL?.trim() || undefined;
   try {
     const { error: dbError } = await supabase.from("generations").insert({
       user_id: userId,
       ...(modelJalan ? { model: modelJalan } : {}),
+      ...(provider?.trim() ? { provider: provider.trim() } : {}),
       jenis,
       status,
       attempts,
@@ -115,7 +118,7 @@ async function barisBulanIni(supabase: SupabaseClient): Promise<BarisGenerasi[]>
   start.setHours(0, 0, 0, 0);
   const { data, error } = await supabase
     .from("generations")
-    .select("jenis,status,biaya_usd,input_tokens,output_tokens,created_at")
+    .select("jenis,status,biaya_usd,input_tokens,output_tokens,created_at,provider")
     .gte("created_at", start.toISOString());
   if (error) return [];
   return (data ?? []) as BarisGenerasi[];

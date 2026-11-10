@@ -29,6 +29,7 @@ export async function GET() {
       batasUsd,
       persenBulan: 0,
       perFungsi: {},
+      perProvider: {},
       totalTokens: 0,
     });
   }
@@ -40,7 +41,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("generations")
-    .select("jenis,status,biaya_usd,input_tokens,output_tokens,created_at")
+    .select("jenis,status,biaya_usd,input_tokens,output_tokens,created_at,provider")
     .gte("created_at", start.toISOString());
 
   if (error) {

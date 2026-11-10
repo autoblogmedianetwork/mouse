@@ -41,6 +41,7 @@ describe("agregasiGenerations", () => {
       batasUsd: BATAS,
       persenBulan: 0,
       perFungsi: {},
+      perProvider: {},
       totalTokens: 0,
     });
   });
@@ -127,6 +128,22 @@ describe("agregasiGenerations", () => {
   it("batas nol tidak membagi dengan nol", () => {
     const hasil = agregasiGenerations([baris({ biaya_usd: "0.01" })], 0, SEKARANG);
     expect(hasil.persenBulan).toBe(0);
+  });
+
+  it("per provider: menghitung panggilan dan biaya, baris lama jadi 'tidak tercatat'", () => {
+    const hasil = agregasiGenerations(
+      [
+        baris({ provider: "SUMOPOD", biaya_usd: "0.02" }),
+        baris({ provider: "SUMOPOD", biaya_usd: "0.03" }),
+        baris({ provider: "env", biaya_usd: null }),
+        baris({ provider: null }),
+      ],
+      BATAS,
+      SEKARANG,
+    );
+    expect(hasil.perProvider.SUMOPOD).toEqual({ panggilan: 2, usd: 0.05 });
+    expect(hasil.perProvider.env).toEqual({ panggilan: 1, usd: null });
+    expect(hasil.perProvider["tidak tercatat"]).toEqual({ panggilan: 1, usd: null });
   });
 
   it("jenis kosong jatuh ke bucket 'lainnya' dan tidak melempar", () => {

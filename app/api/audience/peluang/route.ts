@@ -173,6 +173,7 @@ export async function POST(req: Request) {
     peluang: (data ?? []).sort(
       (a: { urutan: number }, b: { urutan: number }) => a.urutan - b.urutan,
     ),
+    provider: result.provider,
     prompt_version: PROMPT_VERSION,
   });
 }
