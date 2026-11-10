@@ -37,6 +37,13 @@ import {
 } from "@/lib/riset/preset";
 import { PemilihChip } from "@/components/pemilih-chip";
 import type { ReviewPasar } from "@/lib/ai/schemas";
+import {
+  cariBank,
+  muatBank,
+  simpanBank,
+  tambahKeBank,
+  type ItemBank,
+} from "@/lib/riset/bank-masalah";
 import { AMBANG_DIREKOMENDASIKAN, direkomendasikan } from "@/lib/riset/skor-peluang";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
@@ -76,6 +83,9 @@ export function PanelRiset() {
   const [hasilReview, setHasilReview] = useState<ReviewPasar | null>(null);
   const [sibukReview, setSibukReview] = useState(false);
   const [galatReview, setGalatReview] = useState<string | null>(null);
+  // Fase 3-D: bank masalah yang menumpuk.
+  const [bank, setBank] = useState<ItemBank[]>([]);
+  const [kataKunciBank, setKataKunciBank] = useState("");
   const [riset, setRiset] = useState<Riset | null>(null);
   const [peluang, setPeluang] = useState<Peluang[]>([]);
   const [riwayat, setRiwayat] = useState<Riset[]>([]);
@@ -233,6 +243,23 @@ export function PanelRiset() {
     [riset],
   );
 
+  // Muat bank saat mount; pola sama dengan draft (localStorage setelah mount).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrasi localStorage harus setelah mount agar tidak hydration mismatch
+    setBank(muatBank());
+  }, []);
+
+  const simpanKeBank = useCallback(
+    (masalah: readonly string[], kategori: string, sumber: "riset" | "review") => {
+      setBank((prev) => {
+        const hasil = tambahKeBank(prev, masalah, kategori, sumber);
+        simpanBank(hasil.bank);
+        return hasil.bank;
+      });
+    },
+    [],
+  );
+
   const toggleDari = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
   ) => (nilai: string) =>
@@ -263,6 +290,12 @@ export function PanelRiset() {
         return;
       }
       setHasilReview(json.hasil);
+      // Fase 3-D: masalah + kekurangan asli masuk bank otomatis.
+      simpanKeBank(
+        [...json.hasil.masalah, ...json.hasil.kekurangan_asli],
+        niche.trim(),
+        "review",
+      );
       try {
         window.localStorage.setItem(
           "autothreads-review-pasar",
@@ -276,7 +309,7 @@ export function PanelRiset() {
     } finally {
       setSibukReview(false);
     }
-  }, [niche, audiens, reviewMentah]);
+  }, [niche, audiens, reviewMentah, simpanKeBank]);
 
   const pilihan: PilihanAudiens = {
     usia: usiaPilih ?? undefined,
@@ -519,6 +552,19 @@ export function PanelRiset() {
               <button
                 type="button"
                 className={btnGhost}
+                onClick={() =>
+                  simpanKeBank(
+                    riset.masalah.map((m) => m.masalah),
+                    riset.niche,
+                    "riset",
+                  )
+                }
+              >
+                Simpan masalah ke bank
+              </button>
+              <button
+                type="button"
+                className={btnGhost}
                 onClick={() => unduhCsv(NAMA_BERKAS.riset, csvRiset(riset))}
               >
                 Ekspor {NAMA_BERKAS.riset}
@@ -677,6 +723,46 @@ export function PanelRiset() {
           </div>
         </Card>
       ) : null}
+
+      {/* 3b. Bank masalah (Fase 3-D): aset yang menumpuk */}
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-isi font-semibold">Bank masalah ({bank.length})</h2>
+          <input
+            type="search"
+            value={kataKunciBank}
+            onChange={(e) => setKataKunciBank(e.target.value)}
+            placeholder="Cari masalah atau kategori…"
+            className={`${inputClass} max-w-xs`}
+          />
+        </div>
+        <p className="mt-1 text-badan text-muted-foreground">
+          Kumpulan masalah dari semua riset dan review pasar yang pernah Anda simpan —
+          aset riset milik Anda sendiri.
+        </p>
+        {cariBank(bank, kataKunciBank).length === 0 ? (
+          <p className="mt-3 text-badan text-muted-foreground">
+            {bank.length === 0
+              ? "Masih kosong. Tekan “Simpan masalah ke bank” di hasil riset, atau analisis review pasar."
+              : "Tidak ada yang cocok dengan pencarian."}
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {cariBank(bank, kataKunciBank).map((item, i) => (
+              <li
+                key={`${item.teks}-${i}`}
+                className="flex flex-wrap items-center gap-2 border border-surface-border p-2"
+              >
+                <span className="text-badan">{item.teks}</span>
+                <span className="ml-auto text-meta text-muted-foreground">
+                  {item.kategori} · {item.sumber}
+                  {item.ditambahkan ? ` · ${item.ditambahkan}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {/* 4. Riwayat */}
       <section className="space-y-3">
