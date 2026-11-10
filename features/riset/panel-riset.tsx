@@ -11,7 +11,7 @@
  * Semua keluaran AI berstatus draft: kategori baru menjadi produk setelah
  * user menekan "Buat produk", dan harga/tautan tetap diisi user.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Card } from "@/components/card";
 import { PesanGalat } from "@/components/pesan-galat";
@@ -36,6 +36,8 @@ import {
   type PilihanAudiens,
 } from "@/lib/riset/preset";
 import { PemilihChip } from "@/components/pemilih-chip";
+import { useAtribusi } from "@/features/performa/use-atribusi";
+import { rekomendasiDariPerforma } from "@/lib/performa/rekomendasi";
 import type { ReviewPasar } from "@/lib/ai/schemas";
 import {
   cariBank,
@@ -86,6 +88,12 @@ export function PanelRiset() {
   // Fase 3-D: bank masalah yang menumpuk.
   const [bank, setBank] = useState<ItemBank[]>([]);
   const [kataKunciBank, setKataKunciBank] = useState("");
+  // Fase 3-E: lingkaran performa -> riset.
+  const atribusi = useAtribusi();
+  const rekomendasi = useMemo(
+    () => rekomendasiDariPerforma(atribusi.hasil),
+    [atribusi.hasil],
+  );
   const [riset, setRiset] = useState<Riset | null>(null);
   const [peluang, setPeluang] = useState<Peluang[]>([]);
   const [riwayat, setRiwayat] = useState<Riset[]>([]);
@@ -466,6 +474,25 @@ export function PanelRiset() {
           <p role="status" className="mt-3 bg-muted px-3 py-2 text-badan">
             {catatan}
           </p>
+        ) : null}
+      </Card>
+
+      {/* 1a. Rekomendasi dari performa (Fase 3-E): lingkaran riset tertutup */}
+      <Card>
+        <h2 className="text-isi font-semibold">Pelajaran dari performa Anda</h2>
+        <p className="mt-1 text-badan text-muted-foreground">
+          Dihitung dari data Analitik Anda sendiri — gaya pembuka dan posisi link
+          yang terbukti menghasilkan.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {rekomendasi.map((r) => (
+            <li key={r.dimensi} className="border border-surface-border p-3 text-badan">
+              <span className="font-medium">{r.teks}</span>
+            </li>
+          ))}
+        </ul>
+        {!atribusi.siap ? (
+          <p className="mt-2 text-meta text-muted-foreground">Memuat data performa…</p>
         ) : null}
       </Card>
 
