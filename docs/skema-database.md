@@ -212,6 +212,20 @@ Satu baris per user.
 | data | jsonb | model default, batas biaya (K6), aturan kepercayaan, retensi, scraping (default false) |
 | updated_at | timestamptz | |
 
+### ai_provider
+Provider AI per user (opsi B). Kunci API disimpan terenkripsi (AES-256-GCM) di `api_key_enc`.
+
+| Kolom | Tipe | Keterangan |
+|---|---|---|
+| id | uuid pk | |
+| user_id | uuid fk auth.users | |
+| nama | text | |
+| base_url | text | |
+| model | text | |
+| api_key_enc | text | terenkripsi, tidak pernah dikirim terang ke klien |
+| is_active | boolean | satu aktif per user (partial unique index) |
+| created_at, updated_at | timestamptz | |
+
 ---
 
 ## 5. Storage

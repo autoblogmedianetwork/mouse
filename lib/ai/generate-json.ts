@@ -33,6 +33,10 @@ export interface GenerateJSONResult<T> {
 export interface GenerateJSONOptions {
   /** Extra attempts after the first try. Default 1 (PRD 10.3). */
   retries?: number;
+  /** API key eksplisit (dari provider DB). Jika ada, menggantikan env. */
+  apiKey?: string;
+  /** Base URL eksplisit (dari provider DB). Jika ada, menggantikan env. */
+  baseURL?: string;
   /** Override model; default from AI_MODEL or DEFAULT_MODEL. */
   model?: string;
   temperature?: number;
@@ -153,10 +157,10 @@ export async function generateJSON<T>(
 ): Promise<GenerateJSONResult<T>> {
   const retries = Math.max(0, options.retries ?? 1);
   const model = resolveModel(options.model, process.env.AI_MODEL, process.env.AI_BASE_URL);
-  const baseURL = resolveBaseURL(undefined, process.env.AI_BASE_URL, process.env.AI_MODEL);
+  const baseURL = resolveBaseURL(options.baseURL, process.env.AI_BASE_URL, process.env.AI_MODEL);
 
   // Server-only: kunci AI tidak pernah sampai ke klien (AGENTS rule 11).
-  const apiKey = resolveApiKey();
+  const apiKey = options.apiKey?.trim() || resolveApiKey();
   if (!apiKey) {
     return {
       ok: false,

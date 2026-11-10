@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Card } from "@/components/card";
 import { PembersihDataContoh } from "@/features/onboarding/pembersih-data-contoh";
 import { CekKesehatanAI } from "./cek-ai";
+import { AiProviderManager } from "./ai-provider-manager";
 import { usePosting } from "@/features/posting/use-posting";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import {
@@ -253,6 +254,9 @@ export function FormPengaturan() {
           </div>
           <div className="sm:col-span-2">
             <CekKesehatanAI />
+          </div>
+          <div className="sm:col-span-2">
+            <AiProviderManager />
           </div>
           <div className="sm:col-span-2">
             <Toggle

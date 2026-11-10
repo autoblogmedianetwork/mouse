@@ -13,6 +13,7 @@
  */
 import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
 import { generateJSON, type GenerateJSONOptions, type GenerateJSONResult, type UsageAI } from "./generate-json";
+import { providerAktif } from "./provider-store";
 import {
   catatGenerasi,
   hitungBiayaUsd,
@@ -64,11 +65,16 @@ export async function jalankanAI<T>(
     }
   }
 
+  // Provider aktif dari DB (jika ada) menggantikan env.
+  const aktif = supabase && user ? await providerAktif().catch(() => null) : null;
+
   const result = await generateJSON<T>(args.prompt, args.schema, {
     retries: args.retries,
     timeoutMs: args.timeoutMs,
     temperature: args.temperature,
-    model: args.model,
+    model: args.model ?? aktif?.model,
+    apiKey: aktif?.apiKey,
+    baseURL: aktif?.baseUrl,
   });
 
   if (supabase && user) {

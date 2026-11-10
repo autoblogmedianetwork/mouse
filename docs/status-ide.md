@@ -69,6 +69,7 @@ _(kosong — semua ide lokal sudah dibuat)_
   paralel universe (`/api/paralel`), konten dari foto (`/api/foto`).
 - Gamifikasi, notifikasi proaktif, time capsule (lokal).
 - Mirror competitor (manual, tanpa scraping) sudah dibuat (`/api/mirror`).
+- Provider AI per user terenkripsi (opsi B) sudah dibuat (`/api/ai-provider`, Pengaturan).
 
 Catatan: semua jalur AI di repo ini memakai `AI_BASE_URL` / `AI_API_KEY` /
 `AI_MODEL` di server. Per 11 November 2026, kunci Sumopod sudah tersedia di
