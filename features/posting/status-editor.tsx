@@ -6,6 +6,8 @@ import { MAX_STATUS_LENGTH, charLength } from "@/lib/statuses/validator-500";
 import { splitIntoStatuses } from "@/lib/statuses/pemisah";
 import { salinKeClipboard, teksStatus } from "@/lib/konten/salin";
 import { cn } from "@/lib/utils";
+import { periksaKataTerlarang } from "@/lib/konten/kata-terlarang";
+import { muatSnippet, type SnippetCTA } from "@/lib/konten/snippet-cta";
 
 /**
  * StatusEditor (UI-Spec 4): ordered list of statuses with per-status
@@ -23,6 +25,9 @@ export function StatusEditor({
   batas?: number;
 }) {
   const [hasilSalin, setHasilSalin] = useState<{ index: number; ok: boolean } | null>(null);
+  const [daftarSnippet] = useState<SnippetCTA[]>(() => muatSnippet());
+
+  const deteksiGlobal = periksaKataTerlarang(statuses);
 
   /** Salin satu status; kalau clipboard ditolak, teksnya tetap ada di editor. */
   const salinStatus = async (index: number) => {
@@ -40,6 +45,19 @@ export function StatusEditor({
   const remove = (index: number) => onChange(statuses.filter((_, i) => i !== index));
 
   const add = () => onChange([...statuses, ""]);
+
+  const sisipSnippet = (teksSnippet: string) => {
+    if (statuses.length === 0) {
+      onChange([teksSnippet]);
+      return;
+    }
+    const indexTerakhir = statuses.length - 1;
+    const teksLama = statuses[indexTerakhir] ?? "";
+    const teksBaru = teksLama ? `${teksLama}\n\n${teksSnippet}` : teksSnippet;
+    const next = [...statuses];
+    next[indexTerakhir] = teksBaru;
+    onChange(next);
+  };
 
   const split = (index: number) => {
     const parts = splitIntoStatuses(statuses[index], batas);
@@ -66,6 +84,49 @@ export function StatusEditor({
         Maksimal {batas} karakter per status (aturan #7). Teks yang
         kepanjangan bisa dipecah otomatis di batas paragraf/kalimat.
       </p>
+
+      {/* Snippet CTA Cepat (ADR 0020) */}
+      {daftarSnippet.length > 0 ? (
+        <div className="mt-3 border border-surface-border/80 bg-muted/30 p-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-meta font-medium text-muted-foreground">
+              + Sisip CTA:
+            </span>
+            {daftarSnippet.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => sisipSnippet(s.teks)}
+                title={s.teks}
+                className="border border-surface-border bg-background px-2 py-0.5 text-meta hover:bg-muted"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Peringatan Kamus Kata Terlarang (ADR 0020) */}
+      {deteksiGlobal.ditemukan ? (
+        <div className="mt-3 border border-warning/50 bg-warning/10 p-3 text-meta">
+          <p className="font-semibold text-warning-foreground">
+            ⚠️ Terdeteksi kata berisiko / klaim berlebihan ({deteksiGlobal.temuan.length}):
+          </p>
+          <ul className="mt-1.5 list-disc space-y-1 pl-4 text-badan">
+            {deteksiGlobal.temuan.map((t, idx) => (
+              <li key={idx}>
+                <span className="font-mono font-semibold text-status-failed">&ldquo;{t.rule.kata}&rdquo;</span>
+                {" \u2014 "}
+                <span>{t.rule.alasan}</span>
+                {t.rule.saran ? (
+                  <span className="text-muted-foreground"> (Saran: {t.rule.saran})</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <ol className="mt-4 space-y-4">
         {statuses.map((status, index) => {

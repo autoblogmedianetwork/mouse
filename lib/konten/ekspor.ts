@@ -73,6 +73,60 @@ export function eksporTXT(list: Konten[]): string {
     .join("\n");
 }
 
+/** Escape field for standard CSV RFC 4180. */
+function escapeCsv(val: string | number | boolean | null | undefined): string {
+  if (val === null || val === undefined) return '""';
+  const str = String(val);
+  if (str.includes('"') || str.includes(",") || str.includes("\n") || str.includes("\r")) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return `"${str}"`;
+}
+
+/**
+ * Export contents to CSV suitable for Google Sheets or Microsoft Excel.
+ */
+export function eksporCSV(list: Konten[]): string {
+  const headers = [
+    "ID",
+    "Judul",
+    "Status",
+    "Kerangka",
+    "Produk",
+    "Link Produk",
+    "Letak Link",
+    "Jadwal Tayang",
+    "Arsip",
+    "Jumlah Status",
+    "Hook / Status Pertama",
+    "Semua Status (Gabungan)",
+    "Terakhir Diubah",
+  ];
+
+  const rows = list.map((k) => {
+    const hook = k.statuses[0] ?? "";
+    const gabunganStatus = k.statuses.map((s, i) => `[${i + 1}] ${s}`).join("\n\n");
+    return [
+      escapeCsv(k.id),
+      escapeCsv(k.judul),
+      escapeCsv(k.status),
+      escapeCsv(k.kerangka ?? "bebas"),
+      escapeCsv(k.produk_nama ?? ""),
+      escapeCsv(k.link_produk ?? ""),
+      escapeCsv(k.letak_link),
+      escapeCsv(k.jadwal_at ?? ""),
+      escapeCsv(k.arsip ? "Ya" : "Tidak"),
+      escapeCsv(k.statuses.length),
+      escapeCsv(hook),
+      escapeCsv(gabunganStatus),
+      escapeCsv(k.updated_at),
+    ].join(",");
+  });
+
+  // Include UTF-8 BOM so Excel opens accents and special characters cleanly
+  return `\uFEFF${headers.join(",")}\r\n${rows.join("\r\n")}`;
+}
+
 /** Merge imported entries into an existing library; newer updated_at wins. */
 export function gabungKonten(existing: Konten[], imported: Konten[]): Konten[] {
   const byId = new Map<string, Konten>();

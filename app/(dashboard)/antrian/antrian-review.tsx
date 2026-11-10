@@ -23,7 +23,7 @@ import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
 import type { StatistikBiaya } from "@/lib/ai/statistik";
 import { usePosting } from "@/features/posting/use-posting";
 import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
-import { eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
+import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import {
   TAB_REVIEW,
@@ -307,10 +307,12 @@ export function AntrianReview() {
     );
   };
 
-  const ekspor = (format: "json" | "txt") => {
+  const ekspor = (format: "json" | "txt" | "csv") => {
     const stamp = new Date().toISOString().slice(0, 10);
     if (format === "json") {
       unduh(`autothreads-cadangan-${stamp}.json`, eksporJSON(konten), "application/json");
+    } else if (format === "csv") {
+      unduh(`autothreads-konten-${stamp}.csv`, eksporCSV(hasil), "text/csv;charset=utf-8");
     } else {
       unduh(`autothreads-konten-${stamp}.txt`, eksporTXT(hasil), "text/plain");
     }
@@ -485,6 +487,9 @@ export function AntrianReview() {
         </select>
 
         <div className="flex flex-wrap gap-2 sm:ml-auto">
+          <button type="button" onClick={() => ekspor("csv")} className={btnGhost}>
+            Ekspor CSV
+          </button>
           <button type="button" onClick={() => ekspor("json")} className={btnGhost}>
             Ekspor JSON
           </button>

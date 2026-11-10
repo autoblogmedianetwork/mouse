@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eksporJSON, eksporTXT, gabungKonten, imporJSON } from "./ekspor";
+import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "./ekspor";
 import { filterKonten, kontenSkema, type Konten } from "./skema";
 
 function buatKonten(overrides: Partial<Konten> = {}): Konten {
@@ -70,6 +70,21 @@ describe("eksporTXT", () => {
     const txt = eksporTXT([buatKonten()]);
     expect(txt).toContain("=== Kaos polos hitam ===");
     expect(txt.indexOf("[1]")).toBeLessThan(txt.indexOf("[2]"));
+  });
+});
+
+describe("eksporCSV", () => {
+  it("menghasilkan CSV valid dengan BOM UTF-8 dan header yang lengkap", () => {
+    const k = buatKonten({
+      judul: 'Kaos "Oversize", Keren',
+      produk_nama: "Kaos Polos",
+      statuses: ["Hook pertama", "Badan kedua"],
+    });
+    const csv = eksporCSV([k]);
+    expect(csv.startsWith("\uFEFF")).toBe(true);
+    expect(csv).toContain("ID,Judul,Status,Kerangka,Produk");
+    expect(csv).toContain('""Oversize""'); // escaped quotes
+    expect(csv).toContain("Hook pertama");
   });
 });
 
