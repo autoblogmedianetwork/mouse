@@ -24,6 +24,7 @@ import type { StatistikBiaya } from "@/lib/ai/statistik";
 import { usePosting } from "@/features/posting/use-posting";
 import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
 import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
+import { kemasanMultiPlatform } from "@/lib/konten/kemasan-multi-platform";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import {
   TAB_REVIEW,
@@ -247,6 +248,15 @@ export function AntrianReview() {
   const salinUtas = (k: Konten) => {
     void navigator.clipboard.writeText(k.statuses.map((s) => s.trim()).join("\n\n"));
     setPesan(`Utas “${k.judul}” disalin ke clipboard.`);
+  };
+
+  /** Kemasan 3 platform (Gelombang 2): utas + caption TikTok + status WA sekaligus. */
+  const salinKemasan = (k: Konten) => {
+    const kemasan = kemasanMultiPlatform(k);
+    void navigator.clipboard.writeText(kemasan.teks);
+    setPesan(
+      `Kemasan “${k.judul}” disalin: utas Threads, caption TikTok, dan status WhatsApp.`,
+    );
   };
 
   const salinSubId = (id: string) => {
@@ -643,6 +653,14 @@ export function AntrianReview() {
                       {a.label}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => salinKemasan(k)}
+                    className={btnGhost}
+                    title="Salin utas Threads + caption TikTok + status WhatsApp"
+                  >
+                    Kemasan 3 platform
+                  </button>
                 </div>
               </Card>
             </li>

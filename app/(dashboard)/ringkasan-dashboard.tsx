@@ -31,6 +31,13 @@ export function RingkasanDashboard() {
   const { simpanan: performa, siap: performaSiap } = usePerforma();
 
   const ringkas = useMemo(() => ringkasanKonten(konten), [konten]);
+  const bulanIni = useMemo(() => {
+    const now = new Date();
+    return konten.filter((k) => {
+      const dibuat = new Date(k.created_at);
+      return dibuat.getMonth() === now.getMonth() && dibuat.getFullYear() === now.getFullYear();
+    }).length;
+  }, [konten]);
   const ringkasPerf = useMemo(() => ringkasPerforma(performa.baris), [performa.baris]);
   const adaPerforma = performa.baris.length > 0;
 
@@ -66,7 +73,11 @@ export function RingkasanDashboard() {
       {/* Pengingat di paling atas; panel menyembunyikan dirinya bila kosong. */}
       <PanelPengingat />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Konten total" nilai={ringkas.total} catatan="Tidak termasuk arsip" />
+        <StatCard
+          label="Konten total"
+          nilai={ringkas.total}
+          catatan={`${bulanIni} dibuat bulan ini · tanpa arsip`}
+        />
         <StatCard label="Draft" nilai={ringkas.draft} tone="draft" catatan="Sedang dikerjakan" />
         <StatCard label="Siap posting" nilai={ringkas.siap} tone="siap" catatan="Menunggu disalin ke Threads" />
         <StatCard label="Arsip" nilai={ringkas.arsip} catatan="Retensi 90 hari (K3)" />

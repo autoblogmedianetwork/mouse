@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { z } from "zod";
 import { Card } from "@/components/card";
+import { PembersihDataContoh } from "@/features/onboarding/pembersih-data-contoh";
 import { usePosting } from "@/features/posting/use-posting";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import {
@@ -341,6 +342,7 @@ export function FormPengaturan() {
             Keputusan K3: 90 hari sejak konten diarsipkan.
           </p>
         </div>
+        <PembersihDataContoh />
       </Section>
     </div>
   );
