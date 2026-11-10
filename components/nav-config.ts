@@ -34,6 +34,8 @@ export interface MenuItem {
 export const MENU_ITEMS: MenuItem[] = [
   // Workspace
   { label: "Dashboard", href: "/", group: "workspace", fase: "MVP" },
+  // Mode fokus harian (Level 3): satu layar "hari ini posting apa" + streak.
+  { label: "Fokus harian", href: "/fokus", group: "workspace", fase: "MVP" },
   // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
   { label: "Riset audiens", href: "/riset", group: "workspace", fase: "MVP" },
   { label: "Buat posting", href: "/posting/baru", group: "workspace", fase: "MVP" },

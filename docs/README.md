@@ -35,6 +35,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `adr/0023-lab-konten-gelombang-3.md` | lab uji pembeli, mesin ide dari bank masalah, serial 7 hari |
 | `adr/0024-statistik-bank-hashtag-dan-pengingat-cadangan.md` | statistik bank masalah, pembangkit hashtag lokal, pengingat cadangan |
 | `adr/0025-pencarian-global-riwayat-favorit-tag.md` | pencarian global, riwayat riset, favorit produk, tag produk |
+| `adr/0026-mode-fokus-harian.md` | mode fokus harian dan streak |
 | `status-ide.md` | rekap ide fitur: sudah jadi, separuh, dan sisa pekerjaan |
 | `Template-Video-Affiliate.md` | acuan modul video (storyboard, JSON Google Flow, checklist) |
 | `dependency.md` | semua tool dan layanan beserta status dan fasenya |

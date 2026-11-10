@@ -26,6 +26,7 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 | Riwayat pencarian riset (niche + audiens) | `lib/riset/riwayat-pencarian.ts`, `PanelRiset` |
 | Favorit/pin produk | `lib/produk/favorit.ts`, form produk |
 | Tag/label produk + filter | `lib/produk/tag.ts`, form produk |
+| Mode fokus harian + streak | `lib/konten/fokus.ts`, halaman `/fokus` |
 | Kalkulator komisi & target cuan | `lib/affiliate/kalkulator-komisi.ts`, dashboard |
 | Pembangkit hashtag lokal | `lib/konten/hashtag.ts`, `/lab` bagian 4 |
 | Kemasan 1 konten → Threads + TikTok + WA | `lib/konten/kemasan-multi-platform.ts`, `/antrian` |
@@ -45,10 +46,9 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 
 ## 3. Belum dibuat — lokal, tanpa API (prioritas berikutnya)
 
-1. **Mode fokus harian + streak** — satu layar "hari ini posting apa".
-2. **Peta panen komisi** — heatmap hari/jam dari data performa yang sudah diimpor.
-3. **A/B manual 5 varian hook** + pencatatan pemenang di Analitik.
-4. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
+1. **Peta panen komisi** — heatmap hari/jam dari data performa yang sudah diimpor.
+2. **A/B manual 5 varian hook** + pencatatan pemenang di Analitik.
+3. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
 
 ## 4. Belum dibuat — butuh kunci AI hidup
 
