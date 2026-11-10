@@ -15,6 +15,7 @@ import { PerformaLengkap } from "@/features/impor/performa-ringkas";
 import { usePerforma } from "@/features/impor/use-performa";
 import { BagianPerformaKonten } from "@/features/performa/performa-konten";
 import { PetaPanenKomisi } from "@/features/performa/peta-panen";
+import { EksperimenHookPanel } from "@/features/analitik/eksperimen-hook";
 
 export function AnalitikPerforma() {
   const { simpanan, siap } = usePerforma();
@@ -42,6 +43,8 @@ export function AnalitikPerforma() {
       <PerformaLengkap ringkas={ringkas} />
 
       <PetaPanenKomisi baris={simpanan.baris} />
+
+      <EksperimenHookPanel />
 
       <BagianPerformaKonten lengkap />
 

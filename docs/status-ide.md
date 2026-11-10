@@ -36,6 +36,7 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 | Serial 7 hari (AI) | `/lab` bagian 3, `app/api/serial-7-hari` |
 | Lab uji / simulator 3 pembeli (AI) | `/lab` bagian 1, `app/api/lab-uji` |
 | Peta panen komisi (hari × blok jam) | `lib/performa/peta-panen.ts`, `/analitik` |
+| Eksperimen hook A/B manual (hingga 5 varian, pencatatan pemenang) | `lib/konten/eksperimen-hook.ts`, `/analitik` |
 
 ## 2. Baru separuh
 
@@ -45,8 +46,7 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 
 ## 3. Belum dibuat — lokal, tanpa API (prioritas berikutnya)
 
-1. **A/B manual 5 varian hook** + pencatatan pemenang di Analitik.
-2. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
+1. **Batch generate 3–5 produk** (butuh antrean job; tetap review satu-satu).
 
 ## 4. Belum dibuat — butuh kunci AI hidup
 

@@ -38,6 +38,7 @@ awan, jadi ada berkas yang lebih baru dan ada yang lebih lama dari versi di sini
 | `adr/0026-mode-fokus-harian.md` | mode fokus harian dan streak |
 | `adr/0027-skor-shadowban-lampu-merah.md` | skor shadowban gabungan dan lampu merah sebelum salin |
 | `adr/0028-peta-panen-komisi.md` | peta panen komisi dari jam pesanan yang ikut diimpor |
+| `adr/0029-eksperimen-hook-ab-manual.md` | eksperimen A/B hook manual dengan pencatatan pemenang |
 | `status-ide.md` | rekap ide fitur: sudah jadi, separuh, dan sisa pekerjaan |
 | `Template-Video-Affiliate.md` | acuan modul video (storyboard, JSON Google Flow, checklist) |
 | `dependency.md` | semua tool dan layanan beserta status dan fasenya |
