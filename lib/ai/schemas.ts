@@ -273,6 +273,35 @@ export const peluangProdukSkema = z.object({
 export type PeluangItem = z.infer<typeof peluangItemSkema>;
 export type PeluangProduk = z.infer<typeof peluangProdukSkema>;
 
+
+/* ------------------------ Review pasar (Fase 3-C) ------------------------- */
+
+export const reviewPasarSkema = z.object({
+  klasifikasi: z
+    .array(
+      z.object({
+        ringkas: z.string().min(1).max(200),
+        jenis: z.enum(["keluhan", "pujian", "campuran"]),
+        bintang: z.number().int().min(1).max(5).nullable().optional(),
+      }),
+    )
+    .max(30),
+  masalah: z.array(z.string().min(1).max(200)).max(8),
+  angle: z.array(z.string().min(1).max(200)).max(6),
+  kosakata: z.array(z.string().min(1).max(120)).max(10),
+  red_flag: z.array(z.string().min(1).max(200)).max(5),
+  kekurangan_asli: z.array(z.string().min(1).max(200)).max(5),
+});
+
+export const reviewPasarRequestSkema = z.object({
+  niche: z.string().trim().min(3).max(120),
+  audiens: z.string().trim().min(3).max(300),
+  /** Review mentah yang ditempel user; batas longgar karena copas blok. */
+  review_mentah: z.string().trim().min(30, "Tempel minimal satu review lengkap.").max(8000),
+});
+
+export type ReviewPasar = z.infer<typeof reviewPasarSkema>;
+
 /* --------------------------- Request bodies (API) ----------------------------- */
 
 export const risetRequestSkema = z.object({
