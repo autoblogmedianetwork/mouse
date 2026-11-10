@@ -92,6 +92,7 @@ diganti lewat `AI_MODEL`. Llama, Qwen, dan Mistral free tier sudah dihapus dari 
 5. **Pindah provider tanpa ubah fitur.** Cukup ganti `AI_BASE_URL`, `AI_MODEL`, dan `AI_API_KEY` di server, skema tetap sama.
 6. **Gambar hanya dikirim jika user mengunggah.** Foto dari listing seller hanya untuk referensi internal (lihat F0 di PRD).
 7. **API key hanya di server.** `AI_API_KEY` dan `OPENROUTER_API_KEY` tidak pernah sampai ke klien (AGENTS aturan 11). Lewat Vercel → Settings → Environment Variables, tidak lewat chat.
+8. **Kesehatan provider bisa dicek dari UI.** Pengaturan → AI → **Cek koneksi AI** memanggil `GET /api/ai/kesehatan` (sesi wajib). Pemeriksaan menjalankan tiga langkah: baca konfigurasi server, baca katalog `{base}/models`, lalu satu panggilan chat sungguhan lewat `generateJSON` dengan skema kecil. Hasilnya base URL, model, jumlah model di katalog, latensi, dan pesan galat ringkas — nilai kunci hanya dilaporkan ada/tidak. Langkah chat wajib ada karena ada provider yang menjawab katalog 200 walau kuncinya tidak berlaku untuk chat.
 
 ---
 

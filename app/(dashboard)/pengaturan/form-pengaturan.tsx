@@ -4,6 +4,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { Card } from "@/components/card";
 import { PembersihDataContoh } from "@/features/onboarding/pembersih-data-contoh";
+import { CekKesehatanAI } from "./cek-ai";
 import { usePosting } from "@/features/posting/use-posting";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import {
@@ -249,6 +250,9 @@ export function FormPengaturan() {
               }
               className={inputClass}
             />
+          </div>
+          <div className="sm:col-span-2">
+            <CekKesehatanAI />
           </div>
           <div className="sm:col-span-2">
             <Toggle
