@@ -26,6 +26,16 @@ import {
   type Riset,
 } from "@/lib/riset/skema";
 import { daftarPeluang, daftarRiset, jadikanProduk } from "@/lib/riset/store";
+import {
+  KARTU_PERSONA,
+  PILIHAN_GENDER,
+  PILIHAN_MINAT,
+  PILIHAN_PERILAKU,
+  PILIHAN_USIA,
+  bangunDeskripsiAudiens,
+  type PilihanAudiens,
+} from "@/lib/riset/preset";
+import { PemilihChip } from "@/components/pemilih-chip";
 import { AMBANG_DIREKOMENDASIKAN, direkomendasikan } from "@/lib/riset/skor-peluang";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
@@ -55,6 +65,11 @@ export function PanelRiset() {
   const siap = supabaseSiap();
   const [niche, setNiche] = useState(NICHE_AWAL);
   const [audiens, setAudiens] = useState("");
+  // Fase 3-B: pilihan preset (kartu persona + chip ala Meta Ads).
+  const [usiaPilih, setUsiaPilih] = useState<string | null>(null);
+  const [genderPilih, setGenderPilih] = useState<string | null>(null);
+  const [minatPilih, setMinatPilih] = useState<string[]>([]);
+  const [perilakuPilih, setPerilakuPilih] = useState<string[]>([]);
   const [riset, setRiset] = useState<Riset | null>(null);
   const [peluang, setPeluang] = useState<Peluang[]>([]);
   const [riwayat, setRiwayat] = useState<Riset[]>([]);
@@ -212,6 +227,21 @@ export function PanelRiset() {
     [riset],
   );
 
+  const toggleDari = (
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+  ) => (nilai: string) =>
+    setter((prev) =>
+      prev.includes(nilai) ? prev.filter((x) => x !== nilai) : [...prev, nilai],
+    );
+
+  const pilihan: PilihanAudiens = {
+    usia: usiaPilih ?? undefined,
+    gender: genderPilih ?? undefined,
+    minat: minatPilih,
+    perilaku: perilakuPilih,
+  };
+  const pratinjauPreset = bangunDeskripsiAudiens(pilihan);
+
   return (
     <div className="space-y-6">
       {/* 1. Input riset */}
@@ -221,6 +251,76 @@ export function PanelRiset() {
           Satu niche dan satu target audiens menghasilkan 10 masalah nyata, lalu 20 kategori
           produk yang berpotensi dipromosikan di Threads. Semua hasil berstatus draft.
         </p>
+
+        {/* Fase 3-B: preset tinggal pilih — kartu persona + chip ala Meta Ads. */}
+        <div className="mt-4">
+          <p className="mb-2 text-badan font-medium">Kartu persona (tinggal pilih)</p>
+          <div className="flex flex-wrap gap-2">
+            {KARTU_PERSONA.map((kartu) => (
+              <button
+                key={kartu.id}
+                type="button"
+                title={kartu.deskripsi}
+                onClick={() => {
+                  setAudiens(kartu.deskripsi);
+                  setUsiaPilih(null);
+                  setGenderPilih(null);
+                  setMinatPilih([]);
+                  setPerilakuPilih([]);
+                }}
+                className="h-8 border border-surface-border bg-surface px-3 text-meta font-medium transition-colors hover:border-primary"
+              >
+                {kartu.nama}
+              </button>
+            ))}
+          </div>
+
+          <p className="mb-2 mt-4 text-badan font-medium">
+            Atau rakit sendiri (ala iklan Meta):
+          </p>
+          <div className="space-y-2">
+            <PemilihChip
+              labelGrup="Usia"
+              pilihan={PILIHAN_USIA}
+              terpilih={usiaPilih ? [usiaPilih] : []}
+              onPilih={(v) => setUsiaPilih((prev) => (prev === v ? null : v))}
+            />
+            <PemilihChip
+              labelGrup="Gender"
+              pilihan={PILIHAN_GENDER}
+              terpilih={genderPilih ? [genderPilih] : []}
+              onPilih={(v) => setGenderPilih((prev) => (prev === v ? null : v))}
+            />
+            <PemilihChip
+              labelGrup="Minat"
+              pilihan={PILIHAN_MINAT}
+              terpilih={minatPilih}
+              multi
+              onPilih={toggleDari(setMinatPilih)}
+            />
+            <PemilihChip
+              labelGrup="Perilaku belanja"
+              pilihan={PILIHAN_PERILAKU}
+              terpilih={perilakuPilih}
+              multi
+              onPilih={toggleDari(setPerilakuPilih)}
+            />
+          </div>
+          {pratinjauPreset ? (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-badan text-muted-foreground">
+                Hasil rakitan: <span className="text-foreground">{pratinjauPreset}</span>
+              </p>
+              <button
+                type="button"
+                className={btnGhost}
+                onClick={() => setAudiens(pratinjauPreset)}
+              >
+                Pakai untuk riset
+              </button>
+            </div>
+          ) : null}
+        </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
