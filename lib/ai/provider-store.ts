@@ -49,6 +49,35 @@ export function dekripsiApiKey(enc: string): string {
   return pt.toString("utf8");
 }
 
+export async function providerKandidat(): Promise<ProviderAISecret[]> {
+  const supabase = await klienServer();
+  const user = supabase ? await penggunaSaatIni() : null;
+  if (!supabase || !user) return [];
+  const { data, error } = await supabase
+    .from("ai_provider")
+    .select("id,nama,base_url,model,api_key_enc,is_active,created_at")
+    .eq("user_id", user.id)
+    .order("is_active", { ascending: false })
+    .order("created_at", { ascending: true });
+  if (error || !data) return [];
+  const out: ProviderAISecret[] = [];
+  for (const row of data) {
+    try {
+      out.push({
+        id: row.id,
+        nama: row.nama,
+        baseUrl: row.base_url,
+        model: row.model,
+        isActive: row.is_active,
+        apiKey: dekripsiApiKey(row.api_key_enc),
+      });
+    } catch {
+      // skip provider yang gagal didekripsi
+    }
+  }
+  return out;
+}
+
 export async function daftarProvider(): Promise<ProviderAI[]> {
   const supabase = await klienServer();
   const user = supabase ? await penggunaSaatIni() : null;
