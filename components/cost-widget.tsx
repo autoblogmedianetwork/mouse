@@ -109,7 +109,7 @@ export function CostWidget({
           </p>
 
           {providerTeratas.length > 0 ? (
-            <p className="mt-1 text-meta text-muted-foreground">
+            <p className="mt-1 hidden text-meta text-muted-foreground sm:block">
               Provider: {providerTeratas.join(" · ")}
             </p>
           ) : null}

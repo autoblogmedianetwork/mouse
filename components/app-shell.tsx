@@ -15,6 +15,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { menuUntuk } from "@/lib/nav/aktif";
+import { BudgetIndicator } from "./budget-indicator";
 import { GROUP_LABELS, MENU_ITEMS, labelHalaman, type MenuItem } from "./nav-config";
 import { ShellPengguna } from "./shell-pengguna";
 
@@ -175,6 +176,7 @@ export function AppShell({
             ›
           </span>
           <Breadcrumb />
+          <BudgetIndicator />
         </header>
 
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
