@@ -1,21 +1,26 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { labelMarketplace } from "@/lib/affiliate/rules";
 import { Card } from "@/components/card";
 import { MAX_CLEAN_DESCRIPTION_LENGTH, charLength, cleanDescription } from "@/lib/produk/bersihkan-deskripsi";
 import { productFormSchema, type ProductFormValues } from "@/lib/produk/skema";
 import { cn } from "@/lib/utils";
+import { KEY_PRODUK, simpanProduk } from "@/lib/produk/store";
+import { muatFavorit, simpanFavorit, toggleFavorit, urutkanFavorit } from "@/lib/produk/favorit";
+import { cocokTag, parseTag, semuaTag } from "@/lib/produk/tag";
 
-const STORAGE_KEY = "autothreads-products";
+const STORAGE_KEY = KEY_PRODUK;
 
 export interface SavedProduct extends ProductFormValues {
   id: string;
   saved_at: string;
   /** Cleaned description (PRD 10.1), computed at save time. */
   deskripsi_bersih: string;
+  /** Label pribadi (mis. "komisi besar"); opsional untuk data lama. */
+  tag?: string[];
 }
 
 function loadSavedProducts(): SavedProduct[] {
@@ -47,6 +52,9 @@ export function FormProdukManual({
 }) {
   const [saved, setSaved] = useState<SavedProduct[]>([]);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [tagTeks, setTagTeks] = useState("");
+  const [favorit, setFavorit] = useState<string[]>([]);
+  const [filterTag, setFilterTag] = useState("");
 
   const {
     register,
@@ -74,21 +82,33 @@ export function FormProdukManual({
   const cleaned = useMemo(() => cleanDescription(deskripsiValue), [deskripsiValue]);
   const cleanedLength = useMemo(() => charLength(cleaned), [cleaned]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- baca localStorage setelah mount agar markup server dan klien sama
+    setSaved(loadSavedProducts());
+    setFavorit(muatFavorit());
+  }, []);
+
   const onSubmit = handleSubmit((values) => {
     const product: SavedProduct = {
       ...values,
       harga: values.harga ? values.harga : undefined,
       deskripsi_bersih: cleaned,
+      tag: parseTag(tagTeks),
       id: crypto.randomUUID(),
       saved_at: new Date().toISOString(),
     };
     const next = [product, ...loadSavedProducts()];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    simpanProduk(next);
     setSaved(next);
     setSavedMessage("Produk tersimpan sementara di browser (localStorage).");
     onSaved?.(product);
     reset();
+    setTagTeks("");
   });
+
+  const daftarProduk = urutkanFavorit(saved, favorit).filter((p) =>
+    filterTag === "" ? true : cocokTag(p, [filterTag]),
+  );
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
@@ -183,6 +203,22 @@ export function FormProdukManual({
               </p>
             ) : null}
           </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="tag-produk" className={labelClass}>
+              Tag pribadi (opsional)
+            </label>
+            <input
+              id="tag-produk"
+              value={tagTeks}
+              onChange={(e) => setTagTeks(e.target.value)}
+              className={inputClass}
+              placeholder="ramah pemula, komisi besar"
+            />
+            <p className="mt-1 text-meta text-muted-foreground">
+              Pisahkan dengan koma, maksimal 5 tag. Dipakai untuk filter daftar produk.
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -238,19 +274,79 @@ export function FormProdukManual({
 
       {saved.length > 0 ? (
         <Card>
-          <h2 className="text-isi font-semibold">
-            Produk tersimpan ({saved.length})
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-isi font-semibold">Produk tersimpan ({saved.length})</h2>
+            {semuaTag(saved).length > 0 ? (
+              <label className="text-meta text-muted-foreground">
+                Filter tag{" "}
+                <select
+                  value={filterTag}
+                  onChange={(e) => setFilterTag(e.target.value)}
+                  className="border border-surface-border bg-surface px-2 py-1 text-meta"
+                >
+                  <option value="">Semua</option>
+                  {semuaTag(saved).map((t) => (
+                    <option key={t} value={t}>
+                      #{t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
           <ul className="mt-3 divide-y divide-surface-border">
-            {saved.map((product) => (
-              <li key={product.id} className="flex items-center justify-between py-2 text-badan">
-                <span>{product.nama_internal}</span>
-                <span className="text-meta text-muted-foreground">
-                  {new Date(product.saved_at).toLocaleString("id-ID")}
-                </span>
-              </li>
-            ))}
+            {daftarProduk.map((product) => {
+              const disematkan = favorit.includes(product.id);
+              return (
+                <li
+                  key={product.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2 text-badan"
+                >
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2">
+                      <span className="truncate">{product.nama_internal}</span>
+                      {(product.tag ?? []).map((t) => (
+                        <span
+                          key={t}
+                          className="border border-surface-border px-1.5 py-0.5 font-mono text-mikro text-muted-foreground"
+                        >
+                          #{t}
+                        </span>
+                      ))}
+                    </p>
+                    <p className="text-meta text-muted-foreground">
+                      {new Date(product.saved_at).toLocaleString("id-ID")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = toggleFavorit(favorit, product.id);
+                      setFavorit(next);
+                      simpanFavorit(next);
+                    }}
+                    aria-pressed={disematkan}
+                    aria-label={
+                      disematkan
+                        ? `Lepas favorit ${product.nama_internal}`
+                        : `Sematkan ${product.nama_internal}`
+                    }
+                    className={cn(
+                      "border border-surface-border px-2 py-1 text-meta",
+                      disematkan ? "text-primary" : "text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {disematkan ? "★ Disematkan" : "☆ Sematkan"}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
+          {daftarProduk.length === 0 ? (
+            <p className="mt-3 text-badan text-muted-foreground">
+              Tidak ada produk dengan tag itu.
+            </p>
+          ) : null}
           <p className="mt-3 text-meta text-muted-foreground">
             Sementara disimpan di localStorage. Pindah ke tabel Supabase setelah
             project Supabase terhubung (prasyarat P3).

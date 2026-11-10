@@ -46,6 +46,12 @@ import {
   tambahKeBank,
   type ItemBank,
 } from "@/lib/riset/bank-masalah";
+import {
+  muatRiwayat as muatRiwayatRiset,
+  simpanRiwayat as simpanRiwayatRiset,
+  tambahRiwayat,
+  type RiwayatRiset,
+} from "@/lib/riset/riwayat-pencarian";
 import { AMBANG_DIREKOMENDASIKAN, direkomendasikan } from "@/lib/riset/skor-peluang";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
@@ -74,6 +80,7 @@ function unduhCsv(nama: string, isi: string) {
 export function PanelRiset() {
   const siap = supabaseSiap();
   const [niche, setNiche] = useState(NICHE_AWAL);
+  const [riwayatRiset, setRiwayatRiset] = useState<RiwayatRiset[]>([]);
   const [audiens, setAudiens] = useState("");
   // Fase 3-B: pilihan preset (kartu persona + chip ala Meta Ads).
   const [usiaPilih, setUsiaPilih] = useState<string | null>(null);
@@ -196,6 +203,10 @@ export function PanelRiset() {
         return;
       }
       setRiset(data.riset);
+      // Simpan niche+audiens supaya bisa dipilih ulang tanpa mengetik (Level 2).
+      const riwayatBaru = tambahRiwayat(muatRiwayatRiset(), { niche, audiens });
+      simpanRiwayatRiset(riwayatBaru);
+      setRiwayatRiset(riwayatBaru);
       setCatatan("Riset tersimpan. Menyusun peluang produk…");
       await muatRiwayat();
       setSibuk(null);
@@ -255,6 +266,7 @@ export function PanelRiset() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrasi localStorage harus setelah mount agar tidak hydration mismatch
     setBank(muatBank());
+    setRiwayatRiset(muatRiwayatRiset());
   }, []);
 
   const simpanKeBank = useCallback(
@@ -433,6 +445,30 @@ export function PanelRiset() {
             />
           </div>
         </div>
+
+        {riwayatRiset.length > 0 ? (
+          <div className="mt-3">
+            <p className="text-meta text-muted-foreground">
+              Riwayat riset — klik untuk pakai ulang:
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              {riwayatRiset.map((r) => (
+                <button
+                  key={`${r.niche}|${r.audiens}`}
+                  type="button"
+                  onClick={() => {
+                    setNiche(r.niche);
+                    setAudiens(r.audiens);
+                  }}
+                  className="border border-surface-border px-2 py-1 text-meta hover:bg-muted"
+                  title={`${r.niche} · ${r.audiens}`}
+                >
+                  {r.niche} · {r.audiens}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button

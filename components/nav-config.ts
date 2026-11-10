@@ -55,6 +55,7 @@ export const MENU_ITEMS: MenuItem[] = [
     ],
   },
   // Tools
+  { label: "Pencarian", href: "/cari", group: "tools", fase: "MVP" },
   { label: "Kalender", href: "/kalender", group: "tools", fase: "Level 2" },
   {
     // Impor laporan affiliate adalah masukan analisis, bukan halaman sendiri.
