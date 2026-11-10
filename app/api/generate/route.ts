@@ -12,6 +12,7 @@ import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { BATAS_JUMLAH, generateRequestSkema, statusesSkema } from "@/lib/ai/schemas";
 import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
 import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v7";
+import { ATURAN_MARKETPLACE, deteksiMarketplaceLink } from "@/lib/affiliate/rules";
 import { wajibSesi } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
@@ -49,7 +50,15 @@ export async function POST(req: Request) {
   }
   const platform: PlatformId = pengaturan.mode_output;
   const batas = batasPlatform(platform);
-  const prompt = buildGenerateStatusPrompt({ ...parsed.data, platform });
+  // Fase 4-A: aturan marketplace masuk lewat komposisi di route — file prompt
+  // tidak disentuh sama sekali (aturan 13 aman).
+  const marketplace = deteksiMarketplaceLink(parsed.data.link);
+  const prompt =
+    marketplace && marketplace !== "lainnya"
+      ? `${buildGenerateStatusPrompt({ ...parsed.data, platform })}
+
+KONTEKS MARKETPLACE: ${ATURAN_MARKETPLACE[marketplace].instruksi}`
+      : buildGenerateStatusPrompt({ ...parsed.data, platform });
   const { result, berhenti } = await jalankanAI<unknown>({
     jenis: "generate",
     promptVersion: PROMPT_VERSION,

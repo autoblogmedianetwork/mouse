@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { labelMarketplace } from "@/lib/affiliate/rules";
 import { Card } from "@/components/card";
 import { MAX_CLEAN_DESCRIPTION_LENGTH, charLength, cleanDescription } from "@/lib/produk/bersihkan-deskripsi";
 import { productFormSchema, type ProductFormValues } from "@/lib/produk/skema";
@@ -65,6 +66,9 @@ export function FormProdukManual({
       ...nilaiAwal,
     },
   });
+  // Fase 4-A: marketplace dideteksi dari link yang ditempel user (manual, tanpa API).
+  const urlReferensi = useWatch({ control, name: "url_referensi" }) as string | undefined;
+  const marketplaceLabel = labelMarketplace(urlReferensi);
 
   const deskripsiValue = useWatch({ control, name: "deskripsi" }) ?? "";
   const cleaned = useMemo(() => cleanDescription(deskripsiValue), [deskripsiValue]);
@@ -166,8 +170,13 @@ export function FormProdukManual({
               id="url_referensi"
               {...register("url_referensi")}
               className={inputClass}
-              placeholder="https://s.shopee.co.id/..."
+              placeholder="https://s.shopee.co.id/... · https://tokopedia.com/... · https://vt.tokopedia.com/... · https://tiktok.com/..."
             />
+            {marketplaceLabel ? (
+              <p className="mt-1 text-meta text-muted-foreground">
+                Marketplace terdeteksi: <span className="font-medium text-foreground">{marketplaceLabel}</span>
+              </p>
+            ) : null}
             {errors.url_referensi ? (
               <p className={errorClass} role="alert">
                 {errors.url_referensi.message}
