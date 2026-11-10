@@ -13,6 +13,8 @@ import { PerformaRingkas } from "@/features/impor/performa-ringkas";
 import { usePerforma } from "@/features/impor/use-performa";
 import { BagianPerformaKonten } from "@/features/performa/performa-konten";
 import { PanelPengingat } from "@/features/pengingat/panel-pengingat";
+import { BANK_KEY, type ItemBank } from "@/lib/riset/bank-masalah";
+import { ringkasBank } from "@/lib/riset/statistik-bank";
 
 interface DraftRingkas {
   updatedAt?: string;
@@ -28,6 +30,7 @@ interface DraftRingkas {
 export function RingkasanDashboard() {
   const [konten] = useLocalState<Konten[]>("autothreads-konten", []);
   const [draft] = useLocalState<DraftRingkas>("autothreads-draft-posting", {});
+  const [bank] = useLocalState<ItemBank[]>(BANK_KEY, []);
   const { simpanan: performa, siap: performaSiap } = usePerforma();
 
   const ringkas = useMemo(() => ringkasanKonten(konten), [konten]);
@@ -36,8 +39,9 @@ export function RingkasanDashboard() {
     return konten.filter((k) => {
       const dibuat = new Date(k.created_at);
       return dibuat.getMonth() === now.getMonth() && dibuat.getFullYear() === now.getFullYear();
-    }).length;
-  }, [konten]);
+    }).length;  }, [konten]);
+  const bankRingkas = useMemo(() => ringkasBank(bank), [bank]);
+
   const ringkasPerf = useMemo(() => ringkasPerforma(performa.baris), [performa.baris]);
   const adaPerforma = performa.baris.length > 0;
 
@@ -82,6 +86,25 @@ export function RingkasanDashboard() {
         <StatCard label="Siap posting" nilai={ringkas.siap} tone="siap" catatan="Menunggu disalin ke Threads" />
         <StatCard label="Arsip" nilai={ringkas.arsip} catatan="Retensi 90 hari (K3)" />
       </div>
+
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-isi font-semibold">Bank masalah ({bankRingkas.total})</h2>
+            <p className="mt-1 text-badan text-muted-foreground">
+              {bankRingkas.total === 0
+                ? "Belum ada masalah tersimpan. Riset audiens akan mengisinya otomatis."
+                : `${bankRingkas.bulanIni} ditambahkan bulan ini · kategori terbanyak: ${bankRingkas.kategori
+                    .slice(0, 3)
+                    .map((k) => `${k.kategori} (${k.jumlah})`)
+                    .join(", ")}`}
+            </p>
+          </div>
+          <Link href="/riset" className="text-badan text-primary underline-offset-2 hover:underline">
+            Buka riset
+          </Link>
+        </div>
+      </Card>
 
       {adaPerforma ? (
         <section className="space-y-4">

@@ -4,6 +4,7 @@ import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TurAwal } from "@/features/onboarding/tur-awal";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
 import { KalkulatorKomisi } from "@/features/affiliate/kalkulator-komisi";
+import { PengingatCadangan } from "@/features/konten/pengingat-cadangan";
 
 export const metadata = { title: "Dashboard" };
 
@@ -25,6 +26,8 @@ export default async function DashboardPage() {
       </PageHeader>
 
       <RingkasanDashboard />
+
+      <PengingatCadangan />
 
       <KalkulatorKomisi />
 

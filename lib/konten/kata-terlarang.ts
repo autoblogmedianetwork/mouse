@@ -17,6 +17,7 @@ export const DAFTAR_KATA_TERLARANG: KataTerlarangRule[] = [
   { kata: "termurah", alasan: "Klaim harga terendah rawan sanggahan", kategori: "klaim_berlebihan", saran: "ramah kantong" },
   { kata: "100%", alasan: "Klaim kesempurnaan absolut", kategori: "klaim_berlebihan", saran: "sangat / terbukti" },
   { kata: "dijamin", alasan: "Janji garansi tanpa dasar hukum listing", kategori: "klaim_berlebihan", saran: "bisa dicoba" },
+  { kata: "ampuh", alasan: "Klaim khasiat tanpa bukti", kategori: "klaim_berlebihan", saran: "bantu banget buatku" },
   { kata: "pasti sembuh", alasan: "Klaim medis dilarang keras", kategori: "klaim_berlebihan" },
   { kata: "tanpa efek samping", alasan: "Klaim keamanan absolut produk", kategori: "klaim_berlebihan" },
   { kata: "garansi seumur hidup", alasan: "Harus sesuai deskripsi resmi seller", kategori: "klaim_berlebihan" },
@@ -39,6 +40,15 @@ export interface HasilDeteksiKata {
     rule: KataTerlarangRule;
     posisiTeks: string;
   }[];
+}
+
+/**
+ * Pemeriksaan substring untuk pembangkit tagar: "#produkterbaik" tetap harus
+ * tertolak walau kata "terbaik" tidak berada di batas kata.
+ */
+export function mengandungKataTerlarang(teks: string): boolean {
+  const kecil = teks.toLowerCase();
+  return DAFTAR_KATA_TERLARANG.some((rule) => kecil.includes(rule.kata.toLowerCase()));
 }
 
 /**

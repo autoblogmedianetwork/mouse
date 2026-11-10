@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/card";
 import {
   LABEL_LAB_PERSONA,
@@ -8,6 +8,7 @@ import {
   type LabUji,
   type Serial7,
 } from "@/lib/ai/schemas";
+import { bangkitkanHashtag } from "@/lib/konten/hashtag";
 import { muatBank, type ItemBank } from "@/lib/riset/bank-masalah";
 import { cn } from "@/lib/utils";
 
@@ -407,6 +408,68 @@ function BagianSerial() {
   );
 }
 
+/* --------------------------- 4. Pembangkit hashtag --------------------------- */
+
+function BagianHashtag() {
+  const [nama, setNama] = useState("");
+  const [kategori, setKategori] = useState("");
+
+  const hasil = useMemo(
+    () => (nama.trim() === "" ? [] : bangkitkanHashtag({ nama, kategori })),
+    [nama, kategori],
+  );
+
+  return (
+    <Card>
+      <h2 className="text-isi font-semibold">4. Pembangkit hashtag lokal</h2>
+      <p className="mt-1 text-badan text-muted-foreground">
+        Tanpa AI dan tanpa internet: tagar disusun dari nama produk, kategori, dan kamus lokal yang
+        sudah disaring dari kata klaim berisiko.
+      </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <label className="text-meta font-medium">
+          Nama produk
+          <input
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
+            placeholder="Tumbler Stainless 500ml"
+            className={cn(inputClass, "mt-1")}
+          />
+        </label>
+        <label className="text-meta font-medium">
+          Kategori (opsional)
+          <input
+            value={kategori}
+            onChange={(e) => setKategori(e.target.value)}
+            placeholder="dapur / fashion / kecantikan"
+            className={cn(inputClass, "mt-1")}
+          />
+        </label>
+      </div>
+
+      {hasil.length > 0 ? (
+        <div className="mt-4 border-t border-surface-border pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {hasil.map((tag) => (
+              <span
+                key={tag}
+                className="border border-surface-border bg-muted/40 px-2 py-1 font-mono text-meta"
+              >
+                {tag}
+              </span>
+            ))}
+            <TombolSalin teks={hasil.join(" ")} />
+          </div>
+          <p className="mt-2 text-meta text-muted-foreground">
+            {hasil.length} tagar · hemat hashtag, jangan tempel semuanya di setiap status.
+          </p>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
 export function LabKlien() {
   return (
     <div className="space-y-6">
@@ -418,6 +481,7 @@ export function LabKlien() {
       <BagianLabUji />
       <BagianIdeMasalah />
       <BagianSerial />
+      <BagianHashtag />
     </div>
   );
 }
