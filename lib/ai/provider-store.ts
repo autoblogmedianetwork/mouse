@@ -68,29 +68,46 @@ export async function daftarProvider(): Promise<ProviderAI[]> {
   }));
 }
 
+// Cache in-memory (per instance) untuk mengurangi query DB per panggilan AI.
+const CACHE_TTL_MS = 30_000;
+const cacheAktif = new Map<string, { nilai: ProviderAISecret | null; kadaluarsa: number }>();
+
+export function invalidateProviderCache(userId?: string): void {
+  if (userId) cacheAktif.delete(userId);
+  else cacheAktif.clear();
+}
+
 export async function providerAktif(): Promise<ProviderAISecret | null> {
   const supabase = await klienServer();
   const user = supabase ? await penggunaSaatIni() : null;
   if (!supabase || !user) return null;
+
+  const cached = cacheAktif.get(user.id);
+  if (cached && cached.kadaluarsa > Date.now()) return cached.nilai;
+
   const { data, error } = await supabase
     .from("ai_provider")
     .select("id,nama,base_url,model,api_key_enc")
     .eq("user_id", user.id)
     .eq("is_active", true)
     .maybeSingle();
-  if (error || !data) return null;
-  try {
-    return {
-      id: data.id,
-      nama: data.nama,
-      baseUrl: data.base_url,
-      model: data.model,
-      isActive: true,
-      apiKey: dekripsiApiKey(data.api_key_enc),
-    };
-  } catch {
-    return null;
+  let nilai: ProviderAISecret | null = null;
+  if (!error && data) {
+    try {
+      nilai = {
+        id: data.id,
+        nama: data.nama,
+        baseUrl: data.base_url,
+        model: data.model,
+        isActive: true,
+        apiKey: dekripsiApiKey(data.api_key_enc),
+      };
+    } catch {
+      nilai = null;
+    }
   }
+  cacheAktif.set(user.id, { nilai, kadaluarsa: Date.now() + CACHE_TTL_MS });
+  return nilai;
 }
 
 export async function tambahProvider(input: {
@@ -112,6 +129,7 @@ export async function tambahProvider(input: {
     is_active: false,
   });
   if (error) return { ok: false, error: error.message };
+  invalidateProviderCache(user.id);
   return { ok: true };
 }
 
@@ -121,6 +139,7 @@ export async function hapusProvider(id: string): Promise<{ ok: boolean; error?: 
   if (!supabase || !user) return { ok: false, error: "Sesi tidak ditemukan." };
   const { error } = await supabase.from("ai_provider").delete().eq("id", id).eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
+  invalidateProviderCache(user.id);
   return { ok: true };
 }
 
@@ -136,5 +155,6 @@ export async function aktifkanProvider(id: string): Promise<{ ok: boolean; error
     .eq("id", id)
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
+  invalidateProviderCache(user.id);
   return { ok: true };
 }
