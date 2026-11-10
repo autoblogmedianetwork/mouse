@@ -240,6 +240,18 @@ export type RisetAudiens = z.infer<typeof risetAudiensSkema>;
 export const PRIORITAS_PELUANG = ["tinggi", "sedang", "rendah"] as const;
 export const KESULITAN_KONTEN = ["rendah", "sedang", "tinggi"] as const;
 
+/** Skor kelayakan 1-5 per dimensi (Fase 3, task 3-A; prompt peluang v2). */
+export const skorPeluangSkema = z.object({
+  permintaan: z.number().int().min(1).max(5),
+  kompetisi: z.number().int().min(1).max(5),
+  kemudahan_konten: z.number().int().min(1).max(5),
+  potensi_komisi: z.number().int().min(1).max(5),
+  alasan_permintaan: z.string().max(300).default(""),
+  alasan_kompetisi: z.string().max(300).default(""),
+  alasan_kemudahan_konten: z.string().max(300).default(""),
+  alasan_potensi_komisi: z.string().max(300).default(""),
+});
+
 export const peluangItemSkema = z.object({
   kategori: z.string().min(1, "kategori tidak boleh kosong").max(160),
   alasan: z.string().min(1).max(2000),
@@ -247,6 +259,9 @@ export const peluangItemSkema = z.object({
   contoh_produk: z.array(z.string()).min(1).max(3),
   prioritas: z.enum(PRIORITAS_PELUANG),
   kesulitan_konten: z.enum(KESULITAN_KONTEN),
+  // Opsional supaya data lama tanpa skor tetap lolos validasi.
+  skor: skorPeluangSkema.optional(),
+  skor_total: z.number().int().min(0).max(20).optional(),
 });
 
 export const peluangProdukSkema = z.object({

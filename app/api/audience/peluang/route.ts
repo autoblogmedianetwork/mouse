@@ -15,7 +15,7 @@ import { peluangProdukSkema, peluangRequestSkema } from "@/lib/ai/schemas";
 import {
   buildPeluangProdukPrompt,
   PROMPT_VERSION,
-} from "@/lib/ai/prompts/peluang-produk.v1";
+} from "@/lib/ai/prompts/peluang-produk.v2";
 import { wajibSesi } from "@/lib/supabase/server";
 
 const PESAN_TABEL_HILANG =
@@ -105,6 +105,17 @@ export async function POST(req: Request) {
       contoh_produk: string[];
       prioritas: string;
       kesulitan_konten: string;
+      skor?: {
+        permintaan: number;
+        kompetisi: number;
+        kemudahan_konten: number;
+        potensi_komisi: number;
+        alasan_permintaan?: string;
+        alasan_kompetisi?: string;
+        alasan_kemudahan_konten?: string;
+        alasan_potensi_komisi?: string;
+      };
+      skor_total?: number;
     }>;
   };
 
@@ -118,6 +129,8 @@ export async function POST(req: Request) {
     contoh_produk: p.contoh_produk,
     prioritas: p.prioritas,
     kesulitan_konten: p.kesulitan_konten,
+    skor: p.skor ?? null,
+    skor_total: p.skor_total ?? null,
   }));
 
   // Susun ulang = daftar baru. Tanda "dipilih" ikut direset; produk yang

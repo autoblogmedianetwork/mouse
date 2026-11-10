@@ -26,6 +26,7 @@ import {
   type Riset,
 } from "@/lib/riset/skema";
 import { daftarPeluang, daftarRiset, jadikanProduk } from "@/lib/riset/store";
+import { AMBANG_DIREKOMENDASIKAN, direkomendasikan } from "@/lib/riset/skor-peluang";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
 const inputClass =
@@ -380,7 +381,8 @@ export function PanelRiset() {
                 <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
                   <th className="py-2 pr-3 font-medium">#</th>
                   <th className="py-2 pr-3 font-medium">Kategori</th>
-                  <th className="py-2 pr-3 font-medium">Prioritas</th>
+                  <th className="py-2 pr-3 font-medium">Skor</th>
+                    <th className="py-2 pr-3 font-medium">Prioritas</th>
                   <th className="py-2 pr-3 font-medium">Masalah terkait</th>
                   <th className="py-2 pr-3 font-medium">Contoh produk</th>
                   <th className="py-2 pr-3 font-medium">Aksi</th>
@@ -395,6 +397,31 @@ export function PanelRiset() {
                     <td className="max-w-[16rem] py-2 pr-3">
                       <p className="font-medium">{p.kategori}</p>
                       <p className="mt-0.5 text-meta text-muted-foreground">{p.alasan}</p>
+                    </td>
+                    <td className="py-2 pr-3">
+                      {p.skor_total ? (
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 text-meta font-medium ${
+                            direkomendasikan(p)
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-foreground"
+                          }`}
+                          title={
+                            p.skor
+                              ? `permintaan ${p.skor.permintaan ?? "-"}: ${p.skor.alasan_permintaan ?? "-"}; kompetisi ${p.skor.kompetisi ?? "-"}: ${p.skor.alasan_kompetisi ?? "-"}; kemudahan konten ${p.skor.kemudahan_konten ?? "-"}: ${p.skor.alasan_kemudahan_konten ?? "-"}; komisi ${p.skor.potensi_komisi ?? "-"}: ${p.skor.alasan_potensi_komisi ?? "-"}`
+                              : undefined
+                          }
+                        >
+                          {p.skor_total}/20{direkomendasikan(p) ? " ★" : ""}
+                        </span>
+                      ) : (
+                        <span className="text-meta text-muted-foreground">—</span>
+                      )}
+                      {p.skor_total ? (
+                        <p className="mt-1 text-meta text-muted-foreground">
+                          layak duluan &ge; {AMBANG_DIREKOMENDASIKAN}
+                        </p>
+                      ) : null}
                     </td>
                     <td className="py-2 pr-3">
                       <span
