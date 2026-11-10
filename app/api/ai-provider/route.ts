@@ -3,12 +3,18 @@
  * API key terenkripsi di server; tidak pernah dikembalikan terang.
  */
 import { NextResponse } from "next/server";
-import { wajibSesi } from "@/lib/supabase/server";
-import {
-  daftarProvider,
+import { wajibSesi } from "@/lib/supabase/server";import { z } from "zod";
+import { daftarProvider,
   tambahProvider,
   hapusProvider,
 } from "@/lib/ai/provider-store";
+
+const tambahSkema = z.object({
+  nama: z.string().trim().min(1).max(80),
+  baseUrl: z.string().trim().url(),
+  model: z.string().trim().min(1).max(120),
+  apiKey: z.string().min(1).max(500),
+});
 
 export async function GET() {
   const sesi = await wajibSesi();
@@ -27,16 +33,11 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
   }
-  const b = body as { nama?: string; baseUrl?: string; model?: string; apiKey?: string };
-  if (!b.nama || !b.baseUrl || !b.model || !b.apiKey) {
-    return NextResponse.json({ ok: false, error: "nama, baseUrl, model, apiKey wajib diisi." }, { status: 400 });
+  const parsed = tambahSkema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." }, { status: 400 });
   }
-  const hasil = await tambahProvider({
-    nama: b.nama,
-    baseUrl: b.baseUrl,
-    model: b.model,
-    apiKey: b.apiKey,
-  });
+  const hasil = await tambahProvider(parsed.data);
   return NextResponse.json(hasil, { status: hasil.ok ? 200 : 400 });
 }
 

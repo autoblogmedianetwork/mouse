@@ -3,7 +3,7 @@
  * (AES-256-GCM). Kunci master (`AI_PROVIDER_SECRET`, 32 byte) hanya di server.
  * Kunci API tidak pernah dikembalikan ke klien dalam bentuk terang.
  */
-import { createCipheriv, createDecipheriv, randomBytes, createHash } from "node:crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
 
@@ -21,16 +21,11 @@ export interface ProviderAISecret extends ProviderAI {
 
 function masterKey(): Buffer {
   const raw = process.env.AI_PROVIDER_SECRET?.trim();
-  if (!raw) throw new Error("AI_PROVIDER_SECRET belum diisi (32 byte).");
-  // Terima hex (64 char) atau base64; fallback hash untuk nilai bebas (dev).
+  if (!raw) throw new Error("AI_PROVIDER_SECRET belum diisi (32 byte, hex/base64).");
   if (/^[0-9a-fA-F]{64}$/.test(raw)) return Buffer.from(raw, "hex");
-  try {
-    const b = Buffer.from(raw, "base64");
-    if (b.length === 32) return b;
-  } catch {
-    // abaikan
-  }
-  return createHash("sha256").update(raw).digest();
+  const b = Buffer.from(raw, "base64");
+  if (b.length === 32) return b;
+  throw new Error("AI_PROVIDER_SECRET harus 32 byte (hex 64 char atau base64 44 char).");
 }
 
 export function enkripsiApiKey(plain: string): string {
