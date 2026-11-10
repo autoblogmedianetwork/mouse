@@ -42,6 +42,8 @@ describe("agregasiGenerations", () => {
       persenBulan: 0,
       perFungsi: {},
       perProvider: {},
+      fallbackPanggilan: 0,
+      fallbackTerakhir: null,
       totalTokens: 0,
     });
   });
@@ -141,9 +143,38 @@ describe("agregasiGenerations", () => {
       BATAS,
       SEKARANG,
     );
-    expect(hasil.perProvider.SUMOPOD).toEqual({ panggilan: 2, usd: 0.05 });
-    expect(hasil.perProvider.env).toEqual({ panggilan: 1, usd: null });
-    expect(hasil.perProvider["tidak tercatat"]).toEqual({ panggilan: 1, usd: null });
+    expect(hasil.perProvider.SUMOPOD).toEqual({
+      panggilan: 2,
+      usd: 0.05,
+      inputTokens: 200,
+      outputTokens: 100,
+      rataRata: 0.025,
+    });
+    expect(hasil.perProvider.env).toEqual({
+      panggilan: 1,
+      usd: null,
+      inputTokens: 100,
+      outputTokens: 50,
+      rataRata: null,
+    });
+    expect(hasil.perProvider["tidak tercatat"].panggilan).toBe(1);
+    expect(hasil.fallbackPanggilan).toBe(0);
+    expect(hasil.fallbackTerakhir).toBeNull();
+  });
+
+  it("menandai fallback env terakhir dan jumlahnya", () => {
+    const hasil = agregasiGenerations(
+      [
+        baris({ provider: "env-fallback", created_at: "2026-10-14T02:00:00+00:00" }),
+        baris({ provider: "env-fallback", created_at: "2026-10-14T05:00:00+00:00" }),
+        baris({ provider: "SUMOPOD" }),
+      ],
+      BATAS,
+      SEKARANG,
+    );
+    expect(hasil.fallbackPanggilan).toBe(2);
+    expect(hasil.fallbackTerakhir).toBe("2026-10-14T05:00:00+00:00");
+    expect(hasil.perProvider["env-fallback"].panggilan).toBe(2);
   });
 
   it("jenis kosong jatuh ke bucket 'lainnya' dan tidak melempar", () => {

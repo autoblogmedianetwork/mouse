@@ -117,7 +117,8 @@ export async function jalankanAI<T>(
     });
     if (hasilEnv.ok) {
       result = hasilEnv;
-      providerNama = "env";
+      // Label khusus agar log bisa membedakan env cadangan dari env biasa.
+      providerNama = "env-fallback";
       providerFallback = true;
     } else {
       // Pertahankan error provider DB, tambahkan alasan env juga gagal.

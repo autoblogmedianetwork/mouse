@@ -183,6 +183,19 @@ Bagian:
 - Aksi massal: pilih beberapa lalu tandai siap, tolak, atau hapus. Aksi massal tetap memeriksa checklist per konten.
 - Tampilan mobile memakai satu kolom dengan tab yang bisa digulir.
 
+### 3.10 Biaya AI (`/biaya`)
+
+Halaman rincian untuk audit biaya, dijangkau dari tautan "Rincian biaya" di
+`CostWidget` dan menu Tools.
+
+- Kartu ringkasan: biaya hari ini, bulan ini, batas bulanan, sisa anggaran.
+- Bar progres terhadap batas, dengan total token bulan ini.
+- Tabel per provider: panggilan, token masuk/keluar, biaya, rata-rata per panggilan.
+- Tabel per fungsi: panggilan, token, biaya, rata-rata.
+- Peringatan di atas tabel bila ada panggilan `env-fallback`: provider database
+  aktif gagal dan permintaan dialihkan ke env, lengkap dengan jumlah dan waktu
+  terakhir.
+
 ## 4. Komponen Inti
 
 | Komponen | Dipakai di | Catatan |
@@ -205,7 +218,7 @@ Bagian:
 | `ProviderSelector` | Pengaturan, Buat posting | Pilihan provider per fungsi dengan status ketersediaan |
 | `MediaToolToggle` | Pengaturan, Buat posting | Toggle fitur media dengan status dan petunjuk setup |
 | `ReviewTabs` | Konten (tab Antrian) | Tab status dengan jumlah per tab |
-| `CostWidget` | Header | Biaya AI hari ini dan bulan ini, dengan progres terhadap batas |
+| `CostWidget` | Header | Biaya AI hari ini dan bulan ini, progres terhadap batas, provider teratas, peringatan fallback, tautan ke `/biaya` |
 | `ModeKerjaSelector` | Pengaturan | Pilihan manual, semi, atau penuh, dengan penjelasan singkat |
 | `CarouselSlideEditor` | Buat posting | Edit teks per slide dengan penghitung kata dan preview |
 

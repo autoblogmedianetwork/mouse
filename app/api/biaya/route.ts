@@ -30,6 +30,8 @@ export async function GET() {
       persenBulan: 0,
       perFungsi: {},
       perProvider: {},
+      fallbackPanggilan: 0,
+      fallbackTerakhir: null,
       totalTokens: 0,
     });
   }

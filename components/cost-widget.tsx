@@ -8,6 +8,7 @@
  * Pure presentation: the caller supplies the numbers, so this stays testable
  * and never reads env on its own.
  */
+import Link from "next/link";
 import { Card } from "@/components/card";
 import { cn } from "@/lib/utils";
 
@@ -27,18 +28,26 @@ export function CostWidget({
   adaCatatan,
   batasUsd,
   perProvider = {},
+  fallbackTerakhir = null,
+  fallbackPanggilan = 0,
 }: {
   hariIniUsd: number | null;
   bulanIniUsd: number | null;
   adaCatatan: boolean;
   batasUsd: number;
   perProvider?: Record<string, { panggilan: number; usd: number | null }>;
+  fallbackTerakhir?: string | null;
+  fallbackPanggilan?: number;
 }) {
   // Provider paling banyak dipakai bulan ini; cukup tiga supaya widget tetap ringkas.
   const providerTeratas = Object.entries(perProvider)
     .sort(([, a], [, b]) => b.panggilan - a.panggilan)
     .slice(0, 3)
-    .map(([nama, r]) => `${nama === "tidak tercatat" ? "lama" : nama} (${r.panggilan})`);
+    .map(([nama, r]) => {
+      const label =
+        nama === "tidak tercatat" ? "lama" : nama === "env-fallback" ? "env (fallback)" : nama;
+      return `${label} (${r.panggilan})`;
+    });
   const pakai = bulanIniUsd ?? 0;
   const persen = batasUsd > 0 ? Math.min(100, (pakai / batasUsd) * 100) : 0;
   const hampirHabis = persen >= 80;
@@ -104,6 +113,24 @@ export function CostWidget({
               Provider: {providerTeratas.join(" · ")}
             </p>
           ) : null}
+
+          {fallbackTerakhir ? (
+            <p className="mt-1 border border-warning/50 bg-warning/10 px-2 py-1 text-meta text-warning-foreground">
+              Provider database gagal; {fallbackPanggilan} panggilan bulan ini lewat env. Terakhir:{" "}
+              {new Date(fallbackTerakhir).toLocaleString("id-ID", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+              .
+            </p>
+          ) : null}
+
+          <Link
+            href="/biaya"
+            className="mt-1 inline-block text-meta text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Rincian biaya →
+          </Link>
         </>
       ) : (
         <p className="mt-1 text-badan text-muted-foreground">

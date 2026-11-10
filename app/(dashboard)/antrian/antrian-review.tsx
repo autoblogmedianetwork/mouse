@@ -103,6 +103,8 @@ export function AntrianReview() {
     persenBulan: 0,
     perFungsi: {},
     perProvider: {},
+    fallbackPanggilan: 0,
+    fallbackTerakhir: null,
     totalTokens: 0,
   });
   const fileRef = useRef<HTMLInputElement>(null);
@@ -123,6 +125,9 @@ export function AntrianReview() {
             persenBulan: typeof d.persenBulan === "number" ? d.persenBulan : 0,
             perFungsi: d.perFungsi ?? {},
             perProvider: d.perProvider ?? {},
+            fallbackPanggilan:
+              typeof d.fallbackPanggilan === "number" ? d.fallbackPanggilan : 0,
+            fallbackTerakhir: d.fallbackTerakhir ?? null,
             totalTokens: typeof d.totalTokens === "number" ? d.totalTokens : 0,
           });
         }
@@ -456,6 +461,8 @@ export function AntrianReview() {
           adaCatatan={biaya.adaCatatan}
           batasUsd={biaya.batasUsd}
           perProvider={biaya.perProvider}
+          fallbackPanggilan={biaya.fallbackPanggilan}
+          fallbackTerakhir={biaya.fallbackTerakhir}
         />
       </PageHeader>
 

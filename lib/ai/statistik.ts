@@ -32,6 +32,9 @@ export interface RingkasanFungsi {
 export interface RingkasanProvider {
   panggilan: number;
   usd: number | null;
+  inputTokens: number;
+  outputTokens: number;
+  rataRata: number | null;
 }
 
 export interface StatistikBiaya {
@@ -42,8 +45,12 @@ export interface StatistikBiaya {
   /** 0..100 usage vs budget, clamped for the progress bar. */
   persenBulan: number;
   perFungsi: Record<string, RingkasanFungsi>;
-  /** Nama provider -> jumlah panggilan dan biaya bulan ini. */
+  /** Nama provider -> jumlah panggilan, token, dan biaya bulan ini. */
   perProvider: Record<string, RingkasanProvider>;
+  /** Jumlah panggilan bulan ini yang jatuh ke env karena provider DB gagal. */
+  fallbackPanggilan: number;
+  /** Waktu (ISO) fallback env terakhir bulan ini; null bila tidak ada. */
+  fallbackTerakhir: string | null;
   totalTokens: number;
 }
 
@@ -74,6 +81,8 @@ export function agregasiGenerations(
   let totalTokens = 0;
   const buckets = new Map<string, RingkasanFungsi>();
   const providerBuckets = new Map<string, RingkasanProvider>();
+  let fallbackPanggilan = 0;
+  let fallbackTerakhir: string | null = null;
 
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!row || typeof row !== "object") continue;
@@ -100,10 +109,27 @@ export function agregasiGenerations(
       typeof row.provider === "string" && row.provider.trim()
         ? row.provider.trim()
         : "tidak tercatat";
-    const pBucket = providerBuckets.get(namaProvider) ?? { panggilan: 0, usd: null };
+    const pBucket = providerBuckets.get(namaProvider) ?? {
+      panggilan: 0,
+      usd: null,
+      inputTokens: 0,
+      outputTokens: 0,
+      rataRata: null,
+    };
     pBucket.panggilan += 1;
+    pBucket.inputTokens += row.input_tokens ?? 0;
+    pBucket.outputTokens += row.output_tokens ?? 0;
     if (usd !== null) pBucket.usd = (pBucket.usd ?? 0) + usd;
+    pBucket.rataRata = pBucket.usd === null ? null : pBucket.usd / pBucket.panggilan;
     providerBuckets.set(namaProvider, pBucket);
+
+    // Fallback env hanya dicatat saat provider database ada tapi gagal.
+    if (namaProvider === "env-fallback") {
+      fallbackPanggilan += 1;
+      if (!fallbackTerakhir || new Date(row.created_at) > new Date(fallbackTerakhir)) {
+        fallbackTerakhir = row.created_at;
+      }
+    }
 
     bucket.inputTokens += row.input_tokens ?? 0;
     bucket.outputTokens += row.output_tokens ?? 0;
@@ -132,6 +158,8 @@ export function agregasiGenerations(
     persenBulan: batasUsd > 0 ? Math.min(100, (bulanIni / batasUsd) * 100) : 0,
     perFungsi,
     perProvider,
+    fallbackPanggilan,
+    fallbackTerakhir,
     totalTokens,
   };
 }

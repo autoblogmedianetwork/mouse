@@ -1061,8 +1061,9 @@ Migrasi `0015_generations_provider.sql` menambah `generations.provider`:
 alter table generations add column if not exists provider text;
 ```
 
-- Diisi `jalankanAI` dengan nama provider dari tabel `ai_provider`, atau `env`
-  bila memakai env server.
+- Diisi `jalankanAI` dengan nama provider dari tabel `ai_provider`, `env`
+  bila memakai env server, atau `env-fallback` bila provider database gagal
+  dan permintaan diselamatkan env.
 - Baris sebelum migrasi bernilai null dan ditampilkan sebagai "lama" di widget
   biaya.
 - `/api/biaya` mengagregasi kolom ini menjadi `perProvider` (panggilan + USD

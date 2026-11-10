@@ -58,6 +58,8 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   // Tools
   { label: "Pencarian", href: "/cari", group: "tools", fase: "MVP" },
+  // Rincian biaya AI per provider/fungsi (Fase 5); widget header tetap ringkas.
+  { label: "Biaya AI", href: "/biaya", group: "tools", fase: "MVP" },
   { label: "Kalender", href: "/kalender", group: "tools", fase: "Level 2" },
   {
     // Impor laporan affiliate adalah masukan analisis, bukan halaman sendiri.

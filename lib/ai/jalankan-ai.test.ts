@@ -100,7 +100,7 @@ describe("jalankanAI provider", () => {
     expect(m.generateJSON.mock.calls[1][2]).toMatchObject({ model: undefined });
     expect(m.generateJSON.mock.calls[1][2]).not.toHaveProperty("apiKey");
     expect(result.ok).toBe(true);
-    expect(result.provider).toBe("env");
+    expect(result.provider).toBe("env-fallback");
     expect(result.providerFallback).toBe(true);
   });
 
