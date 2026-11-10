@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { StatusBadge } from "@/components/status-badge";
+import { LampuShadowban } from "@/features/antrian/lampu-shadowban";
 import {
   KEY_FOKUS_SELESAI,
   catatHariSelesai,
@@ -14,6 +15,7 @@ import {
   tujuhHariTerakhir,
 } from "@/lib/konten/fokus";
 import type { Konten } from "@/lib/konten/skema";
+import { hitungSkorShadowban } from "@/lib/konten/skor-shadowban";
 import { tandaiTerkirim } from "@/lib/konten/store";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { cn } from "@/lib/utils";
@@ -35,6 +37,11 @@ export function FokusHarian() {
   const streak = useMemo(() => hitungStreak(hariSelesai, hariIni), [hariSelesai, hariIni]);
   const pekan = useMemo(() => tujuhHariTerakhir(hariSelesai, hariIni), [hariSelesai, hariIni]);
   const sudahHariIni = hariSelesai.includes(hariIni);
+  // Skor shadowban per konten (ide #32): dihitung saat render, tanpa API.
+  const skorShadowban = useMemo(
+    () => new Map(daftar.map(({ konten: k }) => [k.id, hitungSkorShadowban(k.statuses)])),
+    [daftar],
+  );
 
   const salin = (k: Konten) => {
     void (async () => {
@@ -121,6 +128,10 @@ export function FokusHarian() {
                   {k.produk_nama || "Tanpa produk"} · {k.statuses.length} status
                 </p>
                 <p className="mt-2 line-clamp-3 text-badan">{k.statuses[0]}</p>
+
+                <div className="mt-3">
+                  <LampuShadowban hasil={skorShadowban.get(k.id) ?? hitungSkorShadowban([])} />
+                </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button

@@ -23,9 +23,11 @@ import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
 import type { StatistikBiaya } from "@/lib/ai/statistik";
 import { usePosting } from "@/features/posting/use-posting";
 import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
+import { LampuShadowban } from "@/features/antrian/lampu-shadowban";
 import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
 import { kemasanMultiPlatform } from "@/lib/konten/kemasan-multi-platform";
 import { catatRiwayat } from "@/lib/konten/riwayat";
+import { hitungSkorShadowban } from "@/lib/konten/skor-shadowban";
 import {
   TAB_REVIEW,
   bisaTandaiSiap,
@@ -249,6 +251,13 @@ export function AntrianReview() {
     void navigator.clipboard.writeText(k.statuses.map((s) => s.trim()).join("\n\n"));
     setPesan(`Utas “${k.judul}” disalin ke clipboard.`);
   };
+
+  /** Skor shadowban per konten yang tampil di kartu (ide #32). */
+  const skorKartu = useMemo(() => {
+    const peta = new Map<string, ReturnType<typeof hitungSkorShadowban>>();
+    for (const k of hasil) peta.set(k.id, hitungSkorShadowban(k.statuses));
+    return peta;
+  }, [hasil]);
 
   /** Kemasan 3 platform (Gelombang 2): utas + caption TikTok + status WA sekaligus. */
   const salinKemasan = (k: Konten) => {
@@ -628,6 +637,13 @@ export function AntrianReview() {
                     {k.statuses[0]}
                   </p>
 
+                  <div className="mt-2 max-w-xl">
+                    <LampuShadowban
+                      hasil={skorKartu.get(k.id) ?? hitungSkorShadowban([])}
+                      padat
+                    />
+                  </div>
+
                   <p className="mt-2 flex flex-wrap items-center gap-2 text-meta text-muted-foreground">
                     <span>Kode pelacak</span>
                     <span className="font-mono text-foreground">{subIdDefault(k.id)}</span>
@@ -670,20 +686,24 @@ export function AntrianReview() {
 
       {/* Dialog lihat + salin utas, baca-saja */}
       {dibuka ? (
-        <ConfirmDialog
-          open
-          judul={dibuka.judul}
-          pesan={`${dibuka.statuses.length} status · ${
-            dibuka.status === "siap_posting" ? "siap posting" : dibuka.status
-          }. Menutup dialog ini tidak mengubah apa pun.`}
-          labelKonfirmasi="Salin utas"
-          destructive={false}
-          onKonfirmasi={() => {
-            salinUtas(dibuka);
-            setBukaId(null);
-          }}
-          onBatal={() => setBukaId(null)}
-        />
+        <>
+          {/* Lampu merah sebelum salin (ide #32): temuan tampil di dialog. */}
+          <ConfirmDialog
+            open
+            judul={dibuka.judul}
+            pesan={`${dibuka.statuses.length} status · ${
+              dibuka.status === "siap_posting" ? "siap posting" : dibuka.status
+            }. Menutup dialog ini tidak mengubah apa pun.`}
+            labelKonfirmasi="Salin utas"
+            destructive={false}
+            onKonfirmasi={() => {
+              salinUtas(dibuka);
+              setBukaId(null);
+            }}
+            onBatal={() => setBukaId(null)}
+          />
+          <LampuShadowban hasil={hitungSkorShadowban(dibuka.statuses)} />
+        </>
       ) : null}
 
       <ConfirmDialog

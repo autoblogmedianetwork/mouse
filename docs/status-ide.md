@@ -27,6 +27,7 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 | Favorit/pin produk | `lib/produk/favorit.ts`, form produk |
 | Tag/label produk + filter | `lib/produk/tag.ts`, form produk |
 | Mode fokus harian + streak | `lib/konten/fokus.ts`, halaman `/fokus` |
+| Skor shadowban gabungan + lampu merah sebelum salin | `lib/konten/skor-shadowban.ts`, `/fokus` dan `/antrian` |
 | Kalkulator komisi & target cuan | `lib/affiliate/kalkulator-komisi.ts`, dashboard |
 | Pembangkit hashtag lokal | `lib/konten/hashtag.ts`, `/lab` bagian 4 |
 | Kemasan 1 konten → Threads + TikTok + WA | `lib/konten/kemasan-multi-platform.ts`, `/antrian` |
@@ -40,9 +41,6 @@ berarti kode ada, ada test bila logikanya murni, dan sudah di-commit.
 - **Persona konsisten bernama.** Persona AI sudah ada (`lib/ai/persona.ts`) dan
   dipakai prompt generate, tetapi belum ada "karakter" bernama dengan gaya bicara
   tetap yang dipakai di semua konten.
-- **Detektor "bakal kena shadowban".** Kata terlarang sudah menandai klaim dan
-  pelanggaran UI, tetapi belum ada skor gabungan (hashtag agresif, klaim medis,
-  panjang caption) dengan lampu merah sebelum salin.
 
 ## 3. Belum dibuat — lokal, tanpa API (prioritas berikutnya)
 
