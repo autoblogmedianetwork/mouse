@@ -46,6 +46,9 @@ export const peluangRowSkema = z.object({
   kesulitan_konten: z.enum(KESULITAN_KONTEN).catch("sedang"),
   dipilih: z.boolean().default(false),
   produk_id: z.string().nullable().default(null),
+  // Fase 3-A: skor kelayakan (opsional; data lama tanpa skor tetap valid).
+  skor: z.record(z.string(), z.union([z.number(), z.string()])).nullish(),
+  skor_total: z.coerce.number().int().min(0).max(20).nullish(),
 });
 
 export type Peluang = z.infer<typeof peluangRowSkema>;
@@ -70,7 +73,12 @@ export const BOBOT_PRIORITAS: Record<Peluang["prioritas"], number> = {
 };
 
 export function urutkanPeluang(daftar: Peluang[]): Peluang[] {
+  // Fase 3-A: skor kelayakan jadi kunci utama; data lama tanpa skor (0) tetap
+  // jatuh ke urutan prioritas seperti sebelumnya.
   return [...daftar].sort(
-    (a, b) => BOBOT_PRIORITAS[a.prioritas] - BOBOT_PRIORITAS[b.prioritas] || a.urutan - b.urutan,
+    (a, b) =>
+      (b.skor_total ?? 0) - (a.skor_total ?? 0) ||
+      BOBOT_PRIORITAS[a.prioritas] - BOBOT_PRIORITAS[b.prioritas] ||
+      a.urutan - b.urutan,
   );
 }
