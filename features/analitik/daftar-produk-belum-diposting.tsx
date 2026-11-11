@@ -75,7 +75,7 @@ export function DaftarProdukBelumDiposting() {
         <div>
           <h2 className="text-isi font-semibold">Produk yang lama tidak diposting</h2>
           <p className="mt-1 text-badan text-muted-foreground">
-            Dihitung dari konten terkirim di pustaka, termasuk konten terarsip. Buat ulang konten
+            Dihitung dari konten terkirim di daftar konten, termasuk konten terarsip. Buat ulang konten
             untuk produk yang sudah lama tidak diangkat.
           </p>
         </div>

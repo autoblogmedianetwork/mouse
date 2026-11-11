@@ -119,7 +119,7 @@ export function BatchProdukPanel() {
           <div>
             <h2 className="text-isi font-semibold">Buat batch baru</h2>
             <p className="mt-1 text-badan text-muted-foreground">
-              Pilih {MIN_PRODUK_BATCH}–{MAKS_PRODUK_BATCH} produk dari pustaka. Setiap produk
+              Pilih {MIN_PRODUK_BATCH}–{MAKS_PRODUK_BATCH} produk dari daftar konten. Setiap produk
               menjadi satu draft di tab Perlu review.
             </p>
           </div>

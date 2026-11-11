@@ -51,11 +51,12 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     label: "Konten",
     href: "/antrian",
-    hrefs: ["/antrian", "/riwayat"],
+    hrefs: ["/antrian", "/batch", "/riwayat"],
     group: "konten",
     fase: "MVP",
     tabs: [
       { label: "Antrian", href: "/antrian" },
+      { label: "Batch", href: "/batch" },
       { label: "Riwayat", href: "/riwayat" },
     ],
   },
