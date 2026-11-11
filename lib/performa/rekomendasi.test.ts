@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { HasilAtribusi, RingkasanDimensi } from "./atribusi";
-import { rekomendasiDariPerforma } from "./rekomendasi";
+import { insightAtribusi, rekomendasiDariPerforma } from "./rekomendasi";
 
 const dimensi = (
   kunci: string,
@@ -78,5 +78,41 @@ describe("rekomendasi dari performa (Fase 3, task 3-E)", () => {
       ),
     );
     expect(keluar[0].dimensi).toBe("umum");
+  });
+});
+
+describe("insight atribusi otomatis (power-up Analitik)", () => {
+  it("menyebut penyumbang komisi terbesar dengan persen", () => {
+    const keluar = insightAtribusi(
+      hasil(
+        [
+          dimensi("pertanyaan", "Pertanyaan Reflektif", 3, 120_000),
+          dimensi("bawaan", "Bawaan", 2, 30_000),
+        ],
+        [],
+      ),
+    );
+    expect(keluar.some((t) => t.includes("80%") && t.includes("Pertanyaan Reflektif"))).toBe(true);
+    // Bawaan punya komisi, jadi tidak ditandai kosong.
+    expect(keluar.some((t) => t.includes("Bawaan") && t.includes("belum menghasilkan"))).toBe(false);
+  });
+
+  it("nilai tanpa komisi ditandai pertimbangkan ganti variasi", () => {
+    const keluar = insightAtribusi(
+      hasil(
+        [
+          dimensi("pertanyaan", "Pertanyaan Reflektif", 3, 120_000),
+          dimensi("curiosity", "Curiosity Gap", 4, 0),
+        ],
+        [],
+      ),
+    );
+    expect(keluar.some((t) => t.includes("Curiosity Gap") && t.includes("belum menghasilkan"))).toBe(true);
+  });
+
+  it("semua kosong -> catatan jujur, bukan diam", () => {
+    const keluar = insightAtribusi(hasil([dimensi("bawaan", "Bawaan", 2, 0)], []));
+    expect(keluar).toHaveLength(1);
+    expect(keluar[0]).toContain("belum ada komisi");
   });
 });
