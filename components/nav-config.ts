@@ -39,6 +39,9 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Dashboard", href: "/", group: "produksi", fase: "MVP" },
   // Mode fokus harian (Level 3): satu layar "hari ini posting apa" + streak.
   { label: "Fokus harian", href: "/fokus", group: "produksi", fase: "MVP" },
+  // Rencana Perdana (Gelombang 4): 21 hari menuju komisi pertama, streak
+  // menyatu dengan Fokus harian.
+  { label: "Rencana Perdana", href: "/rencana", group: "produksi", fase: "MVP" },
   // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
   { label: "Riset audiens", href: "/riset", group: "produksi", fase: "MVP" },
   { label: "Buat posting", href: "/posting/baru", group: "produksi", fase: "MVP" },
