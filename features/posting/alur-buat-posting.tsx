@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import type { PengaturanApp } from "@/app/(dashboard)/pengaturan/form-pengaturan";
 import { FormPenawaran, type PenawaranSaved } from "./form-penawaran";
 import { type SavedProduct } from "./form-produk-manual";
+import { formatRupiah, komisiPerUnit } from "@/lib/kalkulator/kalkulator-cuan";
 import { PengaturanGenerate } from "./pengaturan-generate";
 import { StatusEditor } from "./status-editor";
 import { ThreadsPreview } from "./threads-preview";
@@ -192,6 +193,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     if (dariProduk) return dariProduk;
     return cariAturanBerdasarkanUrl(programs, draft.produk?.url_referensi);
   }, [draft.produk, programs]);
+
+  // Kalkulator Cuan: harga produk aktif sebagai angka (string form bisa "150000").
+  const hargaProduk = Number(draft.produk?.harga ?? 0);
 
   const bannerAturan = catatanAturan ? (
     <div className="flex items-start gap-3 border border-warning/40 bg-warning/10 p-3.5 font-mono text-meta">
@@ -768,6 +772,15 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
                   {draft.produk.url_referensi ? (
                     <p className="text-meta font-mono text-muted-foreground truncate max-w-md mt-0.5">
                       {draft.produk.url_referensi}
+                    </p>
+                  ) : null}
+                  {hargaProduk > 0 ? (
+                    <p className="mt-1 text-meta text-muted-foreground">
+                      Estimasi komisi @10%:{" "}
+                      <span className="font-mono font-medium text-foreground">
+                        {formatRupiah(komisiPerUnit(hargaProduk, 10))}
+                      </span>{" "}
+                      / penjualan — lengkapnya di Kalkulator Cuan di Dashboard.
                     </p>
                   ) : null}
                 </div>
