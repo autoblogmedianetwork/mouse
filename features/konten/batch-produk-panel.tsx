@@ -259,7 +259,7 @@ export function BatchProdukPanel() {
                               href="/antrian"
                               className="inline-flex h-9 items-center border-2 border-foreground px-4 font-mono text-meta font-medium hover:bg-muted"
                             >
-                              Buka Antrian
+                              Buka Konten
                             </Link>
                             <button type="button" onClick={() => tandai(b.id)} className={btnUtama}>
                               Sudah direview, lanjut

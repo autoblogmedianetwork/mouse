@@ -58,7 +58,7 @@ function SidebarContent({
   email: string | null;
   onNavigate?: () => void;
 }) {
-  const groups: Array<MenuItem["group"]> = ["workspace", "tools"];
+  const groups: Array<MenuItem["group"]> = ["produksi", "konten", "tools"];
 
   return (
     <div className="flex h-full flex-col">
@@ -107,7 +107,7 @@ function SidebarContent({
 function Breadcrumb() {
   const pathname = usePathname();
   const halaman = labelHalaman(pathname);
-  const grup = menuUntuk(pathname, MENU_ITEMS)?.group ?? "workspace";
+  const grup = menuUntuk(pathname, MENU_ITEMS)?.group ?? "produksi";
 
   return (
     <nav aria-label="Breadcrumb" className={cn(mikro, "min-w-0 text-muted-foreground")}>

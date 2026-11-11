@@ -109,7 +109,7 @@ export function FokusHarian() {
         <EmptyState
           title="Belum ada yang siap dikerjakan"
           description="Mode fokus menampilkan konten yang jadwalnya hari ini dan konten berstatus siap posting. Tandai satu konten siap di Antrian, atau buat konten baru."
-          actionLabel="Buka Antrian"
+          actionLabel="Buka Konten"
           actionHref="/antrian"
         />
       ) : (

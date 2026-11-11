@@ -168,7 +168,7 @@ export function RingkasanDashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6 sm:pt-6">
             <h2 className="text-isi font-semibold">Konten terbaru</h2>
             <Link href="/antrian" className="text-badan text-primary underline-offset-2 hover:underline">
-              Lihat Antrian review
+              Buka Konten
             </Link>
           </div>
           <ul className="mt-3 divide-y divide-surface-border">

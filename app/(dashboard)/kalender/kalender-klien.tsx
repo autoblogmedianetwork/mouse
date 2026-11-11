@@ -4,7 +4,7 @@
  * Kalender (Fase 6, UI-Spec 3.4): week view + month table of scheduled content.
  *
  * Data is the real content bank ("terjadwal" status with jadwal_at), not mock
- * days. Scheduling itself happens in Antrian review; this page displays, opens,
+ * days. Scheduling itself happens in Konten; this page displays, opens,
  * and moves the schedule:
  *   - klik blok  -> dialog baca-saja berisi utas (tanpa mengubah apa pun)
  *   - drag blok ke hari lain -> konfirmasi, jam tetap
@@ -174,7 +174,7 @@ export default function KalenderKlien() {
     <div className="space-y-6">
       <PageHeader
         title="Kalender"
-        description="Jadwal konten siap posting. Jadwalkan dari Antrian review (tab Disetujui), lalu geser blok ke hari lain untuk memindah jadwal. Mode manual tetap jalur utama sampai Fase 7."
+        description="Jadwal konten siap posting. Jadwalkan dari Konten (tab Disetujui), lalu geser blok ke hari lain untuk memindah jadwal. Mode manual tetap jalur utama sampai Fase 7."
       >
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/antrian" className={btnGhost}>
@@ -201,8 +201,8 @@ export default function KalenderKlien() {
       {terjadwal.length === 0 ? (
         <EmptyState
           title="Belum ada jadwal"
-          description="Tandai konten sebagai siap posting, lalu buka Antrian review dan klik Jadwalkan untuk memilih tanggal dan jam."
-          actionLabel="Buka Antrian review"
+          description="Tandai konten sebagai siap posting, lalu buka Konten dan klik Jadwalkan untuk memilih tanggal dan jam."
+          actionLabel="Buka Konten"
           actionHref="/antrian"
         />
       ) : (
@@ -365,7 +365,7 @@ export default function KalenderKlien() {
                 Buat konten baru
               </Link>
               <Link href="/antrian" className={btnGhost}>
-                Lihat Antrian review
+                Lihat Konten
               </Link>
             </div>
           </Card>
@@ -403,7 +403,7 @@ export default function KalenderKlien() {
             {
               label: "Kirim ke Threads (Fase 7)",
               desc: posting.bisaKirimApi
-                ? "Provider Threads API siap. Tombol Kirim sekarang muncul di dialog ini dan di Antrian review."
+                ? "Provider Threads API siap. Tombol Kirim sekarang muncul di dialog ini dan di Konten."
                 : "Belum aktif: isi THREADS_USER_ID dan THREADS_ACCESS_TOKEN di server. Mode manual tetap jalur utama.",
               selesai: posting.bisaKirimApi,
             },
@@ -537,7 +537,7 @@ export default function KalenderKlien() {
             </h2>
             <p className="mt-2 text-badan text-muted-foreground">
               Hanya penanda jadwal di kalender. Konten tetap berstatus terjadwal dan bisa dibatalkan
-              dari Antrian review.
+              dari Konten.
             </p>
             <p className="mt-3 text-badan font-medium">{ubahTarget.judul}</p>
             <label className="mt-3 block text-meta text-muted-foreground">

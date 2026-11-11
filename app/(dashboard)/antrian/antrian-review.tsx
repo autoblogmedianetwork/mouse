@@ -108,6 +108,15 @@ export function AntrianReview() {
     totalTokens: 0,
   });
   const fileRef = useRef<HTMLInputElement>(null);
+  const dialogJadwalRef = useRef<HTMLDialogElement>(null);
+
+  // Dialog jadwal memakai <dialog> native: focus trap + Esc gratis.
+  useEffect(() => {
+    const d = dialogJadwalRef.current;
+    if (!d) return;
+    if (jadwalTarget && !d.open) d.showModal();
+    if (!jadwalTarget && d.open) d.close();
+  }, [jadwalTarget]);
 
   // Cost source of truth: /api/biaya reads the `generations` table (Fase 5).
   // Failure keeps the widget's "belum ada data" state instead of fake zeros.
@@ -328,7 +337,7 @@ export function AntrianReview() {
     });
     setPesan(
       hasil.jatuh_ke_manual
-        ? `${hasil.error} Konten tetap ada di pustaka dan bisa disalin manual.`
+        ? `${hasil.error} Konten tetap ada di daftar konten dan bisa disalin manual.`
         : (hasil.error ?? "Pengiriman tidak diizinkan."),
     );
   };
@@ -750,12 +759,17 @@ export function AntrianReview() {
 
       {/* Dialog jadwal (UI-Spec 2.5/3.4): hanya siap_posting, konfirmasi di dalam dialog. */}
       {jadwalTarget !== null ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="presentation"
+        <dialog
+          ref={dialogJadwalRef}
+          aria-labelledby="jadwal-judul"
+          onCancel={(e) => {
+            e.preventDefault();
+            setJadwalTarget(null);
+          }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setJadwalTarget(null);
           }}
+          className="m-auto w-[min(94vw,26rem)] border-0 bg-transparent p-0 backdrop:bg-black/50"
         >
           <Card
             role="dialog"
@@ -815,7 +829,7 @@ export function AntrianReview() {
               </button>
             </div>
           </Card>
-        </div>
+        </dialog>
       ) : null}
 
       {/* Riwayat hasil terakhir dari tabel contents Supabase (N-5). */}

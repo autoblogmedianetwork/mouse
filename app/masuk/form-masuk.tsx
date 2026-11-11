@@ -115,7 +115,7 @@ export function FormMasuk() {
                 Keluar
               </button>
               <Link href="/antrian" className={TOMBOL_GHOST}>
-                Buka Antrian review &gt;&gt;&gt;
+                Buka Konten &gt;&gt;&gt;
               </Link>
             </div>
             <details className="p-4 sm:p-6">

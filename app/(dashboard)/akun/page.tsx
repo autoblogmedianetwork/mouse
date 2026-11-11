@@ -30,7 +30,7 @@ export default async function AkunPage() {
         </div>
         <p className="mt-1 text-badan text-muted-foreground">
           Dari akun yang terhubung, pilih ide konten, generate utas, lalu salin atau kirim via provider
-          posting. Status per konten terlihat di Antrian review.
+          posting. Status per konten terlihat di Konten.
         </p>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">

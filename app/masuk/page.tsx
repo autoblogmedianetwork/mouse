@@ -27,8 +27,8 @@ export default function MasukPage() {
       </Suspense>
 
       <p className="max-w-xl text-meta text-muted-foreground">
-        Bank Konten, laporan performa, dan peta atribusi tersimpan di akun Anda. Isi Pustaka yang
-        sudah ada di peramban belum ikut pindah; Ekspor JSON tetap aman sebagai cadangan.
+        Konten, laporan performa, dan peta atribusi tersimpan di akun Anda. Konten yang sudah ada
+        di peramban belum ikut pindah; Ekspor JSON tetap aman sebagai cadangan.
       </p>
     </div>
   );

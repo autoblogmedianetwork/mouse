@@ -25,7 +25,7 @@ export function ReviewTabs({
   return (
     <div
       role="tablist"
-      aria-label="Antrian review per status"
+      aria-label="Tab status konten"
       className="flex gap-1 overflow-x-auto border-b-2 border-foreground"
     >
       {tabs.map((t) => {

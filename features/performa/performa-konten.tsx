@@ -206,13 +206,13 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
           <h2 className="text-isi font-semibold">Performa per konten</h2>
           <p className="mt-1 text-badan text-muted-foreground">
             Dihitung dari kolom Sub_id/Creator pada laporan yang Anda impor. Kode pelacak tiap konten
-            bisa disalin di halaman Antrian review.
+            bisa disalin di halaman Konten.
           </p>
         </div>
         {hasil.per_konten.length === 0 ? (
           <p className="mt-3 px-4 text-badan text-muted-foreground sm:px-6">
             Belum ada konten yang bisa dipasangkan dengan baris laporan. Salin kode pelacak konten di
-            halaman Antrian review, pasang di link affiliate, lalu impor laporan berikutnya.
+            halaman Konten, pasang di link affiliate, lalu impor laporan berikutnya.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto">
@@ -384,7 +384,7 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
         <p className="text-meta text-muted-foreground">
           Semua sub_id pada laporan sudah dikenali.{" "}
           <Link href="/antrian" className="text-primary underline-offset-2 hover:underline">
-            Buka Antrian review
+            Buka Konten
           </Link>{" "}
           untuk menyalin kode pelacak konten baru.
         </p>

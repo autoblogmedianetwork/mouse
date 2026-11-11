@@ -129,7 +129,7 @@ function BagianPosting() {
           </select>
           <p className="mt-1 text-meta text-muted-foreground">
             {posting.bisaKirimApi
-              ? "Threads API siap: tombol Kirim sekarang muncul di Antrian review dan Kalender."
+              ? "Threads API siap: tombol Kirim sekarang muncul di Konten dan Kalender."
               : posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
                 "Menyiapkan status provider…"}
           </p>

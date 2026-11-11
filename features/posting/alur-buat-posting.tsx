@@ -292,7 +292,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
       );
       setDraft(next);
       dirtyRef.current = false;
-      setPesan("Draft tersimpan di browser dan masuk Pustaka konten.");
+      setPesan("Draft tersimpan di browser dan masuk daftar Konten.");
     } catch {
       setPesan("Gagal menyimpan ke localStorage.");
     }

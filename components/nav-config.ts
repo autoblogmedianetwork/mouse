@@ -1,11 +1,14 @@
 /**
  * Menu structure per docs/UI-Spec-Heaviliate.md section 2.1 (ADR 0013).
  *
- * Eight items. Every item carries its phase instead of a permanent
- * `available: true`, so the "Segera" label only appears for routes that really
- * do not exist yet. Items with more than one page expose tabs through `tabs`,
- * and the sidebar links to the first tab so the section is always reachable.
+ * Three groups keep the growing route list readable: Produksi (make content),
+ * Konten (review/publish/measure), and Alat (utilities). Every item carries its
+ * phase instead of a permanent `available: true`, so the "Segera" label only
+ * appears for routes that really do not exist yet. Items with more than one
+ * page expose tabs through `tabs`, and the sidebar links to the first tab.
  */
+
+export type GrupMenu = "produksi" | "konten" | "tools";
 
 export type FaseMenu = "MVP" | "M6" | "Level 2" | "Setelah M5";
 
@@ -18,7 +21,7 @@ export interface MenuItem {
   label: string;
   /** Where the sidebar points; the first tab for multi-page sections. */
   href: string;
-  group: "workspace" | "tools";
+  group: GrupMenu;
   fase: FaseMenu;
   /**
    * Routes this item owns. The active-route match and the breadcrumb use this
@@ -33,23 +36,23 @@ export interface MenuItem {
 
 export const MENU_ITEMS: MenuItem[] = [
   // Workspace
-  { label: "Dashboard", href: "/", group: "workspace", fase: "MVP" },
+  { label: "Dashboard", href: "/", group: "produksi", fase: "MVP" },
   // Mode fokus harian (Level 3): satu layar "hari ini posting apa" + streak.
-  { label: "Fokus harian", href: "/fokus", group: "workspace", fase: "MVP" },
+  { label: "Fokus harian", href: "/fokus", group: "produksi", fase: "MVP" },
   // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
-  { label: "Riset audiens", href: "/riset", group: "workspace", fase: "MVP" },
-  { label: "Buat posting", href: "/posting/baru", group: "workspace", fase: "MVP" },
+  { label: "Riset audiens", href: "/riset", group: "produksi", fase: "MVP" },
+  { label: "Buat posting", href: "/posting/baru", group: "produksi", fase: "MVP" },
   // Jalur video prompt manual: storyboard ChatGPT, video Google Flow.
-  { label: "Buat video", href: "/video", group: "workspace", fase: "MVP" },
+  { label: "Buat video", href: "/video", group: "produksi", fase: "MVP" },
   // Lab konten (Gelombang 3): lab uji, ide dari masalah, serial 7 hari.
-  { label: "Lab konten", href: "/lab", group: "workspace", fase: "MVP" },
+  { label: "Lab konten", href: "/lab", group: "produksi", fase: "MVP" },
   // Antrian dan riwayat digabung jadi satu item "Konten" dengan tab
   // (Fase 2-A, pola sama dengan Analitik/Aset).
   {
     label: "Konten",
     href: "/antrian",
     hrefs: ["/antrian", "/riwayat"],
-    group: "workspace",
+    group: "konten",
     fase: "MVP",
     tabs: [
       { label: "Antrian", href: "/antrian" },
@@ -60,13 +63,13 @@ export const MENU_ITEMS: MenuItem[] = [
   { label: "Pencarian", href: "/cari", group: "tools", fase: "MVP" },
   // Rincian biaya AI per provider/fungsi (Fase 5); widget header tetap ringkas.
   { label: "Biaya AI", href: "/biaya", group: "tools", fase: "MVP" },
-  { label: "Kalender", href: "/kalender", group: "tools", fase: "Level 2" },
+  { label: "Kalender", href: "/kalender", group: "konten", fase: "Level 2" },
   {
     // Impor laporan affiliate adalah masukan analisis, bukan halaman sendiri.
     label: "Analitik",
     href: "/analitik",
     hrefs: ["/impor"],
-    group: "tools",
+    group: "konten",
     fase: "Setelah M5",
     tabs: [
       { label: "Ringkasan", href: "/analitik" },
@@ -88,8 +91,9 @@ export const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const GROUP_LABELS: Record<MenuItem["group"], string> = {
-  workspace: "Workspace",
-  tools: "Tools",
+  produksi: "Produksi",
+  konten: "Konten",
+  tools: "Alat",
 };
 
 /**
