@@ -11,6 +11,7 @@
  * match `contents` in docs/skema-database.md.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/card";
 import { TautanMasuk } from "@/components/pesan-galat";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -24,6 +25,7 @@ import type { StatistikBiaya } from "@/lib/ai/statistik";
 import { usePosting } from "@/features/posting/use-posting";
 import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
 import { LampuShadowban } from "@/features/antrian/lampu-shadowban";
+import { siapkanDraftDaurUlang } from "@/lib/konten/daur-ulang";
 import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
 import { kemasanMultiPlatform } from "@/lib/konten/kemasan-multi-platform";
 import { catatRiwayat } from "@/lib/konten/riwayat";
@@ -87,6 +89,7 @@ export function AntrianReview() {
   const [rentang, setRentang] = useState<"semua" | "7d" | "30d">("semua");
   const [terpilih, setTerpilih] = useState<string[]>([]);
   const [bukaId, setBukaId] = useState<string | null>(null);
+  const [produkList] = useLocalState("autothreads-products", [] as Array<Record<string, unknown>>);
   const [konfirmasi, setKonfirmasi] = useState<Konfirmasi | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
   const [jadwalTarget, setJadwalTarget] = useState<{ id: string; judul: string } | null>(null);
@@ -235,6 +238,19 @@ export function AntrianReview() {
         setPesan(`${ids.length} konten dihapus.`);
       },
     });
+  };
+
+  const router = useRouter();
+  const onDaurUlang = (k: Konten) => {
+    const draft = siapkanDraftDaurUlang(k, produkList);
+    try {
+      window.localStorage.setItem("autothreads-draft-posting", JSON.stringify(draft));
+    } catch {
+      setPesan("Penyimpanan penuh — draft daur ulang gagal disimpan.");
+      return;
+    }
+    setPesan(`Konten "${k.judul}" dibuka di wizard sebagai daur ulang.`);
+    router.push("/posting/baru");
   };
 
   const onArsip = (id: string) => {
@@ -422,7 +438,13 @@ export function AntrianReview() {
           hapus,
         ];
       case "terkirim":
-        return [salin, duplikat, { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) }, hapus];
+        return [
+          salin,
+          duplikat,
+          { label: "Daur ulang", jalankan: (x: Konten) => onDaurUlang(x) },
+          { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) },
+          hapus,
+        ];
       case "ditolak":
         return [
           {
