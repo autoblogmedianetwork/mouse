@@ -14,6 +14,7 @@ import {
   pilihFokus,
   tujuhHariTerakhir,
 } from "@/lib/konten/fokus";
+import { produkButuhKonten } from "@/lib/konten/fokus";
 import type { Konten } from "@/lib/konten/skema";
 import { hitungSkorShadowban } from "@/lib/konten/skor-shadowban";
 import { tandaiTerkirim } from "@/lib/konten/store";
@@ -38,6 +39,13 @@ export function FokusHarian() {
   const pekan = useMemo(() => tujuhHariTerakhir(hariSelesai, hariIni), [hariSelesai, hariIni]);
   const sudahHariIni = hariSelesai.includes(hariIni);
   // Skor shadowban per konten (ide #32): dihitung saat render, tanpa API.
+  // Rekomendasi produk (power-up Fokus): produk terlantar tanpa konten baru.
+  const [produkList] = useLocalState("autothreads-products", [] as Array<{ nama_internal?: string; nama?: string }>);
+  const produkTertelantar = useMemo(
+    () => produkButuhKonten(produkList, konten),
+    [produkList, konten],
+  );
+
   const skorShadowban = useMemo(
     () => new Map(daftar.map(({ konten: k }) => [k.id, hitungSkorShadowban(k.statuses)])),
     [daftar],
@@ -98,6 +106,23 @@ export function FokusHarian() {
           </div>
         </div>
       </Card>
+
+      {produkTertelantar.length > 0 ? (
+        <Card>
+          <h2 className="text-isi font-semibold">Produk yang mulai terlantar</h2>
+          <p className="mt-1 text-badan text-muted-foreground">
+            Sudah lama tidak diposting — bikin konten baru sebelum audiens lupa.
+          </p>
+          <ul className="mt-3 space-y-2">
+            {produkTertelantar.slice(0, 3).map((p) => (
+              <li key={p.nama} className="border border-surface-border p-3 text-badan">
+                <span className="font-medium">{p.nama}</span>
+                <span className="text-muted-foreground"> — {p.alasan}.</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {pesan ? (
         <p className="text-badan text-status-ready" aria-live="polite">

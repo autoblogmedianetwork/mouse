@@ -102,3 +102,57 @@ export function tujuhHariTerakhir(
   }
   return hasil;
 }
+
+/**
+ * Rekomendasi produk (power-up Fokus harian): produk yang belum punya konten
+ * sama sekali, atau konten terakhirnya sudah lebih lama dari `batasHari`.
+ * Murni fungsi; UI yang menampilkan hasilnya.
+ */
+export interface ProdukTertelantar {
+  nama: string;
+  /** Berapa konten yang pernah dibuat untuk produk ini (0 = belum pernah). */
+  jumlahKonten: number;
+  /** Hari sejak konten terakhir untuk produk ini; null kalau belum pernah. */
+  hariSejakTerakhir: number | null;
+  alasan: string;
+}
+
+export function produkButuhKonten(
+  produkList: Array<{ nama_internal?: string; nama?: string }>,
+  kontenList: Konten[],
+  hariIni: Date = new Date(),
+  batasHari = 7,
+): ProdukTertelantar[] {
+  const keluar: ProdukTertelantar[] = [];
+  for (const p of produkList) {
+    const nama = (p.nama_internal ?? p.nama ?? "").trim();
+    if (nama === "") continue;
+    const milik = kontenList.filter(
+      (k) => (k.produk_nama ?? "").trim().toLowerCase() === nama.toLowerCase(),
+    );
+    if (milik.length === 0) {
+      keluar.push({
+        nama,
+        jumlahKonten: 0,
+        hariSejakTerakhir: null,
+        alasan: "belum pernah dibuatkan konten",
+      });
+      continue;
+    }
+    const terakhir = milik
+      .map((k) => Date.parse(k.updated_at ?? ""))
+      .filter((t) => Number.isFinite(t))
+      .sort((a, b) => b - a)[0];
+    if (!terakhir) continue;
+    const hari = Math.floor((hariIni.getTime() - terakhir) / 86_400_000);
+    if (hari > batasHari) {
+      keluar.push({
+        nama,
+        jumlahKonten: milik.length,
+        hariSejakTerakhir: hari,
+        alasan: `konten terakhirnya ${hari} hari lalu`,
+      });
+    }
+  }
+  return keluar;
+}
