@@ -53,6 +53,13 @@ import {
   type RiwayatRiset,
 } from "@/lib/riset/riwayat-pencarian";
 import { AMBANG_DIREKOMENDASIKAN, direkomendasikan } from "@/lib/riset/skor-peluang";
+import {
+  KEY_BANDING,
+  bandingkanDua,
+  buatSnapshot,
+  simpanSnapshot,
+  type SnapshotRiset,
+} from "@/lib/riset/banding";
 import { PESAN_ENV_KURANG, supabaseSiap } from "@/lib/supabase/klien";
 
 const inputClass =
@@ -103,6 +110,8 @@ export function PanelRiset() {
   );
   const [riset, setRiset] = useState<Riset | null>(null);
   const [peluang, setPeluang] = useState<Peluang[]>([]);
+  // Power-up banding niche: maks 2 snapshot peluang tersimpan lokal.
+  const [snapshots, setSnapshots] = useState<SnapshotRiset[]>([]);
   const [riwayat, setRiwayat] = useState<Riset[]>([]);
   const [sibuk, setSibuk] = useState<"riset" | "peluang" | null>(null);
   const [galat, setGalat] = useState<{ pesan: string; perluMasuk: boolean } | null>(null);
@@ -261,6 +270,21 @@ export function PanelRiset() {
     },
     [riset],
   );
+
+  // Muat snapshot banding saat mount (pola sama: setelah mount agar SSR aman).
+  useEffect(() => {
+    try {
+      const mentah = window.localStorage.getItem(KEY_BANDING);
+      if (mentah) {
+        const parsed = JSON.parse(mentah) as SnapshotRiset[];
+        if (Array.isArray(parsed))
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrasi localStorage harus setelah mount agar sama dengan SSR
+          setSnapshots(parsed.slice(0, 2));
+      }
+    } catch {
+      // storage rusak: abaikan
+    }
+  }, []);
 
   // Muat bank saat mount; pola sama dengan draft (localStorage setelah mount).
   useEffect(() => {
@@ -684,6 +708,27 @@ export function PanelRiset() {
         />
       )}
 
+      {/* 2b. Banding niche (power-up Riset): simpan snapshot lalu bandingkan */}
+      {snapshots.length > 0 ? (
+        <Card className="space-y-2">
+          <h2 className="text-isi font-semibold">Perbandingan niche</h2>
+          {snapshots.length === 2 ? (
+            <ul className="space-y-1 text-badan">
+              {bandingkanDua(snapshots[0], snapshots[1]).baris.map((t) => (
+                <li key={t} className="border border-surface-border p-2">
+                  {t}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-badan text-muted-foreground">
+              Snapshot tersimpan: &quot;{snapshots[0].niche}&quot;. Jalankan riset niche kedua
+              lalu simpan untuk membandingkan.
+            </p>
+          )}
+        </Card>
+      ) : null}
+
       {/* 3. Peluang produk */}
       {riset && peluang.length > 0 ? (
         <Card className="space-y-3">
@@ -693,6 +738,29 @@ export function PanelRiset() {
               Tekan “Buat produk” pada kategori yang ingin dikerjakan. Produk dibuat dengan
               sumber manual; harga dan tautan diisi di form produk.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                const snapshot = buatSnapshot(
+                  niche,
+                  peluang.map((p) => ({
+                    kategori: p.kategori,
+                    skor_total: p.skor_total ?? null,
+                    direkomendasikan: direkomendasikan(p),
+                  })),
+                );
+                const berikut = simpanSnapshot(snapshots, snapshot);
+                setSnapshots(berikut);
+                try {
+                  window.localStorage.setItem(KEY_BANDING, JSON.stringify(berikut));
+                } catch {
+                  // storage tidak tersedia: snapshot tetap di layar
+                }
+              }}
+              className="mt-2 h-8 border border-surface-border px-3 text-meta font-medium hover:bg-muted"
+            >
+              Simpan untuk perbandingan niche
+            </button>
           </div>
 
           <div className="overflow-x-auto">
