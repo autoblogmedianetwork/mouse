@@ -34,6 +34,8 @@ import { usePosting } from "@/features/posting/use-posting";
 import { catatRiwayat } from "@/lib/konten/riwayat";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { pindahJadwal, tandaiGagal, tandaiTerkirim } from "@/lib/konten/store";
+import { jadwalkanKonten } from "@/lib/konten/store";
+import { usulkanAutoIsi } from "@/lib/konten/auto-isi";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { cn } from "@/lib/utils";
 
@@ -170,6 +172,29 @@ export default function KalenderKlien() {
 
   const lewatDari = (iso: string) => sekarang !== null && Date.parse(iso) < sekarang;
 
+  // Auto-isi (power-up Kalender): pasangkan konten siap posting ke hari kosong.
+  // Tetap lewat jadwalkanKonten (checkpoint per item) supaya aturan status aman.
+  const autoIsi = () => {
+    const usulan = usulkanAutoIsi(konten);
+    if (usulan.usulan.length === 0) {
+      setPesan(usulan.pesan);
+      return;
+    }
+    let list = konten;
+    let gagal = 0;
+    for (const u of usulan.usulan) {
+      const hasil = jadwalkanKonten(list, u.id, u.jadwalAt);
+      if (hasil.ok) list = hasil.list;
+      else gagal += 1;
+    }
+    setKonten(list);
+    setPesan(
+      gagal > 0
+        ? `${usulan.usulan.length - gagal} konten dijadwalkan, ${gagal} gagal (status berubah?).`
+        : `${usulan.pesan}${usulan.sisa > 0 ? ` Sisa ${usulan.sisa} konten menunggu hari kosong.` : ""}`,
+    );
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -180,6 +205,9 @@ export default function KalenderKlien() {
           <Link href="/antrian" className={btnGhost}>
             Jadwalkan dari Antrian
           </Link>
+          <button type="button" onClick={autoIsi} className={btnGhost}>
+            Isi otomatis hari kosong
+          </button>
           <span className="border border-surface-border px-2.5 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge text-muted-foreground">
             {terjadwal.length} terjadwal
           </span>
