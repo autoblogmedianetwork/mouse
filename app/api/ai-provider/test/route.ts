@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { wajibSesi } from "@/lib/supabase/server";
-import { dekripsiApiKey } from "@/lib/ai/provider-store";
+import { dekripsiApiKey, validasiBaseUrl } from "@/lib/ai/provider-store";
 
 export async function POST(req: Request) {
   const sesi = await wajibSesi();
@@ -29,6 +29,11 @@ export async function POST(req: Request) {
     .maybeSingle();
   if (error || !data) return NextResponse.json({ ok: false, error: "Provider tidak ditemukan." }, { status: 404 });
 
+  const baseUrlBersih = validasiBaseUrl(String(data.base_url));
+  if (!baseUrlBersih) {
+    return NextResponse.json({ ok: false, error: "Base URL provider tidak diizinkan." }, { status: 400 });
+  }
+
   let apiKey: string;
   try {
     apiKey = dekripsiApiKey(data.api_key_enc);
@@ -39,7 +44,7 @@ export async function POST(req: Request) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
   try {
-    const res = await fetch(`${String(data.base_url).replace(/\/+$/, "")}/chat/completions`, {
+    const res = await fetch(`${baseUrlBersih}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,8 +63,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: body.error?.message ?? `HTTP ${res.status}` }, { status: 200 });
     }
     return NextResponse.json({ ok: true });
-  } catch (err) {
+  } catch {
     clearTimeout(timer);
-    return NextResponse.json({ ok: false, error: err instanceof Error ? err.message : "Gagal menghubungi provider." }, { status: 200 });
+    // Pesan generik: detail jaringan internal tidak boleh bocor ke klien.
+    return NextResponse.json({ ok: false, error: "Gagal menghubungi provider. Periksa Base URL dan koneksi." }, { status: 200 });
   }
 }

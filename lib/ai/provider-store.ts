@@ -28,6 +28,39 @@ function masterKey(): Buffer {
   throw new Error("AI_PROVIDER_SECRET harus 32 byte (hex 64 char atau base64 44 char).");
 }
 
+/**
+ * Validasi baseUrl provider untuk mencegah SSRF: hanya http(s) ke host publik.
+ * Loopback, private, link-local, dan metadata cloud ditolak.
+ * Mengembalikan URL ternormalisasi (tanpa trailing slash) atau null.
+ */
+export function validasiBaseUrl(url: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+  const host = parsed.hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return null;
+  // IP literal: tolak loopback/private/link-local (IPv4 + IPv6).
+  if (/^[0-9.]+$/.test(host)) {
+    const oktet = host.split(".").map(Number);
+    if (oktet.length !== 4 || oktet.some((n) => Number.isNaN(n) || n < 0 || n > 255)) return null;
+    const [a, b] = oktet;
+    if (a === 0 || a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)) return null;
+  }
+  if (host.includes(":")) {
+    // IPv6: loopback, link-local fe80::/10, unique local fc00::/7, unspecified.
+    const h = host.replace(/\[|\]/g, "");
+    if (h === "::1" || h === "::" || /^f[cd]/.test(h) || /^fe[89ab]/.test(h)) return null;
+    // IPv4-mapped IPv6 (::ffff:..., termasuk bentuk hex seperti ::ffff:a00:1)
+    // ditolak seluruhnya: provider publik tidak pernah butuh format ini.
+    if (h.startsWith("::ffff:")) return null;
+  }
+  return parsed.origin + (parsed.pathname === "/" ? "" : parsed.pathname.replace(/\/+$/, ""));
+}
+
 export function enkripsiApiKey(plain: string): string {
   const key = masterKey();
   const iv = randomBytes(12);
@@ -148,11 +181,15 @@ export async function tambahProvider(input: {
   const supabase = await klienServer();
   const user = supabase ? await penggunaSaatIni() : null;
   if (!supabase || !user) return { ok: false, error: "Sesi tidak ditemukan." };
+  const baseUrlBersih = validasiBaseUrl(input.baseUrl);
+  if (!baseUrlBersih) {
+    return { ok: false, error: "Base URL harus http(s) ke host publik (localhost & IP internal tidak boleh)." };
+  }
   const enc = enkripsiApiKey(input.apiKey);
   const { error } = await supabase.from("ai_provider").insert({
     user_id: user.id,
     nama: input.nama,
-    base_url: input.baseUrl,
+    base_url: baseUrlBersih,
     model: input.model,
     api_key_enc: enc,
     is_active: false,

@@ -51,8 +51,12 @@ export async function POST(req: Request) {
   } catch (err) {
     // Jangan biarkan error enkripsi menjadi 500 HTML: UI butuh JSON agar
     // tombol simpan tidak berhenti di "Menyimpan…".
+    // Hanya pesan konfigurasi milik kita yang boleh diteruskan; sisanya generik
+    // supaya detail internal tidak bocor ke klien.
     const pesan =
-      err instanceof Error ? err.message : "Gagal menyimpan provider.";
+      err instanceof Error && err.message.startsWith("AI_PROVIDER_SECRET")
+        ? err.message
+        : "Gagal menyimpan provider.";
     return NextResponse.json({ ok: false, error: pesan }, { status: 500 });
   }
 }
