@@ -224,3 +224,89 @@ export async function aktifkanProvider(id: string): Promise<{ ok: boolean; error
   invalidateProviderCache(user.id);
   return { ok: true };
 }
+
+/**
+ * Fungsi murni: rancang kolom pembaruan provider untuk PATCH.
+ * API key kosong/tidak ada = kunci lama DIPERTAHANKAN (api_key_enc tidak
+ * ikut di-update). Base URL divalidasi ulang (anti-SSRF tetap berlaku).
+ */
+export function rancangPembaruanProvider(input: {
+  nama?: string;
+  baseUrl?: string;
+  model?: string;
+  apiKey?: string;
+  isActive?: boolean;
+}): { kolom: Record<string, unknown> } | { error: string } {
+  const kolom: Record<string, unknown> = {};
+  if (input.nama !== undefined) {
+    const nama = input.nama.trim();
+    if (!nama || nama.length > 80) return { error: "Nama wajib 1-80 karakter." };
+    kolom.nama = nama;
+  }
+  if (input.baseUrl !== undefined) {
+    const baseUrlBersih = validasiBaseUrl(input.baseUrl);
+    if (!baseUrlBersih) {
+      return { error: "Base URL harus http(s) ke host publik (localhost & IP internal tidak boleh)." };
+    }
+    kolom.base_url = baseUrlBersih;
+  }
+  if (input.model !== undefined) {
+    const model = input.model.trim();
+    if (!model || model.length > 120) return { error: "Model wajib 1-120 karakter." };
+    kolom.model = model;
+  }
+  // Kunci hanya diubah bila DIISI — kosong berarti pertahankan yang lama.
+  if (input.apiKey !== undefined && input.apiKey.trim() !== "") {
+    if (input.apiKey.length > 500) return { error: "API key maksimal 500 karakter." };
+    kolom.api_key_enc = enkripsiApiKey(input.apiKey.trim());
+  }
+  if (input.isActive !== undefined) kolom.is_active = input.isActive;
+  return { kolom };
+}
+
+/**
+ * Edit provider milik user: nama/base URL/model, ganti kunci (opsional),
+ * dan set aktif/nonaktif. isActive=true menonaktifkan provider lain
+ * (satu utama, sisanya cadangan — semantik sama dengan aktifkanProvider).
+ */
+export async function ubahProvider(input: {
+  id: string;
+  nama?: string;
+  baseUrl?: string;
+  model?: string;
+  apiKey?: string;
+  isActive?: boolean;
+}): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await klienServer();
+  const user = supabase ? await penggunaSaatIni() : null;
+  if (!supabase || !user) return { ok: false, error: "Sesi tidak ditemukan." };
+
+  const rancangan = rancangPembaruanProvider(input);
+  if ("error" in rancangan) return { ok: false, error: rancangan.error };
+  if (Object.keys(rancangan.kolom).length === 0) {
+    return { ok: false, error: "Tidak ada perubahan yang dikirim." };
+  }
+
+  // Pastikan provider itu milik user ini sebelum menyentuh apa pun.
+  const ada = await supabase
+    .from("ai_provider")
+    .select("id")
+    .eq("id", input.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (ada.error) return { ok: false, error: ada.error.message };
+  if (!ada.data) return { ok: false, error: "Provider tidak ditemukan." };
+
+  if (input.isActive === true) {
+    // Satu utama: matikan yang lain dulu (semantik aktifkanProvider).
+    await supabase.from("ai_provider").update({ is_active: false }).eq("user_id", user.id);
+  }
+  const { error } = await supabase
+    .from("ai_provider")
+    .update(rancangan.kolom)
+    .eq("id", input.id)
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  invalidateProviderCache(user.id);
+  return { ok: true };
+}

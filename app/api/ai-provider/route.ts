@@ -8,6 +8,7 @@ import { z } from "zod";
 import { daftarProvider,
   tambahProvider,
   hapusProvider,
+  ubahProvider,
 } from "@/lib/ai/provider-store";
 
 const tambahSkema = z.object({
@@ -57,6 +58,43 @@ export async function POST(req: Request) {
       err instanceof Error && err.message.startsWith("AI_PROVIDER_SECRET")
         ? err.message
         : "Gagal menyimpan provider.";
+    return NextResponse.json({ ok: false, error: pesan }, { status: 500 });
+  }
+}
+
+/** PATCH: edit provider. API key kosong = kunci lama dipertahankan. */
+const editSkema = z.object({
+  id: z.string().uuid(),
+  nama: z.string().trim().min(1).max(80).optional(),
+  baseUrl: z.string().trim().url().optional(),
+  model: z.string().trim().min(1).max(120).optional(),
+  // Kosong/tidak dikirim = pertahankan kunci lama (tidak pernah dikirim balik ke browser).
+  apiKey: z.string().max(500).optional(),
+  isActive: z.boolean().optional(),
+});
+
+export async function PATCH(req: Request) {
+  const sesi = await wajibSesi();
+  if ("respons" in sesi) return sesi.respons;
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
+  }
+  const parsed = editSkema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." }, { status: 400 });
+  }
+  try {
+    const hasil = await ubahProvider(parsed.data);
+    return NextResponse.json(hasil, { status: hasil.ok ? 200 : 400 });
+  } catch (err) {
+    const pesan =
+      err instanceof Error && err.message.startsWith("AI_PROVIDER_SECRET")
+        ? err.message
+        : "Gagal menyimpan perubahan provider.";
     return NextResponse.json({ ok: false, error: pesan }, { status: 500 });
   }
 }

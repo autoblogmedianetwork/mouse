@@ -86,6 +86,59 @@ export function AiProviderManager() {
 
   const [testing, setTesting] = useState<string | null>(null);
   const [hasilTest, setHasilTest] = useState<Record<string, string>>({});
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editModel, setEditModel] = useState("");
+  const [editNama, setEditNama] = useState("");
+  const [editApiKey, setEditApiKey] = useState("");
+  const [sedangSimpan, setSedangSimpan] = useState(false);
+
+  const bukaEdit = (p: Provider) => {
+    setEditId(p.id);
+    setEditNama(p.nama);
+    setEditModel(p.model);
+    setEditApiKey(""); // kunci lama dipertahankan bila dibiarkan kosong
+    setGalat(null);
+  };
+
+  const simpanEdit = async () => {
+    if (!editId) return;
+    setSedangSimpan(true);
+    setGalat(null);
+    try {
+      const res = await fetch("/api/ai-provider", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editId,
+          nama: editNama,
+          model: editModel,
+          // Kosong = kunci lama dipertahankan (server tidak menuntut isi ulang).
+          ...(editApiKey.trim() ? { apiKey: editApiKey } : {}),
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) {
+        setGalat(json.error ?? `Gagal menyimpan (HTTP ${res.status}).`);
+        return;
+      }
+      setEditId(null);
+      await muat();
+    } catch {
+      setGalat("Tidak bisa menghubungi server. Periksa koneksi lalu coba lagi.");
+    } finally {
+      setSedangSimpan(false);
+    }
+  };
+
+  const nonaktifkan = async (id: string) => {
+    await fetch("/api/ai-provider", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, isActive: false }),
+    });
+    await muat();
+  };
+
   const tes = async (id: string) => {
     setTesting(id);
     const res = await fetch("/api/ai-provider/test", {
@@ -109,29 +162,69 @@ export function AiProviderManager() {
         {list.length === 0 ? (
           <p className="text-meta text-muted-foreground">Belum ada provider tersimpan; pakai env server.</p>
         ) : (
-          list.map((p) => (
-            <div key={p.id} className="flex items-center justify-between border border-surface-border p-3">
-              <div>
-                <p className="text-badan font-medium">
-                  {p.nama} {p.isActive ? "(aktif)" : ""}
-                </p>
-                <p className="text-meta text-muted-foreground">
-                  {p.baseUrl} · {p.model}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => tes(p.id)} disabled={testing === p.id} className="border border-surface-border px-2 py-1 text-meta disabled:opacity-50">
-                  {testing === p.id ? "Testing…" : "Test"}
-                </button>
-                {!p.isActive ? (
-                  <button type="button" onClick={() => aktifkan(p.id)} className="border border-surface-border px-2 py-1 text-meta">
-                    Aktifkan
+          list.map((p, i) => (
+            <div key={p.id} className="border border-surface-border p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-badan font-medium">
+                    <span className="mr-2 font-mono text-meta text-muted-foreground">#{i + 1}</span>
+                    {p.nama}{" "}
+                    <span
+                      className={
+                        p.isActive
+                          ? "ml-1 text-meta font-medium text-status-ready"
+                          : "ml-1 text-meta text-muted-foreground"
+                      }
+                    >
+                      {p.isActive ? "UTAMA · dicoba duluan" : "CADANGAN · dipakai kalau utama gagal"}
+                    </span>
+                  </p>
+                  <p className="text-meta text-muted-foreground break-all">
+                    {p.baseUrl} · {p.model}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => tes(p.id)} disabled={testing === p.id} className="border border-surface-border px-2 py-1 text-meta disabled:opacity-50">
+                    {testing === p.id ? "Testing…" : "Test"}
                   </button>
-                ) : null}
-                <button type="button" onClick={() => hapus(p.id)} className="border border-surface-border px-2 py-1 text-meta">
-                  Hapus
-                </button>
+                  <button type="button" onClick={() => bukaEdit(p)} className="border border-surface-border px-2 py-1 text-meta">
+                    Edit
+                  </button>
+                  {p.isActive ? (
+                    <button type="button" onClick={() => nonaktifkan(p.id)} className="border border-surface-border px-2 py-1 text-meta">
+                      Nonaktifkan
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => aktifkan(p.id)} className="border border-surface-border px-2 py-1 text-meta">
+                      Aktifkan
+                    </button>
+                  )}
+                  <button type="button" onClick={() => hapus(p.id)} className="border border-surface-border px-2 py-1 text-meta">
+                    Hapus
+                  </button>
+                </div>
               </div>
+              {editId === p.id ? (
+                <div className="mt-3 space-y-2 border-t border-surface-border pt-3">
+                  <input value={editNama} onChange={(e) => setEditNama(e.target.value)} placeholder="Nama provider" className={inputClass} />
+                  <input value={editModel} onChange={(e) => setEditModel(e.target.value)} placeholder="Model" className={inputClass} />
+                  <input
+                    type="password"
+                    value={editApiKey}
+                    onChange={(e) => setEditApiKey(e.target.value)}
+                    placeholder="API key baru — kosongkan bila tidak diganti"
+                    className={inputClass}
+                  />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={simpanEdit} disabled={sedangSimpan} className="border border-surface-border px-3 py-1.5 text-meta disabled:opacity-50">
+                      {sedangSimpan ? "Menyimpan…" : "Simpan perubahan"}
+                    </button>
+                    <button type="button" onClick={() => setEditId(null)} className="border border-surface-border px-3 py-1.5 text-meta">
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              ) : null}
               {hasilTest[p.id] ? (
                 <p className="mt-1 text-meta text-muted-foreground">Hasil test: {hasilTest[p.id]}</p>
               ) : null}
@@ -139,6 +232,12 @@ export function AiProviderManager() {
           ))
         )}
       </div>
+      {list.length > 0 ? (
+        <p className="mt-3 text-meta text-muted-foreground">
+          Urutan antrian: UTAMA dicoba duluan, lalu CADANGAN. Provider nonaktif tetap menjadi
+          cadangan terakhir; env server (Vercel) adalah jaring paling akhir.
+        </p>
+      ) : null}
 
       <div className="mt-4 space-y-2 border-t border-surface-border pt-4">
         <input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Nama provider" className={inputClass} />
