@@ -166,10 +166,14 @@ export function PanelRiset() {
         error?: string;
       };
       if (!res.ok || !data.ok) {
-        setGalat({
-          pesan: data.error ?? `Peluang gagal disusun (HTTP ${res.status}).`,
-          perluMasuk: res.status === 401,
-        });
+        // 504 = Vercel memutus karena fungsi melewati batas waktu, bukan
+        // salah input: AI biasanya masih memproses. Beri tahu agar user
+        // menunggu & mencoba lagi, bukan mengganti niche berkali-kali.
+        const pesan =
+          res.status === 504
+            ? "Penyusunan peluang melewati batas waktu server (504). AI kemungkinan masih selesai di latar; tunggu 1-2 menit lalu klik Susun peluang lagi. Niche & audiens Anda sudah tersimpan, jadi tidak perlu diisi ulang."
+            : (data.error ?? `Peluang gagal disusun (HTTP ${res.status}).`);
+        setGalat({ pesan, perluMasuk: res.status === 401 });
         return;
       }
       const baris = (data.peluang ?? [])

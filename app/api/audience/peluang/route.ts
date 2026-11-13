@@ -9,6 +9,10 @@
  * Susun ulang menghapus baris peluang lama untuk riset ini; produk yang
  * sudah dibuat dari baris tersebut tidak ikut terhapus.
  */
+// Fluid compute: Hobby default 300s; nyatakan eksplisit supaya route berat
+// (output JSON panjang) tidak diputus Vercel di tengah jalan -> HTTP 504.
+export const maxDuration = 300;
+
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { peluangProdukSkema, peluangRequestSkema } from "@/lib/ai/schemas";
@@ -84,6 +88,9 @@ export async function POST(req: Request) {
     prompt,
     schema: peluangProdukSkema,
     retries: 1,
+    // Output 20 kategori sangat panjang: beri waktu, tapi tetap ada batas
+    // supaya failover provider tidak menumpuk melewati maxDuration.
+    timeoutMs: 120_000,
     temperature: 0.8,
   });
 

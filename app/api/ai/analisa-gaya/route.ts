@@ -7,6 +7,10 @@
  *
  * Sesi wajib: rute ini membakar kredit AI atas nama pemilik akun.
  */
+// Fluid compute: Hobby default 300s; nyatakan eksplisit supaya route berat
+// (output JSON panjang) tidak diputus Vercel di tengah jalan -> HTTP 504.
+export const maxDuration = 180;
+
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { analisaGayaRequestSkema, analisaGayaSkema } from "@/lib/ai/schemas";
