@@ -85,3 +85,19 @@ describe("nilaiTempelan", () => {
     expect(h.catatan.join(" ")).toContain("Harga");
   });
 });
+
+describe("rating desimal (Shopee 4,9)", () => {
+  it("membaca 4,9 dengan koma", () => {
+    expect(uraiTempelan("Produk Bagus Rp50.000 100 terjual 4,9").rating).toBe(4.9);
+  });
+  it("membaca 4.9 dengan titik", () => {
+    expect(uraiTempelan("Produk Bagus Rp50.000 100 terjual 4.9").rating).toBe(4.9);
+  });
+  it("membaca rating bertanda bintang bulat", () => {
+    expect(uraiTempelan("Produk Rp50.000 ⭐5").rating).toBe(5);
+  });
+  it("rating desimal memengaruhi skor permintaan", () => {
+    expect(skorPermintaan(500, 4.9).nilai).toBe(5);
+    expect(skorPermintaan(500, 3.9).nilai).toBe(3);
+  });
+});

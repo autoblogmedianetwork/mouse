@@ -77,15 +77,22 @@ export function TempelCepat() {
 
   const ubah = (kunci: keyof ProdukTempelan, nilai: string) => {
     if (!produk) return;
-    setProduk({
-      ...produk,
-      [kunci]:
-        kunci === "harga" || kunci === "terjual" || kunci === "rating"
-          ? nilai === ""
-            ? null
-            : Number(nilai.replace(/[.,](?=\d{3}\b)/g, "").replace(",", "."))
-          : nilai,
-    });
+    if (kunci === "rating") {
+      // Shopee menulis rating "4,9". Terima koma maupun titik, jaga 0-5.
+      const angka = Number(nilai.replace(",", "."));
+      setProduk({
+        ...produk,
+        rating: nilai === "" || Number.isNaN(angka) ? null : Math.min(5, Math.max(0, angka)),
+      });
+      return;
+    }
+    if (kunci === "harga" || kunci === "terjual") {
+      // Buang pemisah ribuan (titik/koma/spasi), sisakan digit.
+      const digit = nilai.replace(/[^0-9]/g, "");
+      setProduk({ ...produk, [kunci]: digit === "" ? null : Number(digit) });
+      return;
+    }
+    setProduk({ ...produk, [kunci]: nilai });
   };
 
   const rateNum = Math.min(100, Math.max(0, Number(rate.replace(",", ".")) || 0));
@@ -175,13 +182,15 @@ export function TempelCepat() {
               />
             </label>
             <label className="text-meta">
-              <span className="block text-muted-foreground">Rating (0-5)</span>
+              <span className="block text-muted-foreground">Rating (0–5, boleh desimal)</span>
               <input
                 value={produk.rating ?? ""}
                 onChange={(e) => ubah("rating", e.target.value)}
                 className={inputClass}
                 inputMode="decimal"
+                placeholder="4,9"
               />
+              <span className="mt-1 block text-muted-foreground">Contoh Shopee: 4,9 — titik juga boleh (4.9)</span>
             </label>
             <p className="text-meta text-muted-foreground sm:self-end">
               Marketplace: {produk.marketplace || "belum terdeteksi"}

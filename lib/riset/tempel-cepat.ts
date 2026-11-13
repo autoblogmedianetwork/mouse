@@ -77,10 +77,21 @@ function cariTerjual(teks: string): number | null {
 }
 
 function cariRating(teks: string): number | null {
-  const denganBintang = teks.match(/(?:⭐|bintang|rating\s*:?)\s*([0-5](?:[.,]\d)?)/i);
-  if (denganBintang) return Number(denganBintang[1].replace(",", "."));
-  const pola = teks.match(/\b([0-5][.,]\d)\b/);
-  if (pola) return Number(pola[1].replace(",", "."));
+  // 1) Paling kuat: ditandai bintang / kata rating. Shopee menulis "4,9".
+  const ditandai = teks.match(/(?:⭐|bintang|rating)\s*:?\s*([0-5](?:[.,]\d+)?)/i);
+  if (ditandai) {
+    const n = Number(ditandai[1].replace(",", "."));
+    if (n >= 0 && n <= 5) return Math.round(n * 10) / 10;
+  }
+  // 2) Desimal apa pun 0-5 yang berdiri sendiri ("4.9", "4,9").
+  const desimal = teks.match(/\b([0-5][.,]\d{1,2})\b/);
+  if (desimal) {
+    const n = Number(desimal[1].replace(",", "."));
+    if (n >= 0 && n <= 5) return Math.round(n * 10) / 10;
+  }
+  // 3) Bilangan bulat 0-5 hanya bila jelas soal rating.
+  const bulat = teks.match(/(?:⭐|bintang|rating)\s*:?\s*([0-5])\b/i);
+  if (bulat) return Number(bulat[1]);
   return null;
 }
 
