@@ -1,5 +1,7 @@
 "use client";
 
+import { PanelAnalisaGaya } from "@/features/pengaturan/panel-analisa-gaya";
+
 import { useState } from "react";
 
 import { Card } from "@/components/card";
@@ -343,6 +345,27 @@ export function PengaturanGenerate({
               <p className="text-meta text-muted-foreground">
                 Detail ini tersimpan lokal dan dipakai di semua konten dengan persona bernama.
               </p>
+              <details className="border border-surface-border p-3">
+                <summary className="cursor-pointer text-badan font-medium">
+                  Tidak tahu mau menulis gaya seperti apa? Contek dari post publik &gt;&gt;&gt;
+                </summary>
+                <div className="mt-3">
+                  <PanelAnalisaGaya
+                    onPakai={(gaya) => {
+                      const v = gaya.slice(0, 300);
+                      onChange({ ...value, persona_gaya: v });
+                      try {
+                        window.localStorage.setItem(
+                          "autothreads-persona-bernama",
+                          JSON.stringify({ nama: value.persona_nama, gaya: v }),
+                        );
+                      } catch {
+                        // abaikan
+                      }
+                    }}
+                  />
+                </div>
+              </details>
             </div>
           ) : null}
         </div>

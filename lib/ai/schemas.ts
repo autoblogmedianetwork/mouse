@@ -307,6 +307,30 @@ export const reviewPasarRequestSkema = z.object({
 
 export type ReviewPasar = z.infer<typeof reviewPasarSkema>;
 
+/* ---------------------- Analisa gaya (Gelombang 4) ------------------------ */
+
+export const analisaGayaSkema = z.object({
+  pola_kalimat: z.string().min(1).max(300),
+  pembuka: z.array(z.string().min(1).max(120)).max(3),
+  nada: z.array(z.string().min(1).max(40)).max(6),
+  ciri_khas: z.array(z.string().min(1).max(200)).max(6),
+  struktur: z.string().min(1).max(200),
+  catchphrase: z.array(z.string().min(1).max(80)).max(2),
+  gaya_bicara: z.string().min(1).max(600),
+  keyakinan: z.enum(["tinggi", "sedang", "rendah"]),
+  catatan: z.string().max(300).default(""),
+});
+
+export const analisaGayaRequestSkema = z.object({
+  /** 3-5 post publik dipisah baris kosong. */
+  post_mentah: z.string().trim().min(60, "Tempel minimal 3 post.").max(12000),
+  /** Catatan asal gaya (username/link), tidak dianalisa AI. */
+  sumber: z.string().trim().max(200).optional().default(""),
+});
+
+export type AnalisaGaya = z.infer<typeof analisaGayaSkema>;
+
+
 /* --------------------------- Request bodies (API) ----------------------------- */
 
 export const risetRequestSkema = z.object({

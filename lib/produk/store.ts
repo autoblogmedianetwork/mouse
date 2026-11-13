@@ -41,3 +41,17 @@ export function simpanProduk(list: readonly unknown[]): void {
     // penyimpanan penuh/diblokir: data hanya bertahan di sesi ini
   }
 }
+
+/** Hapus satu produk berdasarkan id. Mengembalikan daftar baru. */
+export function hapusProduk(list: readonly ProdukRingkas[], id: string): ProdukRingkas[] {
+  return list.filter((p) => p.id !== id);
+}
+
+/** Ganti satu produk (dipakai tombol Simpan setelah Edit). */
+export function perbaruiProduk(
+  list: readonly ProdukRingkas[],
+  id: string,
+  perubahan: Partial<ProdukRingkas>,
+): ProdukRingkas[] {
+  return list.map((p) => (p.id === id ? { ...p, ...perubahan } : p));
+}

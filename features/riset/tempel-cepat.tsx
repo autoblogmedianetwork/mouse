@@ -5,11 +5,17 @@
  * nama/harga/terjual/rating/link lalu menilai 2 pilar yang bisa dihitung
  * dari data nyata. Bukan scraping: tidak ada request ke marketplace.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
 import { formatRupiah } from "@/lib/kalkulator/kalkulator-cuan";
 import { uraiTempelan, nilaiTempelan, type ProdukTempelan } from "@/lib/riset/tempel-cepat";
-import { KEY_PRODUK, muatProduk, simpanProduk } from "@/lib/produk/store";
+import {
+  hapusProduk,
+  muatProduk,
+  perbaruiProduk,
+  simpanProduk,
+  type ProdukRingkas,
+} from "@/lib/produk/store";
 
 const inputClass =
   "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
@@ -24,6 +30,41 @@ export function TempelCepat() {
   const [target, setTarget] = useState("1000000");
   const [produk, setProduk] = useState<ProdukTempelan | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [daftar, setDaftar] = useState<ProdukRingkas[]>([]);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editNama, setEditNama] = useState("");
+
+  // Muat daftar produk tersimpan (untuk tombol Edit/Hapus/Simpan).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hidrasi localStorage harus setelah mount agar sama dengan SSR
+    setDaftar(muatProduk());
+  }, []);
+
+  const simpanDaftar = (berikut: ProdukRingkas[]) => {
+    simpanProduk(berikut);
+    setDaftar(berikut);
+  };
+
+  const hapusSatu = (id: string) => {
+    simpanDaftar(hapusProduk(daftar, id));
+    setPesan("Produk dihapus dari daftar.");
+  };
+
+  const mulaiEdit = (p: ProdukRingkas) => {
+    setEditId(p.id);
+    setEditNama(p.nama_internal ?? p.nama ?? "");
+  };
+
+  const simpanEdit = (id: string) => {
+    const nama = editNama.trim();
+    if (nama === "") {
+      setPesan("Nama internal tidak boleh kosong.");
+      return;
+    }
+    simpanDaftar(perbaruiProduk(daftar, id, { nama_internal: nama.slice(0, 120) }));
+    setEditId(null);
+    setPesan("Perubahan disimpan.");
+  };
 
   const baca = () => {
     setPesan(null);
@@ -53,10 +94,9 @@ export function TempelCepat() {
 
   const jadikanProduk = () => {
     if (!produk) return;
-    const daftar = muatProduk();
     const id = `tempel-${Date.now()}`;
     simpanProduk([
-      ...daftar,
+      ...muatProduk(),
       {
         id,
         nama_internal: produk.nama.slice(0, 120) || "Produk dari Shopee",
@@ -69,6 +109,7 @@ export function TempelCepat() {
         saved_at: new Date().toISOString(),
       },
     ]);
+    setDaftar(muatProduk());
     setPesan("Produk disimpan ke daftar produk. Buka Buat Konten untuk membuat kontennya.");
   };
 
@@ -190,6 +231,46 @@ export function TempelCepat() {
         <p className="text-meta text-status-ready" role="status">
           {pesan}
         </p>
+      ) : null}
+
+      {daftar.length > 0 ? (
+        <div className="space-y-2 border-t border-surface-border pt-3">
+          <h3 className="text-badan font-semibold">Produk tersimpan ({daftar.length})</h3>
+          {daftar.map((p) => (
+            <div key={p.id} className="border border-surface-border p-2">
+              {editId === p.id ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={editNama}
+                    onChange={(e) => setEditNama(e.target.value)}
+                    className={`${inputClass} flex-1`}
+                    placeholder="Nama internal produk"
+                  />
+                  <button type="button" className={tombolUtama} onClick={() => simpanEdit(p.id)}>
+                    Simpan
+                  </button>
+                  <button type="button" className={tombol} onClick={() => setEditId(null)}>
+                    Batal
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-badan">
+                    {p.nama_internal ?? p.nama ?? "(tanpa nama)"}
+                  </p>
+                  <div className="flex gap-2">
+                    <button type="button" className={tombol} onClick={() => mulaiEdit(p)}>
+                      Edit
+                    </button>
+                    <button type="button" className={tombol} onClick={() => hapusSatu(p.id)}>
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       ) : null}
     </Card>
   );
