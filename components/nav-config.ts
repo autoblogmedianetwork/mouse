@@ -42,6 +42,8 @@ export const MENU_ITEMS: MenuItem[] = [
   // Rencana Perdana (Gelombang 4): 21 hari menuju komisi pertama, streak
   // menyatu dengan Fokus harian.
   { label: "Rencana Perdana", href: "/rencana", group: "produksi", fase: "MVP" },
+  // Siap Copas: konten hari ini siap salin-tempel (publikasi tetap manual).
+  { label: "Siap Copas", href: "/siap-copas", group: "konten", fase: "MVP" },
   // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
   { label: "Riset audiens", href: "/riset", group: "produksi", fase: "MVP" },
   { label: "Buat posting", href: "/posting/baru", group: "produksi", fase: "MVP" },

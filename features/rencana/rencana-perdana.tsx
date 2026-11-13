@@ -36,7 +36,7 @@ export function RencanaPerdana() {
   const [status, setStatus] = useState<StatusRencana | null>(null);
   const [siap, setSiap] = useState(false);
   const [hariBuka, setHariBuka] = useState<number | null>(null);
-  const [hariStreak, setHariStreak] = useLocalState<string[]>(KEY_FOKUS_SELESAI, []);
+  const [, setHariStreak] = useLocalState<string[]>(KEY_FOKUS_SELESAI, []);
 
   // Hidrasi localStorage setelah mount agar sama dengan SSR.
   useEffect(() => {
