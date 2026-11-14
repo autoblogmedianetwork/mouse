@@ -33,11 +33,13 @@ export const productFormSchema = z.object({
   nama: z.string().trim().max(300).optional(),
   varian: z.string().trim().max(200).optional(),
   harga: hargaField,
+  // R7-C: deskripsi opsional — pemula boleh lanjut tanpa deskripsi;
+  // konten ditandai "belum lengkap" dan analisis jadi lebih umum.
   deskripsi: z
     .string()
     .trim()
-    .min(10, "Deskripsi minimal 10 karakter")
-    .max(50_000, "Deskripsi terlalu panjang"),
+    .max(50_000, "Deskripsi terlalu panjang")
+    .optional(),
   url_referensi: urlReferensiField,
 });
 

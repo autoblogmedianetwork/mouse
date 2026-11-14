@@ -232,7 +232,7 @@ export function FormProdukManual({
 
         <div className="mt-4">
           <label htmlFor="deskripsi" className={labelClass}>
-            Deskripsi mentah <span className="text-status-failed">*</span>
+            Deskripsi mentah <span className="text-meta text-muted-foreground">(opsional)</span>
           </label>
           <textarea
             id="deskripsi"
@@ -244,6 +244,11 @@ export function FormProdukManual({
           {errors.deskripsi ? (
             <p id="deskripsi-error" className={errorClass} role="alert">
               {errors.deskripsi.message}
+            </p>
+          ) : cleanedLength === 0 ? (
+            <p className="mt-2 text-meta text-amber-600 dark:text-amber-400" role="status">
+              ⚠ Belum lengkap: deskripsi masih kosong. Konten tetap bisa dibuat,
+              tapi hasilnya lebih umum. Bisa dilengkapi nanti di langkah ini.
             </p>
           ) : null}
         </div>
