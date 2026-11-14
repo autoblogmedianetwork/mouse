@@ -7,6 +7,7 @@
  * limit task. Until then the widget reads an empty log and says so instead of
  * showing invented zeros.
  */
+import { bacaDaftar } from "@/lib/storage/kotak";
 export interface CatatanBiaya {
   /** ISO timestamp of the AI call. */
   ts: string;
@@ -58,22 +59,14 @@ export function ringkasBiaya(
 
 /** Reads the local log. Server-side and first paint both get an empty list. */
 export function muatBiayaLokal(): CatatanBiaya[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY_BIAYA);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (x): x is CatatanBiaya =>
-        typeof x === "object" &&
-        x !== null &&
-        typeof (x as CatatanBiaya).ts === "string" &&
-        typeof (x as CatatanBiaya).usd === "number",
-    );
-  } catch {
-    return [];
-  }
+  return bacaDaftar<CatatanBiaya>(KEY_BIAYA, (x) =>
+    typeof x === "object" &&
+    x !== null &&
+    typeof (x as CatatanBiaya).ts === "string" &&
+    typeof (x as CatatanBiaya).usd === "number"
+      ? (x as CatatanBiaya)
+      : null,
+  );
 }
 
 /** Appends one cost entry. Called later by the AI call sites (PRD F10). */

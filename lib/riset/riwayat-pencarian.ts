@@ -2,6 +2,7 @@
  * Riwayat pencarian riset audiens (localStorage): niche + audiens yang pernah
  * dicoba disimpan supaya bisa dipilih ulang tanpa mengetik. Tanpa server.
  */
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 
 export const KEY_RIWAYAT_RISET = "autothreads-riwayat-riset";
 export const MAKS_RIWAYAT = 8;
@@ -35,33 +36,17 @@ export function tambahRiwayat(
 }
 
 export function muatRiwayat(): RiwayatRiset[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY_RIWAYAT_RISET);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const item = entry as Partial<RiwayatRiset>;
-      if (typeof item.niche !== "string" || typeof item.audiens !== "string") return [];
-      return [
-        {
-          niche: item.niche,
-          audiens: item.audiens,
-          dipakai: typeof item.dipakai === "string" ? item.dipakai : "",
-        },
-      ];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<RiwayatRiset>(KEY_RIWAYAT_RISET, (entry) => {
+    const item = entry as Partial<RiwayatRiset>;
+    if (typeof item.niche !== "string" || typeof item.audiens !== "string") return null;
+    return {
+      niche: item.niche,
+      audiens: item.audiens,
+      dipakai: typeof item.dipakai === "string" ? item.dipakai : "",
+    };
+  });
 }
 
 export function simpanRiwayat(list: readonly RiwayatRiset[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KEY_RIWAYAT_RISET, JSON.stringify(list));
-  } catch {
-    // penyimpanan penuh/diblokir: riwayat hanya berlaku di sesi ini
-  }
+  tulisJson(KEY_RIWAYAT_RISET, list);
 }

@@ -5,6 +5,7 @@
  * video yang diunggah atau diproses di server: yang disimpan hanya storyboard,
  * prompt, link hasil, dan jawaban checklist.
  */
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 import { z } from "zod";
 import { storyboardSkema } from "./storyboard";
 
@@ -49,29 +50,14 @@ export const videoSkema = z.object({
 export type VideoTersimpan = z.infer<typeof videoSkema>;
 
 export function muatVideo(): VideoTersimpan[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KUNCI);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    return Array.isArray(parsed)
-      ? parsed.flatMap((entry) => {
-          const hasil = videoSkema.safeParse(entry);
-          return hasil.success ? [hasil.data] : [];
-        })
-      : [];
-  } catch {
-    return [];
-  }
+  return bacaDaftar<VideoTersimpan>(KUNCI, (entry) => {
+    const hasil = videoSkema.safeParse(entry);
+    return hasil.success ? hasil.data : null;
+  });
 }
 
 function simpanDaftar(list: VideoTersimpan[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KUNCI, JSON.stringify(list));
-  } catch {
-    // storage penuh/di-block: abaikan
-  }
+  tulisJson(KUNCI, list);
 }
 
 export function simpanVideo(list: VideoTersimpan[], video: VideoTersimpan): VideoTersimpan[] {

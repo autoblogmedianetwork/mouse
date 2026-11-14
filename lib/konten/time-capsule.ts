@@ -3,6 +3,7 @@
  * Penyimpanan lokal (localStorage), tanpa API dan tanpa posting otomatis.
  */
 import { z } from "zod";
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 
 export const KUNCI_TIME_CAPSULE = "autothreads-time-capsule";
 
@@ -53,28 +54,14 @@ export function buatTimeCapsule(
 }
 
 export function muatTimeCapsule(): TimeCapsule[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KUNCI_TIME_CAPSULE);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const r = timeCapsuleSkema.safeParse(entry);
-      return r.success ? [r.data] : [];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<TimeCapsule>(KUNCI_TIME_CAPSULE, (e) => {
+    const r = timeCapsuleSkema.safeParse(e);
+    return r.success ? r.data : null;
+  });
 }
 
 export function simpanTimeCapsule(daftar: TimeCapsule[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KUNCI_TIME_CAPSULE, JSON.stringify(daftar));
-  } catch {
-    // abaikan
-  }
+  tulisJson(KUNCI_TIME_CAPSULE, daftar);
 }
 
 export function siapDibuka(c: TimeCapsule, sekarang: Date = new Date()): boolean {

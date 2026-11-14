@@ -3,6 +3,7 @@
  * XP bertambah lewat aksi user (mis. membuat/pos konten); tidak otomatis.
  */
 import { z } from "zod";
+import { bacaSkema, tulisJson } from "@/lib/storage/kotak";
 
 export const KUNCI_GAMIFIKASI = "autothreads-gamifikasi";
 export const XP_PER_LEVEL = 100;
@@ -42,24 +43,11 @@ export function badgeUntukLevel(level: number): string[] {
 }
 
 export function muatProfil(): ProfilGamifikasi {
-  if (typeof window === "undefined") return { xp: 0, riwayat: [] };
-  try {
-    const raw = window.localStorage.getItem(KUNCI_GAMIFIKASI);
-    if (!raw) return { xp: 0, riwayat: [] };
-    const r = profilGamifikasiSkema.safeParse(JSON.parse(raw));
-    return r.success ? r.data : { xp: 0, riwayat: [] };
-  } catch {
-    return { xp: 0, riwayat: [] };
-  }
+  return bacaSkema(KUNCI_GAMIFIKASI, profilGamifikasiSkema, { xp: 0, riwayat: [] });
 }
 
 export function simpanProfil(p: ProfilGamifikasi): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KUNCI_GAMIFIKASI, JSON.stringify(p));
-  } catch {
-    // abaikan
-  }
+  tulisJson(KUNCI_GAMIFIKASI, p);
 }
 
 export function tambahXp(

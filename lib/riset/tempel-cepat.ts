@@ -8,6 +8,7 @@
  */
 import { labelMarketplace } from "@/lib/affiliate/rules";
 import { komisiPerUnit, kebutuhanUntukTarget } from "@/lib/kalkulator/kalkulator-cuan";
+import { layakProporsional } from "./skor-peluang";
 
 export interface ProdukTempelan {
   nama: string;
@@ -210,7 +211,8 @@ export function nilaiTempelan(
     maks,
     komisiPerPenjualan,
     penjualanUntukTarget,
-    layak: total >= 8,
+    // Ambang dari satu sumber (skor-peluang): 8/10 setara 16/20.
+    layak: layakProporsional(total, maks),
     catatan,
   };
 }

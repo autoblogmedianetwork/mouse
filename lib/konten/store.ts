@@ -3,35 +3,18 @@
  * All functions are pure w.r.t. their inputs: they take the current list and
  * return the next list, so pages own the state and this file owns the shape.
  */
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 import { kontenSkema, type Konten } from "./skema";
 
 const KONTEN_KEY = "autothreads-konten";
 
 export function muatKonten(): Konten[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KONTEN_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    // Tolerant load: entries that fail validation are dropped, never crash.
-    return Array.isArray(parsed)
-      ? parsed.flatMap((entry) => {
-          const result = kontenEntrySafeParse(entry);
-          return result ? [result] : [];
-        })
-      : [];
-  } catch {
-    return [];
-  }
+  // Tolerant load: entries that fail validation are dropped, never crash.
+  return bacaDaftar(KONTEN_KEY, kontenEntrySafeParse);
 }
 
 export function simpanKonten(list: Konten[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KONTEN_KEY, JSON.stringify(list));
-  } catch {
-    // storage penuh/di-block: abaikan, state tetap di memori
-  }
+  tulisJson(KONTEN_KEY, list);
 }
 
 /**

@@ -6,6 +6,7 @@
  * kegagalan (misalnya kuota localStorage habis) supaya UI bisa memberi pesan
  * alih-alih diam-diam kehilangan data impor.
  */
+import { bacaSkema, hapusKunci, tulisJsonHasil } from "@/lib/storage/kotak";
 import { gabungPerforma } from "./performa";
 import {
   KUNCI_PERFORMA,
@@ -23,30 +24,15 @@ const PESAN_KUOTA =
   "Penyimpanan peramban penuh. Hapus data performa lama di halaman ini, lalu impor ulang.";
 
 export function muatPerforma(): SimpananPerforma {
-  if (typeof window === "undefined") return SIMPANAN_PERFORMA_AWAL;
-  try {
-    const mentah = window.localStorage.getItem(KUNCI_PERFORMA);
-    if (!mentah) return SIMPANAN_PERFORMA_AWAL;
-    const hasil = simpananPerformaSkema.safeParse(JSON.parse(mentah));
-    return hasil.success ? hasil.data : SIMPANAN_PERFORMA_AWAL;
-  } catch {
-    return SIMPANAN_PERFORMA_AWAL;
-  }
+  return bacaSkema(KUNCI_PERFORMA, simpananPerformaSkema, SIMPANAN_PERFORMA_AWAL);
 }
 
 export function simpanPerforma(simpanan: SimpananPerforma): HasilSimpan {
-  if (typeof window === "undefined") return { ok: false, pesan: "Penyimpanan hanya tersedia di peramban." };
-  try {
-    window.localStorage.setItem(KUNCI_PERFORMA, JSON.stringify(simpanan));
-    return { ok: true };
-  } catch {
-    return { ok: false, pesan: PESAN_KUOTA };
-  }
+  return tulisJsonHasil(KUNCI_PERFORMA, simpanan, PESAN_KUOTA);
 }
 
 export function hapusPerforma(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(KUNCI_PERFORMA);
+  hapusKunci(KUNCI_PERFORMA);
 }
 
 export interface HasilTambahImpor {

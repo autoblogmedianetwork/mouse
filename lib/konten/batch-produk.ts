@@ -9,6 +9,7 @@
  */
 import { z } from "zod";
 import type { Konten } from "./skema";
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 
 export const KUNCI_BATCH_PRODUK = "autothreads-batch-produk";
 export const MIN_PRODUK_BATCH = 3;
@@ -86,28 +87,14 @@ export function buatDraftDariProduk(
 }
 
 export function muatBatch(): BatchProduk[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KUNCI_BATCH_PRODUK);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const r = batchProdukSkema.safeParse(entry);
-      return r.success ? [r.data] : [];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<BatchProduk>(KUNCI_BATCH_PRODUK, (e) => {
+    const r = batchProdukSkema.safeParse(e);
+    return r.success ? r.data : null;
+  });
 }
 
 export function simpanBatch(daftar: BatchProduk[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KUNCI_BATCH_PRODUK, JSON.stringify(daftar));
-  } catch {
-    // Abaikan kegagalan storage
-  }
+  tulisJson(KUNCI_BATCH_PRODUK, daftar);
 }
 
 /** Buat batch baru + daftar draft konten. Validasi dilakukan oleh pemanggil. */

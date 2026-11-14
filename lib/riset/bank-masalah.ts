@@ -4,6 +4,7 @@
  * tidak hilang saat riset ulang. Pola sama dengan lib/konten/store:
  * fungsi murni untuk logika, pemanggil yang menyimpan.
  */
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 
 export const BANK_KEY = "autothreads-bank-masalah";
 
@@ -60,35 +61,18 @@ export function cariBank(bank: readonly ItemBank[], kataKunci: string): ItemBank
 
 /** Muat bank dari localStorage; bentuk rusak dibuang, tidak pernah crash. */
 export function muatBank(): ItemBank[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(BANK_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const item = entry as Partial<ItemBank>;
-      if (typeof item.teks !== "string" || item.teks.length === 0) return [];
-      return [
-        {
-          teks: item.teks,
-          kategori: typeof item.kategori === "string" ? item.kategori : "",
-          sumber: item.sumber === "review" ? "review" : "riset",
-          ditambahkan:
-            typeof item.ditambahkan === "string" ? item.ditambahkan : "",
-        },
-      ];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<ItemBank>(BANK_KEY, (entry) => {
+    const item = entry as Partial<ItemBank>;
+    if (typeof item.teks !== "string" || item.teks.length === 0) return null;
+    return {
+      teks: item.teks,
+      kategori: typeof item.kategori === "string" ? item.kategori : "",
+      sumber: item.sumber === "review" ? "review" : "riset",
+      ditambahkan: typeof item.ditambahkan === "string" ? item.ditambahkan : "",
+    };
+  });
 }
 
 export function simpanBank(bank: readonly ItemBank[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(BANK_KEY, JSON.stringify(bank));
-  } catch {
-    // storage penuh/di-block: abaikan, bank tetap di memori
-  }
+  tulisJson(BANK_KEY, bank);
 }

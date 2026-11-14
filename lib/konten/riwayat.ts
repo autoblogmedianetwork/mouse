@@ -5,6 +5,7 @@
  */
 import { z } from "zod";
 import type { ContentStatus } from "@/components/status-badge";
+import { bacaDaftar } from "@/lib/storage/kotak";
 
 export const riwayatSkema = z.object({
   id: z.string().min(1),
@@ -21,19 +22,10 @@ const RIWAYAT_KEY = "autothreads-riwayat";
 const MAX_ENTRIES = 500;
 
 export function muatRiwayat(): RiwayatEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(RIWAYAT_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const result = riwayatSkema.safeParse(entry);
-      return result.success ? [result.data] : [];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<RiwayatEntry>(RIWAYAT_KEY, (e) => {
+    const r = riwayatSkema.safeParse(e);
+    return r.success ? r.data : null;
+  });
 }
 
 export function catatRiwayat(

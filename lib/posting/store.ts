@@ -6,6 +6,7 @@
  * Fingerprint: sama seperti lib/konten/store.ts — fungsi murni untuk bagian yang
  * bisa diuji, pembungkus localStorage untuk sisanya.
  */
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 import {
   PENGATURAN_POSTING_AWAL,
   pengaturanPostingSkema,
@@ -48,38 +49,21 @@ export function simpanPengaturanPosting(value: PengaturanPosting): void {
 }
 
 export function muatRiwayatKirim(): CatatanKirim[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY_RIWAYAT_KIRIM);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const e = entry as Partial<CatatanKirim>;
-      if (typeof e?.konten_id !== "string" || typeof e?.waktu !== "string") return [];
-      return [
-        {
-          konten_id: e.konten_id,
-          waktu: e.waktu,
-          ok: e.ok === true,
-          penyedia: e.penyedia === "threads_api" ? ("threads_api" as const) : ("manual" as const),
-        },
-      ];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<CatatanKirim>(KEY_RIWAYAT_KIRIM, (entry) => {
+    const e = entry as Partial<CatatanKirim>;
+    if (typeof e?.konten_id !== "string" || typeof e?.waktu !== "string") return null;
+    return {
+      konten_id: e.konten_id,
+      waktu: e.waktu,
+      ok: e.ok === true,
+      penyedia: e.penyedia === "threads_api" ? ("threads_api" as const) : ("manual" as const),
+    };
+  });
 }
 
 /** Catat satu percobaan kirim dan kembalikan riwayat terbaru. */
 export function catatKirim(entry: CatatanKirim): CatatanKirim[] {
   const next = tambahCatatan(muatRiwayatKirim(), entry);
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.setItem(KEY_RIWAYAT_KIRIM, JSON.stringify(next));
-    } catch {
-      // abaikan
-    }
-  }
+  tulisJson(KEY_RIWAYAT_KIRIM, next);
   return next;
 }

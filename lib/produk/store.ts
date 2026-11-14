@@ -4,6 +4,8 @@
  * supaya data lama tanpa `tag` tetap terbaca.
  */
 
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
+
 export const KEY_PRODUK = "autothreads-products";
 
 export interface ProdukRingkas {
@@ -16,30 +18,17 @@ export interface ProdukRingkas {
 }
 
 export function muatProduk(): ProdukRingkas[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY_PRODUK);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (entry): entry is ProdukRingkas =>
-        typeof entry === "object" &&
-        entry !== null &&
-        typeof (entry as { id?: unknown }).id === "string",
-    );
-  } catch {
-    return [];
-  }
+  return bacaDaftar<ProdukRingkas>(KEY_PRODUK, (entry) =>
+    typeof entry === "object" &&
+    entry !== null &&
+    typeof (entry as { id?: unknown }).id === "string"
+      ? (entry as ProdukRingkas)
+      : null,
+  );
 }
 
 export function simpanProduk(list: readonly unknown[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KEY_PRODUK, JSON.stringify(list));
-  } catch {
-    // penyimpanan penuh/diblokir: data hanya bertahan di sesi ini
-  }
+  tulisJson(KEY_PRODUK, list);
 }
 
 /** Hapus satu produk berdasarkan id. Mengembalikan daftar baru. */

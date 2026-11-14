@@ -58,3 +58,16 @@ export function urutkanMenurutSkor<T extends PeluangBerskor>(daftar: readonly T[
 export function direkomendasikan(p: PeluangBerskor): boolean {
   return skorTotal(p) >= AMBANG_DIREKOMENDASIKAN;
 }
+
+/**
+ * Ambang "layak" proporsional untuk skor yang tidak memakai empat pilar penuh
+ * (mis. Tempel Cepat hanya menilai dua pilar, maks 10). Setara dengan
+ * AMBANG_DIREKOMENDASIKAN pada skala MAKS_PENUH, jadi makna "layak" tetap satu
+ * di seluruh aplikasi dan tidak bisa berbeda antar fitur.
+ */
+const MAKS_PENUH = 20;
+
+export function layakProporsional(total: number, maks: number): boolean {
+  if (maks <= 0) return false;
+  return total >= (AMBANG_DIREKOMENDASIKAN / MAKS_PENUH) * maks;
+}

@@ -2,6 +2,7 @@
  * Favorit/pin produk (localStorage): produk yang sedang dipush ditaruh di atas
  * daftar. Fungsi murni supaya urutan dan toggle bisa diuji tanpa DOM.
  */
+import { bacaDaftar } from "@/lib/storage/kotak";
 
 export const KEY_FAVORIT_PRODUK = "autothreads-produk-favorit";
 
@@ -20,15 +21,7 @@ export function urutkanFavorit<T extends { id: string }>(
 }
 
 export function muatFavorit(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY_FAVORIT_PRODUK);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
-  } catch {
-    return [];
-  }
+  return bacaDaftar<string>(KEY_FAVORIT_PRODUK, (x) => (typeof x === "string" ? x : null));
 }
 
 export function simpanFavorit(list: readonly string[]): void {

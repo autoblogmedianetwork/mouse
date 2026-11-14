@@ -10,6 +10,7 @@
  * memisahkan logika murni (validasi, ringkasan) dari komponen UI.
  */
 import { z } from "zod";
+import { bacaDaftar, tulisJson } from "@/lib/storage/kotak";
 
 export const KUNCI_EKSPERIMEN_HOOK = "autothreads-eksperimen-hook";
 export const MAKS_VARIAN = 5;
@@ -72,34 +73,20 @@ export function buatEksperimen(nama: string, varian: string[]): EksperimenHook {
 }
 
 export function muatEksperimen(): EksperimenHook[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KUNCI_EKSPERIMEN_HOOK);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((entry) => {
-      const result = eksperimenHookSkema.safeParse(entry);
-      if (!result.success) return [];
-      const e = result.data;
-      // Jaga konsistensi: pemenang harus berada di rentang varian.
-      if (e.pemenang !== null && (e.pemenang < 0 || e.pemenang >= e.varian.length)) {
-        return [{ ...e, pemenang: null, dicatat_pada: null }];
-      }
-      return [e];
-    });
-  } catch {
-    return [];
-  }
+  return bacaDaftar<EksperimenHook>(KUNCI_EKSPERIMEN_HOOK, (entry) => {
+    const result = eksperimenHookSkema.safeParse(entry);
+    if (!result.success) return null;
+    const e = result.data;
+    // Jaga konsistensi: pemenang harus berada di rentang varian.
+    if (e.pemenang !== null && (e.pemenang < 0 || e.pemenang >= e.varian.length)) {
+      return { ...e, pemenang: null, dicatat_pada: null };
+    }
+    return e;
+  });
 }
 
 export function simpanEksperimen(daftar: EksperimenHook[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KUNCI_EKSPERIMEN_HOOK, JSON.stringify(daftar));
-  } catch {
-    // Abaikan kegagalan storage
-  }
+  tulisJson(KUNCI_EKSPERIMEN_HOOK, daftar);
 }
 
 /** Catat pemenang. Indeks -1 berarti batalkan catatan (kembali ke belum). */
