@@ -224,13 +224,133 @@ export function PengaturanGenerate({
         />
       </div>
 
+
+      {/* Persona selalu terlihat: dipakai di SEMUA generate, jadi tidak masuk
+          lipatan "pengaturan lanjutan" yang mudah terlewat. */}
+      <div className="mt-4 border-2 border-primary/30 p-3">
+        <p className="text-badan font-semibold">Persona (gaya bahasa)</p>
+        <p className="mt-1 text-meta text-muted-foreground">
+          Pilih karakter yang menulis konten. Untuk mengisi &quot;Bapak Sepur&quot;, pilih{" "}
+          <strong>Persona bernama</strong> di bawah.
+        </p>
+        <div className="mt-3">
+          <SelectField
+            id="persona"
+            label="Gaya bahasa (persona)"
+            value={value.persona}
+            onChange={(next) => {
+              if (next === "bernama") {
+                let nama = value.persona_nama;
+                let gaya = value.persona_gaya;
+                try {
+                  const raw = window.localStorage.getItem("autothreads-persona-bernama");
+                  if (raw) {
+                    const p = JSON.parse(raw) as { nama?: string; gaya?: string };
+                    if (p?.nama && !nama) nama = p.nama;
+                    if (p?.gaya && !gaya) gaya = p.gaya;
+                  }
+                } catch {
+                  // abaikan
+                }
+                onChange({ ...value, persona: next, persona_nama: nama, persona_gaya: gaya });
+              } else {
+                set("persona", next);
+              }
+            }}
+            options={PERSONA_LIST.map((persona) => ({
+              value: persona.id,
+              label: persona.judul,
+            }))}
+          />
+          <p className="mt-1 text-meta text-muted-foreground">
+            {ambilPersona(value.persona).deskripsi_nada}
+          </p>
+        </div>
+
+        {value.persona === "bernama" ? (
+          <div className="mt-3 space-y-2 border border-surface-border bg-muted/30 p-3">
+            <label className="block text-badan font-medium">
+              Nama karakter
+              <input
+                type="text"
+                value={value.persona_nama}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  onChange({ ...value, persona_nama: v });
+                  try {
+                    window.localStorage.setItem(
+                      "autothreads-persona-bernama",
+                      JSON.stringify({ nama: v, gaya: value.persona_gaya }),
+                    );
+                  } catch {
+                    // abaikan
+                  }
+                }}
+                className={fieldClass + " mt-1"}
+                placeholder="Bapak Sepur"
+              />
+            </label>
+            <label className="block text-badan font-medium">
+              Gaya bicara
+              <textarea
+                value={value.persona_gaya}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  onChange({ ...value, persona_gaya: v });
+                  try {
+                    window.localStorage.setItem(
+                      "autothreads-persona-bernama",
+                      JSON.stringify({ nama: value.persona_nama, gaya: v }),
+                    );
+                  } catch {
+                    // abaikan
+                  }
+                }}
+                rows={3}
+                className={fieldClass + " mt-1 resize-y"}
+                placeholder="Santai, hangat, seperti bapak yang sudah pengalaman, tidak menggurui, jujur soal kekurangan."
+              />
+              <span className="mt-1 block text-meta text-muted-foreground">
+                {value.persona_gaya.length}/300 karakter
+              </span>
+            </label>
+            <details className="border border-surface-border p-3">
+              <summary className="cursor-pointer text-badan font-medium text-primary">
+                Contek gaya dari post publik &gt;&gt;&gt;
+              </summary>
+              <div className="mt-3">
+                <PanelAnalisaGaya
+                  onPakai={(gaya) => {
+                    const v = gaya.slice(0, 300);
+                    onChange({ ...value, persona_gaya: v });
+                    try {
+                      window.localStorage.setItem(
+                        "autothreads-persona-bernama",
+                        JSON.stringify({ nama: value.persona_nama, gaya: v }),
+                      );
+                    } catch {
+                      // abaikan
+                    }
+                  }}
+                />
+              </div>
+            </details>
+          </div>
+        ) : null}
+      </div>
+
       <button
         type="button"
         onClick={() => setLanjutanTerbuka((t) => !t)}
         aria-expanded={lanjutanTerbuka}
-        className="mt-4 text-meta text-muted-foreground underline-offset-2 hover:underline"
+        className="mt-4 inline-flex h-10 w-full items-center justify-between border-2 border-primary/40 bg-primary/5 px-4 text-badan font-medium text-primary hover:bg-primary/10"
       >
-        {lanjutanTerbuka ? "Sembunyikan pengaturan lanjutan" : "Pengaturan lanjutan"}
+        <span>
+          {lanjutanTerbuka ? "▼ Sembunyikan pengaturan lanjutan" : "▶ Buka pengaturan lanjutan"}
+        </span>
+        <span className="text-meta font-normal text-muted-foreground">
+          persona, hook, jumlah status, link
+        </span>
       </button>
 
       {lanjutanTerbuka ? (
@@ -263,160 +383,6 @@ export function PengaturanGenerate({
             {KETERANGAN_KERANGKA[value.kerangka]} Gaya pembuka di atas tetap dipakai untuk status
             pertama.
           </p>
-        </div>
-        <div>
-          <SelectField
-            id="persona"
-            label="Gaya bahasa (persona)"
-            value={value.persona}
-            onChange={(next) => {
-              if (next === "bernama") {
-                let nama = value.persona_nama;
-                let gaya = value.persona_gaya;
-                try {
-                  const raw = window.localStorage.getItem("autothreads-persona-bernama");
-                  if (raw) {
-                    const p = JSON.parse(raw) as { nama?: string; gaya?: string };
-                    if (p?.nama && !nama) nama = p.nama;
-                    if (p?.gaya && !gaya) gaya = p.gaya;
-                  }
-                } catch {
-                  // abaikan
-                }
-                onChange({ ...value, persona: next, persona_nama: nama, persona_gaya: gaya });
-              } else {
-                set("persona", next);
-              }
-            }}
-            // Pilihan datang dari data (lib/ai/persona.ts), bukan hardcode di sini.
-            options={PERSONA_LIST.map((persona) => ({
-              value: persona.id,
-              // Ikon emoji tidak dipakai di chrome (ADR 0013 butir 6).
-              label: persona.judul,
-            }))}
-          />
-          <p className="mt-1 text-meta text-muted-foreground">
-            {ambilPersona(value.persona).deskripsi_nada}
-          </p>
-          {value.persona === "bernama" ? (
-            <div className="mt-3 space-y-2 border border-surface-border p-3">
-              <label className="block text-badan font-medium">
-                Nama karakter
-                <input
-                  type="text"
-                  value={value.persona_nama}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    onChange({ ...value, persona_nama: v });
-                    try {
-                      window.localStorage.setItem(
-                        "autothreads-persona-bernama",
-                        JSON.stringify({ nama: v, gaya: value.persona_gaya }),
-                      );
-                    } catch {
-                      // abaikan
-                    }
-                  }}
-                  className={fieldClass + " mt-1"}
-                  placeholder="Mbak Rina"
-                />
-              </label>
-              <label className="block text-badan font-medium">
-                Gaya bicara
-                <textarea
-                  value={value.persona_gaya}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    onChange({ ...value, persona_gaya: v });
-                    try {
-                      window.localStorage.setItem(
-                        "autothreads-persona-bernama",
-                        JSON.stringify({ nama: value.persona_nama, gaya: v }),
-                      );
-                    } catch {
-                      // abaikan
-                    }
-                  }}
-                  rows={3}
-                  className={fieldClass + " mt-1 resize-y"}
-                  placeholder="Santai, hangat, suka cerita pengalaman sendiri, tidak menggurui."
-                />
-              </label>
-              <p className="text-meta text-muted-foreground">
-                Detail ini tersimpan lokal dan dipakai di semua konten dengan persona bernama.
-              </p>
-              <details className="border border-surface-border p-3">
-                <summary className="cursor-pointer text-badan font-medium">
-                  Tidak tahu mau menulis gaya seperti apa? Contek dari post publik &gt;&gt;&gt;
-                </summary>
-                <div className="mt-3">
-                  <PanelAnalisaGaya
-                    onPakai={(gaya) => {
-                      const v = gaya.slice(0, 300);
-                      onChange({ ...value, persona_gaya: v });
-                      try {
-                        window.localStorage.setItem(
-                          "autothreads-persona-bernama",
-                          JSON.stringify({ nama: value.persona_nama, gaya: v }),
-                        );
-                      } catch {
-                        // abaikan
-                      }
-                    }}
-                  />
-                </div>
-              </details>
-            </div>
-          ) : null}
-        </div>
-        <SelectField
-          id="letak_link"
-          label="Posisi link affiliate"
-          value={value.letak_link}
-          onChange={(next) => set("letak_link", next)}
-          options={[
-            { value: "status_terakhir", label: "Di status terakhir" },
-            { value: "balasan", label: "Balasan terpisah" },
-            { value: "tanpa_link", label: "Tanpa link (konten saja)" },
-          ]}
-        />
-        <div className="sm:col-span-2">
-          <label htmlFor="instruksi" className={labelClass}>
-            Instruksi tambahan (opsional)
-          </label>
-          <textarea
-            id="instruksi"
-            rows={3}
-            value={value.instruksi}
-            onChange={(e) => set("instruksi", e.target.value)}
-            placeholder="mis. Jangan pakai kata 'wajib', sebut varian warna."
-            className={fieldClass}
-          />
-        </div>
-        <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
-          <ToggleField
-            id="anti_ai_slop"
-            label="Filter bahasa AI"
-            description="Panjang antarstatus tidak seragam, bentuk tiap status berbeda, tanpa pembuka generik seperti 'Dalam dunia yang serba cepat'."
-            checked={value.anti_ai_slop}
-            onChange={(next) => set("anti_ai_slop", next)}
-          />
-          <ToggleField
-            id="aturan_kepercayaan"
-            label="Wajib sebut kekurangan"
-            description="Minimal satu status menyebut kekurangan atau batasan produk — jujur, tidak menjual berlebihan."
-            checked={value.aturan_kepercayaan}
-            onChange={(next) => set("aturan_kepercayaan", next)}
-          />
-          <div className="sm:col-span-2">
-            <ToggleField
-              id="sertakan_disclosure"
-              label="Sertakan disclosure affiliate (#iklan / #affiliate)"
-              description="Otomatis menambahkan tag disclosure di status terakhir untuk transparansi kepatuhan affiliate, tetap dalam batas karakter."
-              checked={value.sertakan_disclosure ?? true}
-              onChange={(next) => set("sertakan_disclosure", next)}
-            />
-          </div>
         </div>
       </div>
       ) : null}
