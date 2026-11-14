@@ -67,6 +67,13 @@ export const MENU_ITEMS: MenuItem[] = [
     kapan: "Cari produk yang layak dipromosikan. Sekali saja per produk.",
   },
   {
+    label: "Katalog",
+    href: "/katalog",
+    group: "alur",
+    fase: "MVP",
+    kapan: "Daftar produk tersimpan: cari, duplikat, sembunyikan, atau langsung buat konten.",
+  },
+  {
     label: "Bikin Konten",
     href: "/posting/baru",
     hrefs: ["/posting/baru", "/video", "/lab"],

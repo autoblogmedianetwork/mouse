@@ -146,3 +146,21 @@ describe("bookmarkletQuickCapture", () => {
     expect(kode).not.toContain("location.hash");
   });
 });
+
+describe("prefill gambar (katalog)", () => {
+  it("meneruskan gambar ke gambar_url", () => {
+    const hasil = nilaiFormDariPrefill({ nama: "Tas", gambar: "https://img/x.jpg" });
+    expect(hasil.gambar_url).toBe("https://img/x.jpg");
+  });
+
+  it("gambar kosong menjadi undefined", () => {
+    const hasil = nilaiFormDariPrefill({ nama: "Tas", gambar: "" });
+    expect(hasil.gambar_url).toBeUndefined();
+  });
+
+  it("bookmarklet menyertakan pengambil og:image", () => {
+    const kode = bookmarkletQuickCapture("https://heaviliate.example");
+    expect(kode).toContain("og:image");
+    expect(kode).toContain("gambar:gm");
+  });
+});

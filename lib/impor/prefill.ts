@@ -28,6 +28,8 @@ export const prefillSkema = z.strictObject({
   deskripsi: z.string().max(5000).optional(),
   url: z.string().max(2000).optional(),
   sumber: z.string().max(300).optional(),
+  // Katalog: URL gambar produk (og:image) dari bookmarklet, opsional.
+  gambar: z.string().max(2000).optional(),
 });
 
 export type PrefillProduk = z.infer<typeof prefillSkema>;
@@ -66,7 +68,9 @@ export function bersihkanPrefill(data: PrefillProduk): PrefillProduk {
 }
 
 /** Prefill → nilai awal form produk (user tetap harus meninjau sebelum simpan). */
-export function nilaiFormDariPrefill(data: PrefillProduk): Partial<ProductFormValues> {
+export function nilaiFormDariPrefill(
+  data: PrefillProduk,
+): Partial<ProductFormValues> & { gambar_url?: string } {
   const nama = data.nama?.trim() ?? "";
   return {
     nama_internal: nama.slice(0, 120),
@@ -75,6 +79,7 @@ export function nilaiFormDariPrefill(data: PrefillProduk): Partial<ProductFormVa
     harga: data.harga ?? "",
     deskripsi: data.deskripsi ?? "",
     url_referensi: data.url ?? "",
+    gambar_url: data.gambar || undefined,
   };
 }
 
@@ -125,8 +130,9 @@ export function bookmarkletQuickCapture(origin: string): string {
     "var d=(m&&m.content)?m.content:'';",
     "if(!d)d=(document.body.innerText||'').replace(/\\s+/g,' ').trim().slice(0,1000);",
     "var h=(document.body.innerText||'').match(/Rp\\s?[\\d.,]{3,}/);",
+    "var gm=(document.querySelector('meta[property=\"og:image\"]')||{}).content||'';",
     "var u=location.origin+location.pathname;",
-    "var p={nama:t,harga:h?h[0]:'',deskripsi:d,url:u,sumber:location.hostname};",
+    "var p={nama:t,harga:h?h[0]:'',deskripsi:d,url:u,sumber:location.hostname,gambar:gm};",
     "var b=btoa(unescape(encodeURIComponent(JSON.stringify(p))));",
     `window.open('${dasar}/posting/baru?prefill='+b.replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''),'_blank');`,
     "}catch(e){alert('Quick Capture gagal: '+e.message);}})();",

@@ -21,6 +21,8 @@ export interface SavedProduct extends ProductFormValues {
   deskripsi_bersih: string;
   /** Label pribadi (mis. "komisi besar"); opsional untuk data lama. */
   tag?: string[];
+  /** Katalog: thumbnail dari Quick Capture (og:image); opsional untuk data lama. */
+  gambar_url?: string;
 }
 
 function loadSavedProducts(): SavedProduct[] {
@@ -48,13 +50,15 @@ export function FormProdukManual({
    * Isi awal form, mis. dari Quick Capture (N-8). User tetap harus memeriksa dan
    * menekan "Simpan produk" sendiri; tidak ada penyimpanan otomatis.
    */
-  nilaiAwal?: Partial<ProductFormValues>;
+  nilaiAwal?: Partial<ProductFormValues> & { gambar_url?: string };
 }) {
   const [saved, setSaved] = useState<SavedProduct[]>([]);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const [tagTeks, setTagTeks] = useState("");
   const [favorit, setFavorit] = useState<string[]>([]);
   const [filterTag, setFilterTag] = useState("");
+  // Katalog: URL gambar dari Quick Capture (og:image) ikut tersimpan.
+  const [gambarUrl, setGambarUrl] = useState(nilaiAwal?.gambar_url ?? "");
 
   const {
     register,
@@ -93,6 +97,7 @@ export function FormProdukManual({
       ...values,
       harga: values.harga ? values.harga : undefined,
       deskripsi_bersih: cleaned,
+      gambar_url: gambarUrl || undefined,
       tag: parseTag(tagTeks),
       id: crypto.randomUUID(),
       saved_at: new Date().toISOString(),
@@ -103,6 +108,7 @@ export function FormProdukManual({
     setSavedMessage("Produk tersimpan sementara di browser (localStorage).");
     onSaved?.(product);
     reset();
+    setGambarUrl("");
     setTagTeks("");
   });
 
@@ -202,6 +208,30 @@ export function FormProdukManual({
                 {errors.url_referensi.message}
               </p>
             ) : null}
+          </div>
+
+          {/* Katalog: gambar produk dari Quick Capture (og:image); bisa diisi manual. */}
+          <div className="sm:col-span-2">
+            <label htmlFor="gambar-produk" className={labelClass}>
+              Gambar produk (opsional — otomatis dari Quick Capture)
+            </label>
+            <div className="flex items-start gap-3">
+              {gambarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- gambar eksternal marketplace, tanpa optimasi next/image
+                <img
+                  src={gambarUrl}
+                  alt="Pratinjau produk"
+                  className="h-16 w-16 flex-shrink-0 border border-surface-border object-cover"
+                />
+              ) : null}
+              <input
+                id="gambar-produk"
+                value={gambarUrl}
+                onChange={(e) => setGambarUrl(e.target.value)}
+                className={inputClass}
+                placeholder="https://... (kosongkan bila tidak ada)"
+              />
+            </div>
           </div>
 
           <div className="sm:col-span-2">
