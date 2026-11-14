@@ -309,6 +309,19 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     return draft.produk?.deskripsi_bersih || draft.produk?.deskripsi || "";
   }, [draft.analisis, draft.analisisManual, draft.produk]);
 
+  /** Fitur untuk prompt AI: hasil analisis dulu, baru fitur penawaran manual. */
+  const fiturUntukPrompt = (analisis: Analisis | null): string[] => {
+    if (analisis?.fitur && analisis.fitur.length > 0) return analisis.fitur;
+    const p = draft.produk as PenawaranSaved | undefined;
+    if (p?.fitur_keunggulan) {
+      return p.fitur_keunggulan
+        .split(/[\n;]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
+
   /**
    * Sinkronkan konten kerja ke Pustaka (bank konten). Returns the updated
    * working list so callers can persist the new bankIds into the draft.
@@ -388,15 +401,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
     setBusy("ide");
     setError(null);
     setErrorSesi(false);
-    const fiturList =
-      draft.analisis?.fitur && draft.analisis.fitur.length > 0
-        ? draft.analisis.fitur
-        : (draft.produk as PenawaranSaved)?.fitur_keunggulan
-          ? (draft.produk as PenawaranSaved)
-              .fitur_keunggulan!.split(/[\n;]+/)
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : [];
+    const fiturList = fiturUntukPrompt(draft.analisis);
 
     const result = await postJson<{ ide: Ide[] }>("/api/ide", {
       namaProduk: draft.produk?.nama_internal ?? "Penawaran",
@@ -451,12 +456,7 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
   /* ------------------------------ Tahap: generate ----------------------------- */
 
-  const jalankanGenerate = async () => {
-    const terpilih = draft.ideList.filter((i) => draft.ideDipilih.includes(i.judul));
-    if (terpilih.length === 0) {
-      setError("Pilih minimal satu ide dulu.");
-      return;
-    }
+  const jalankanGenerateDengan = async (terpilih: Ide[], ringkasanAktif: string) => {
     setBusy("generate");
     setError(null);
     setErrorSesi(false);
@@ -470,19 +470,11 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
 
     // Satu job per ide terpilih; satu gagal tidak menghentikan yang lain (PRD 15.1).
     for (const ide of terpilih) {
-      const fiturList =
-        draft.analisis?.fitur && draft.analisis.fitur.length > 0
-          ? draft.analisis.fitur
-          : (draft.produk as PenawaranSaved)?.fitur_keunggulan
-            ? (draft.produk as PenawaranSaved)
-                .fitur_keunggulan!.split(/[\n;]+/)
-                .map((s) => s.trim())
-                .filter(Boolean)
-            : [];
+      const fiturList = fiturUntukPrompt(draft.analisis);
 
       const body = {
         namaProduk: draft.produk?.nama_internal ?? "Penawaran",
-        ringkasan,
+        ringkasan: ringkasanAktif,
         fitur: fiturList,
         ide,
         pengaturan: draft.pengaturan,
@@ -567,6 +559,73 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
         setLangkah("preview");
       }
     }
+  };
+
+  const jalankanGenerate = async () => {
+    const terpilih = draft.ideList.filter((i) => draft.ideDipilih.includes(i.judul));
+    if (terpilih.length === 0) {
+      setError("Pilih minimal satu ide dulu.");
+      return;
+    }
+    await jalankanGenerateDengan(terpilih, ringkasan);
+  };
+
+  /* --------------------------- R7-A: Buat Semuanya ---------------------------- */
+
+  /**
+   * Rantai analisis -> ide -> generate dalam satu tunggu. Tiap tahap disimpan
+   * ke draft sebelum lanjut, jadi kalau tahap berikutnya gagal, hasil tahap
+   * sebelumnya tidak hilang dan user bisa lanjut manual dari situ.
+   */
+  const jalankanSemuanya = async () => {
+    if (!draft.produk) return;
+    setError(null);
+    setErrorSesi(false);
+    setPesan(null);
+
+    // 1) Analisis penawaran
+    setBusy("analisis");
+    const hasilAnalisis = await postJson<Analisis>("/api/analisis", {
+      deskripsi: draft.produk.deskripsi_bersih || draft.produk.deskripsi,
+      nama: draft.produk.nama || draft.produk.nama_internal,
+      varian: draft.produk.varian,
+      harga: draft.produk.harga,
+      kategori: (draft.produk as PenawaranSaved)?.kategori_penawaran,
+    });
+    if (!hasilAnalisis.ok || !hasilAnalisis.data) {
+      setBusy(null);
+      setError(hasilAnalisis.error ?? "Analisis gagal. Coba langkah per langkah.");
+      setErrorSesi(hasilAnalisis.status === 401);
+      return;
+    }
+    const analisis = hasilAnalisis.data;
+    update({ analisis, analisisManual: analisis.ringkasan });
+    setLangkah("analisis");
+
+    // 2) Ide konten
+    setBusy("ide");
+    const hasilIde = await postJson<{ ide: Ide[] }>("/api/ide", {
+      namaProduk: draft.produk.nama_internal ?? "Penawaran",
+      ringkasan: analisis.ringkasan,
+      fitur: fiturUntukPrompt(analisis),
+      target_audiens: analisis.target_audiens ?? [],
+      angle: analisis.angle ?? [],
+    });
+    if (!hasilIde.ok || !hasilIde.data) {
+      setBusy(null);
+      setPesan("Analisis selesai dan tersimpan di draft.");
+      setError("Analisis berhasil, tapi ide gagal dibuat. Tekan 'Ide konten' untuk coba lagi, atau tulis ide manual.");
+      setErrorSesi(hasilIde.status === 401);
+      return;
+    }
+    const ideList = hasilIde.data.ide;
+    const ideDipilih = ideList.slice(0, 1).map((i) => i.judul);
+    update({ ideList, ideDipilih });
+    setLangkah("ide");
+
+    // 3) Generate konten (langsung dengan nilai lokal, tanpa menunggu state)
+    const terpilih = ideList.filter((i) => ideDipilih.includes(i.judul));
+    await jalankanGenerateDengan(terpilih, analisis.ringkasan);
   };
 
   /* ------------------------------ Tahap: preview ------------------------------ */
@@ -836,6 +895,22 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               >
                 {busy === "analisis" ? "Menganalisis…" : "Analisis penawaran"}
               </button>
+              {draft.produk ? (
+                <button
+                  type="button"
+                  onClick={jalankanSemuanya}
+                  disabled={busy !== null}
+                  className={primaryBtn}
+                >
+                  {busy === "analisis"
+                    ? "Buat Semuanya: 1/3 menganalisis…"
+                    : busy === "ide"
+                      ? "Buat Semuanya: 2/3 menyusun ide…"
+                      : busy === "generate"
+                        ? "Buat Semuanya: 3/3 menulis konten…"
+                        : "Buat Semuanya (analisis → ide → konten)"}
+                </button>
+              ) : null}
               {busy === "analisis" ? (
                 <button type="button" onClick={() => setBusy(null)} className={ghostBtn}>
                   Batalkan
