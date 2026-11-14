@@ -29,6 +29,7 @@ import { ActionBar } from "./action-bar";
 import { charLength, validateStatusList } from "@/lib/statuses/validator-500";
 import { batasKarakterMode } from "@/lib/platforms/batas";
 import { muatKonten, simpanKonten, upsertKonten } from "@/lib/konten/store";
+import { LanjutLangkah } from "@/components/lanjut-langkah";
 import { CHECKLIST_AWAL } from "@/lib/konten/checklist";
 import {
   muatDraftServer,
@@ -1317,6 +1318,9 @@ export function AlurBuatPosting({ prefillKode }: { prefillKode?: string } = {}) 
               onTandaiSiap={tandaiSiap}
               onSalin={salinUtas}
             />
+
+            {/* Langkah 3 selesai saat draft sudah tersimpan di bank konten. */}
+            {draft.status !== "draft" || semuaValid ? <LanjutLangkah dari={3} /> : null}
           </div>
         )
       ) : null}

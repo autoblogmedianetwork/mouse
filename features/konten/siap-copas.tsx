@@ -9,6 +9,7 @@ import Link from "next/link";
 import { TagShopee } from "./tag-shopee";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/card";
+import { LanjutLangkah } from "@/components/lanjut-langkah";
 import { PageHeader } from "@/components/page-header";
 import { muatKonten, simpanKonten, tandaiTerkirim } from "@/lib/konten/store";
 import type { Konten } from "@/lib/konten/skema";
@@ -108,6 +109,7 @@ function Kartu({
           {pesan}
         </p>
       ) : null}
+      {pesan === "Ditandai terkirim." ? <LanjutLangkah dari={4} /> : null}
     </div>
   );
 }

@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
+import { LanjutLangkah } from "@/components/lanjut-langkah";
 import { formatRupiah } from "@/lib/kalkulator/kalkulator-cuan";
 import { uraiTempelan, nilaiTempelan, type ProdukTempelan } from "@/lib/riset/tempel-cepat";
 import {
@@ -233,6 +234,7 @@ export function TempelCepat() {
           <button type="button" className={tombolUtama} onClick={jadikanProduk}>
             Jadikan produk
           </button>
+          {pesan?.includes("disimpan ke daftar produk") ? <LanjutLangkah dari={2} /> : null}
         </div>
       ) : null}
 

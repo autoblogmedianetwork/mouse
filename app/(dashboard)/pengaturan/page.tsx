@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { CadangkanData } from "@/features/pengaturan/cadangkan-data";
+import { HapusData } from "@/features/pengaturan/hapus-data";
 import { FormPengaturan } from "./form-pengaturan";
 import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
@@ -18,6 +19,7 @@ export default async function PengaturanPage() {
       />
       <FormPengaturan />
       <CadangkanData />
+      <HapusData />
     </div>
   );
 }
