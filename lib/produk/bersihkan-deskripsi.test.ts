@@ -54,9 +54,33 @@ describe("cleanDescription", () => {
     expect(cleanDescription(input)).toBe(input);
   });
 
-  it("collapses 3+ blank lines into one blank line", () => {
+  it("rapatkan enter beruntun jadi satu enter (gaya deskripsi Shopee)", () => {
     const input = "Baris satu\n\n\n\n\nBaris dua";
-    expect(cleanDescription(input)).toBe("Baris satu\n\nBaris dua");
+    expect(cleanDescription(input)).toBe("Baris satu\nBaris dua");
+  });
+
+  it("enter + spasi beruntun juga dirapatkan", () => {
+    const input = "Bahan katun\n \n  \n\nUkuran S M L\n\n\nHarga 89.000";
+    expect(cleanDescription(input)).toBe("Bahan katun\nUkuran S M L\nHarga 89.000");
+  });
+
+  it("deskripsi tempelan Shopee yang berantakan jadi rapi", () => {
+    const input = [
+      "BAJU ANAK KATUN PREMIUM   ",
+      "",
+      "",
+      "",
+      "Bahan   katun   combed 30s",
+      "",
+      "#fyp #bajuanak #murah",
+      "",
+      "https://s.shopee.co.id/abc123",
+      "",
+      "Order   sekarang!!!",
+    ].join("\n");
+    expect(cleanDescription(input)).toBe(
+      "BAJU ANAK KATUN PREMIUM\nBahan katun combed 30s\nOrder sekarang!!!",
+    );
   });
 
   it("collapses multiple spaces inside a line", () => {
@@ -105,7 +129,7 @@ describe("cleanDescription", () => {
     ].join("\n");
     const result = cleanDescription(input);
     expect(result).toBe(
-      "Kaos Polos Premium Cotton Combed 30s\n\nBahan: cotton combed 30s, adem dan tidak melawas\n\nSize: S M L XL XXL"
+      "Kaos Polos Premium Cotton Combed 30s\nBahan: cotton combed 30s, adem dan tidak melawas\nSize: S M L XL XXL"
     );
   });
 });

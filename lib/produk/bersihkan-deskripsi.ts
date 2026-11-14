@@ -84,8 +84,10 @@ export function cleanDescription(raw: string): string {
     })
     .join("\n");
 
-  // 5. Collapse 3+ consecutive blank lines into one blank line
-  text = text.replace(/\n{3,}/g, "\n\n");
+  // 5. Rapikan baris kosong. Deskripsi Shopee hampir selalu berisi enter
+  //    beruntun; satu baris kosong sudah cukup untuk memisahkan paragraf,
+  //    sisanya dibuang supaya hasil tempel rapat dan enak dibaca.
+  text = text.replace(/\n{2,}/g, "\n");
 
   // 6. Trim outer whitespace
   text = text.trim();
