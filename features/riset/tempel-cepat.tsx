@@ -5,11 +5,14 @@
  * nama/harga/terjual/rating/link lalu menilai 2 pilar yang bisa dihitung
  * dari data nyata. Bukan scraping: tidak ada request ke marketplace.
  */
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
 import { LanjutLangkah } from "@/components/lanjut-langkah";
 import { formatRupiah } from "@/lib/kalkulator/kalkulator-cuan";
 import { uraiTempelan, nilaiTempelan, type ProdukTempelan } from "@/lib/riset/tempel-cepat";
+import { produkKeDraft } from "@/lib/riset/tempel-ke-draft";
+import { encodePrefill } from "@/lib/impor/prefill";
 import {
   hapusProduk,
   muatProduk,
@@ -33,6 +36,7 @@ export function TempelCepat() {
   const [pesan, setPesan] = useState<string | null>(null);
   const [daftar, setDaftar] = useState<ProdukRingkas[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
+  const router = useRouter();
   const [editNama, setEditNama] = useState("");
 
   // Muat daftar produk tersimpan (untuk tombol Edit/Hapus/Simpan).
@@ -119,6 +123,24 @@ export function TempelCepat() {
     ]);
     setDaftar(muatProduk());
     setPesan("Produk disimpan ke daftar produk. Buka Buat Konten untuk membuat kontennya.");
+  };
+
+  /**
+   * Opsi B: setelah produk dinilai, user tidak perlu mengetik ulang semuanya di
+   * Buat Posting. Data diubah menjadi prefill lalu dibawa lewat query string.
+   */
+  const buatKontenLangsung = () => {
+    if (!produk || !hasil) return;
+    const d = produkKeDraft(produk, hasil);
+    const kode = encodePrefill({
+      nama: d.nama,
+      harga: d.harga,
+      varian: d.varian,
+      deskripsi: d.deskripsi,
+      url: d.url_referensi,
+      sumber: produk.marketplace || "tempel-cepat",
+    });
+    router.push(`/posting/baru?prefill=${kode}`);
   };
 
   return (
@@ -231,9 +253,18 @@ export function TempelCepat() {
             </ul>
           ) : null}
 
-          <button type="button" className={tombolUtama} onClick={jadikanProduk}>
-            Jadikan produk
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className={tombolUtama} onClick={jadikanProduk}>
+              Jadikan produk
+            </button>
+            <button type="button" className={tombolUtama} onClick={buatKontenLangsung}>
+              Buat konten sekarang →
+            </button>
+          </div>
+          <p className="text-meta text-muted-foreground">
+            &quot;Buat konten sekarang&quot; membuka Buat Posting dengan data produk ini sudah
+            terisi — tanpa mengetik ulang.
+          </p>
           {pesan?.includes("disimpan ke daftar produk") ? <LanjutLangkah dari={2} /> : null}
         </div>
       ) : null}
