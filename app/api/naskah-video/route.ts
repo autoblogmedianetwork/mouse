@@ -9,29 +9,15 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { generateRequestSkema, naskahVideoSkema } from "@/lib/ai/schemas";
 import { buildNaskahVideoPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/naskah-video.v2";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {
   // Tanpa sesi, siapa pun yang tahu URL ini bisa membebani biaya AI.
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
   // Body memakai bentuk yang sama dengan /api/generate supaya alur di UI bisa
   // memakai satu helper; field pengaturan yang relevan dipakai prompt 09.
-  const parsed = generateRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, generateRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
 
   const prompt = buildNaskahVideoPrompt(parsed.data);
   const { result, berhenti } = await jalankanAI<unknown>({

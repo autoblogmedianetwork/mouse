@@ -17,27 +17,13 @@ import { BATAS_JUMLAH, generateRequestSkema, statusesSkema } from "@/lib/ai/sche
 import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
 import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v7";
 import { ATURAN_MARKETPLACE, deteksiMarketplaceLink } from "@/lib/affiliate/rules";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {
   // Tanpa sesi, siapa pun yang tahu URL ini bisa membebani biaya AI.
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
-  const parsed = generateRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, generateRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
 
   const { pengaturan } = parsed.data;
   if (pengaturan.mode_output === "naskah_video") {

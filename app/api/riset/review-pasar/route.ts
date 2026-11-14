@@ -19,26 +19,12 @@ import {
   PROMPT_VERSION,
   buildReviewPasarPrompt,
 } from "@/lib/ai/prompts/review-pasar.v1";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
-  const parsed = reviewPasarRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, reviewPasarRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
 
   const { niche, audiens, review_mentah } = parsed.data;
   const prompt = buildReviewPasarPrompt({ niche, audiens, reviewMentah: review_mentah });

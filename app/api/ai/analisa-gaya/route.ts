@@ -16,26 +16,12 @@ import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { analisaGayaRequestSkema, analisaGayaSkema } from "@/lib/ai/schemas";
 import { PROMPT_VERSION, buildAnalisaGayaPrompt } from "@/lib/ai/prompts/analisa-gaya.v1";
 import { periksaTempelan } from "@/lib/ai/analisa-gaya";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
-  const parsed = analisaGayaRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, analisaGayaRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
 
   const periksa = periksaTempelan(parsed.data.post_mentah);
   if (!periksa.ok) {

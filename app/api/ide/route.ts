@@ -5,27 +5,13 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { ideRequestSkema, ideSkema } from "@/lib/ai/schemas";
 import { buildIdeKontenPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/ide-konten.v2";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {
   // Tanpa sesi, siapa pun yang tahu URL ini bisa membebani biaya AI.
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
-  const parsed = ideRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, ideRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
 
   const prompt = buildIdeKontenPrompt(parsed.data);
   const { result, berhenti } = await jalankanAI<unknown>({

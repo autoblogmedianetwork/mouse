@@ -19,31 +19,17 @@ import {
   buildRisetAudiensPrompt,
   PROMPT_VERSION,
 } from "@/lib/ai/prompts/riset-audience.v1";
-import { wajibSesi } from "@/lib/supabase/server";
+import { siapkanBody } from "@/lib/api/siapkan-body";
 
 /** Pesan jelas kalau migrasi 0010 belum dijalankan di database. */
 const PESAN_TABEL_HILANG =
   "Tabel audience_riset belum ada di database. Jalankan migrasi 0010_riset_audiens.sql di Supabase SQL Editor, lalu coba lagi.";
 
 export async function POST(req: Request) {
-  const sesi = await wajibSesi();
-  if ("respons" in sesi) return sesi.respons;
-  const { user, supabase } = sesi;
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Body bukan JSON valid." }, { status: 400 });
-  }
-
-  const parsed = risetRequestSkema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: parsed.error.issues[0]?.message ?? "Input tidak valid." },
-      { status: 400 },
-    );
-  }
+  const hasil = await siapkanBody(req, risetRequestSkema);
+  if (!hasil.ok) return hasil.respons;
+  const parsed = hasil;
+  const { user, supabase } = hasil.sesi;
 
   const { niche, audiens } = parsed.data;
   const prompt = buildRisetAudiensPrompt({ niche, audiens });
