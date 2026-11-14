@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { LabKlien } from "@/features/lab/lab-klien";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
 export const metadata = { title: "Lab konten" };
 
@@ -14,6 +15,7 @@ export default async function LabPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <TabMenuOtomatis />
       <PageHeader
         title="Lab konten"
         description="Uji konten dari mata pembeli, ubah satu masalah jadi tiga hook, atau susun serial 7 hari. Semua hasil berstatus bahan tinjauan — Anda tetap yang memutuskan."

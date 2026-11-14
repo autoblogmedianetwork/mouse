@@ -16,7 +16,13 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { menuUntuk } from "@/lib/nav/aktif";
 import { BudgetIndicator } from "./budget-indicator";
-import { GROUP_LABELS, MENU_ITEMS, labelHalaman, type MenuItem } from "./nav-config";
+import {
+  GROUP_LABELS,
+  GROUP_ORDER,
+  MENU_ITEMS,
+  labelHalaman,
+  type MenuItem,
+} from "./nav-config";
 import { ShellPengguna } from "./shell-pengguna";
 
 /** Terminal meta style: small mono uppercase with wide tracking (ADR 0013). */
@@ -45,8 +51,28 @@ function NavItem({ item, onNavigate }: { item: MenuItem; onNavigate?: () => void
   }
 
   return (
-    <Link href={item.href} className={cn(base, activeClass)} onClick={onNavigate}>
-      {item.label}
+    <Link
+      href={item.href}
+      className={cn(base, activeClass)}
+      onClick={onNavigate}
+      title={item.kapan}
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        {item.langkah !== undefined ? (
+          <span
+            className={cn(
+              "flex h-5 w-5 shrink-0 items-center justify-center border font-mono text-mikro",
+              active
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-surface-border text-muted-foreground",
+            )}
+            aria-hidden="true"
+          >
+            {item.langkah}
+          </span>
+        ) : null}
+        <span className="truncate">{item.label}</span>
+      </span>
     </Link>
   );
 }
@@ -58,7 +84,7 @@ function SidebarContent({
   email: string | null;
   onNavigate?: () => void;
 }) {
-  const groups: Array<MenuItem["group"]> = ["produksi", "konten", "tools"];
+  const groups = GROUP_ORDER;
 
   return (
     <div className="flex h-full flex-col">
@@ -107,7 +133,7 @@ function SidebarContent({
 function Breadcrumb() {
   const pathname = usePathname();
   const halaman = labelHalaman(pathname);
-  const grup = menuUntuk(pathname, MENU_ITEMS)?.group ?? "produksi";
+  const grup = menuUntuk(pathname, MENU_ITEMS)?.group ?? "alur";
 
   return (
     <nav aria-label="Breadcrumb" className={cn(mikro, "min-w-0 text-muted-foreground")}>

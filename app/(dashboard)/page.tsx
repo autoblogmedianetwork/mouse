@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
+import { BilahAlur } from "@/components/bilah-alur";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TurAwal } from "@/features/onboarding/tur-awal";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
@@ -14,8 +15,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Dashboard"
-        description="Ringkasan dan lanjutkan pekerjaan terakhir."
+        title="Hari Ini"
+        description="Alur kerja dari nol sampai komisi pertama: Riset → Bikin Konten → Terbit."
       >
         <Link
           href="/posting/baru"
@@ -24,6 +25,8 @@ export default async function DashboardPage() {
           Buat posting baru
         </Link>
       </PageHeader>
+
+      <BilahAlur />
 
       <RingkasanDashboard />
 

@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { AlurBuatPosting } from "@/features/posting/alur-buat-posting";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
 export const metadata = { title: "Buat posting" };
 
@@ -19,6 +20,7 @@ export default async function BuatPostingPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <TabMenuOtomatis />
       <PageHeader
         title="Buat posting"
         description="Alur bertahap: penawaran → analisis → ide → generate → preview & salin. Berhenti di tiap checkpoint sampai Anda menyetujui hasilnya."

@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { PencarianGlobal } from "@/features/cari/pencarian-global";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
 export const metadata = { title: "Pencarian" };
 
@@ -13,6 +14,7 @@ export default async function CariPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <TabMenuOtomatis />
       <PageHeader
         title="Pencarian"
         description="Cari di seluruh konten, produk tersimpan, dan bank masalah audiens sekaligus. Dijalankan di browser, tanpa server."

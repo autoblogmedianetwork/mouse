@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { FokusHarian } from "@/features/fokus/fokus-harian";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
 export const metadata = { title: "Fokus harian" };
 
@@ -13,6 +14,7 @@ export default async function FokusPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <TabMenuOtomatis />
       <PageHeader
         title="Fokus hari ini"
         description="Satu hal per hari: salin konten yang sudah siap, tandai selesai, jaga rentetan. Tidak ada yang berubah status tanpa tindakan Anda."

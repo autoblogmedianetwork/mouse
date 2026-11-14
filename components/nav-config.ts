@@ -1,14 +1,18 @@
 /**
- * Menu structure per docs/UI-Spec-Heaviliate.md section 2.1 (ADR 0013).
+ * Menu structure — Opsi B (Gelombang 5): tujuh menu, satu alur lurus.
  *
- * Three groups keep the growing route list readable: Produksi (make content),
- * Konten (review/publish/measure), and Alat (utilities). Every item carries its
- * phase instead of a permanent `available: true`, so the "Segera" label only
- * appears for routes that really do not exist yet. Items with more than one
- * page expose tabs through `tabs`, and the sidebar links to the first tab.
+ * Alur kerja dibuat mengikuti urutan nyata pemakaian, dari belajar sampai
+ * komisi pertama:
+ *
+ *   Hari Ini → Riset → Bikin Konten → Terbit → (Kalender, Analitik, Alat)
+ *
+ * Tiga menu pertama adalah jalur utama; tiga terakhir pendukung. Grup lama
+ * (Produksi/Konten/Alat) dihapus karena membuat user harus memilih grup dulu
+ * sebelum menemukan halaman. Semua route lama tetap hidup: yang digabung
+ * tampil sebagai tab, jadi tautan/bookmark lama tidak mati.
  */
 
-export type GrupMenu = "produksi" | "konten" | "tools";
+export type GrupMenu = "alur" | "pantau" | "alat";
 
 export type FaseMenu = "MVP" | "M6" | "Level 2" | "Setelah M5";
 
@@ -32,82 +36,118 @@ export interface MenuItem {
   tabs?: readonly TabMenu[];
   /** False for phases that have not shipped; the item renders disabled. */
   aktif?: boolean;
+  /** Satu kalimat: kapan menu ini dipakai. Tampil sebagai tooltip di sidebar. */
+  kapan?: string;
+  /** Nomor langkah alur utama (1-4); kosong untuk menu pendukung. */
+  langkah?: number;
 }
 
 export const MENU_ITEMS: MenuItem[] = [
-  // Workspace
-  { label: "Dashboard", href: "/", group: "produksi", fase: "MVP" },
-  // Mode fokus harian (Level 3): satu layar "hari ini posting apa" + streak.
-  { label: "Fokus harian", href: "/fokus", group: "produksi", fase: "MVP" },
-  // Rencana Perdana (Gelombang 4): 21 hari menuju komisi pertama, streak
-  // menyatu dengan Fokus harian.
-  { label: "Rencana Perdana", href: "/rencana", group: "produksi", fase: "MVP" },
-  // Siap Copas: konten hari ini siap salin-tempel (publikasi tetap manual).
-  { label: "Siap Copas", href: "/siap-copas", group: "konten", fase: "MVP" },
-  // Hulu content machine: riset audiens lalu peluang produk (tahap 1-2).
-  { label: "Riset audiens", href: "/riset", group: "produksi", fase: "MVP" },
-  { label: "Buat posting", href: "/posting/baru", group: "produksi", fase: "MVP" },
-  // Jalur video prompt manual: storyboard ChatGPT, video Google Flow.
-  { label: "Buat video", href: "/video", group: "produksi", fase: "MVP" },
-  // Lab konten (Gelombang 3): lab uji, ide dari masalah, serial 7 hari.
-  { label: "Lab konten", href: "/lab", group: "produksi", fase: "MVP" },
-  // Antrian dan riwayat digabung jadi satu item "Konten" dengan tab
-  // (Fase 2-A, pola sama dengan Analitik/Aset).
+  // ---------------------------------------------------------------- alur --
   {
-    label: "Konten",
-    href: "/antrian",
-    hrefs: ["/antrian", "/batch", "/riwayat"],
-    group: "konten",
+    label: "Hari Ini",
+    href: "/",
+    hrefs: ["/", "/fokus", "/rencana"],
+    group: "alur",
     fase: "MVP",
+    langkah: 1,
+    kapan: "Mulai di sini setiap hari: apa yang harus dikerjakan sekarang.",
     tabs: [
+      { label: "Ringkasan", href: "/" },
+      { label: "Fokus harian", href: "/fokus" },
+      { label: "Rencana Perdana", href: "/rencana" },
+    ],
+  },
+  {
+    label: "Riset",
+    href: "/riset",
+    group: "alur",
+    fase: "MVP",
+    langkah: 2,
+    kapan: "Cari produk yang layak dipromosikan. Sekali saja per produk.",
+  },
+  {
+    label: "Bikin Konten",
+    href: "/posting/baru",
+    hrefs: ["/posting/baru", "/video", "/lab"],
+    group: "alur",
+    fase: "MVP",
+    langkah: 3,
+    kapan: "Ubah produk jadi konten siap tempel.",
+    tabs: [
+      { label: "Buat posting", href: "/posting/baru" },
+      { label: "Buat video", href: "/video" },
+      { label: "Lab konten", href: "/lab" },
+    ],
+  },
+  {
+    label: "Terbit",
+    href: "/siap-copas",
+    hrefs: ["/siap-copas", "/antrian", "/batch", "/riwayat"],
+    group: "alur",
+    fase: "MVP",
+    langkah: 4,
+    kapan: "Salin teks & link hari ini, lalu tandai sudah ditempel.",
+    tabs: [
+      { label: "Siap copas", href: "/siap-copas" },
       { label: "Antrian", href: "/antrian" },
       { label: "Batch", href: "/batch" },
       { label: "Riwayat", href: "/riwayat" },
     ],
   },
-  // Tools
-  { label: "Pencarian", href: "/cari", group: "tools", fase: "MVP" },
-  // Rincian biaya AI per provider/fungsi (Fase 5); widget header tetap ringkas.
-  { label: "Biaya AI", href: "/biaya", group: "tools", fase: "MVP" },
-  { label: "Kalender", href: "/kalender", group: "konten", fase: "Level 2" },
+  // -------------------------------------------------------------- pantau --
   {
-    // Impor laporan affiliate adalah masukan analisis, bukan halaman sendiri.
+    label: "Kalender",
+    href: "/kalender",
+    group: "pantau",
+    fase: "Level 2",
+    kapan: "Lihat jadwal posting sebulan sekaligus.",
+  },
+  {
     label: "Analitik",
     href: "/analitik",
-    hrefs: ["/impor"],
-    group: "konten",
+    hrefs: ["/analitik", "/impor"],
+    group: "pantau",
     fase: "Setelah M5",
+    kapan: "Cek klik & komisi, impor laporan Shopee.",
     tabs: [
       { label: "Ringkasan", href: "/analitik" },
       { label: "Impor performa", href: "/impor" },
     ],
   },
+  // ---------------------------------------------------------------- alat --
   {
-    label: "Aset",
-    href: "/link",
-    hrefs: ["/template"],
-    group: "tools",
+    label: "Alat & Pengaturan",
+    href: "/pengaturan",
+    hrefs: ["/pengaturan", "/cari", "/biaya", "/link", "/template", "/akun"],
+    group: "alat",
     fase: "MVP",
+    kapan: "Pencarian, biaya AI, link affiliate, template, akun.",
     tabs: [
-      { label: "Link affiliate", href: "/link" },
-      { label: "Template deskripsi", href: "/template" },
+      { label: "Pengaturan", href: "/pengaturan" },
+      { label: "Pencarian", href: "/cari" },
+      { label: "Biaya AI", href: "/biaya" },
+      { label: "Aset", href: "/link" },
     ],
   },
-  { label: "Pengaturan", href: "/pengaturan", group: "tools", fase: "MVP" },
 ];
 
 export const GROUP_LABELS: Record<MenuItem["group"], string> = {
-  produksi: "Produksi",
-  konten: "Konten",
-  tools: "Alat",
+  alur: "Alur kerja",
+  pantau: "Pantau",
+  alat: "Alat",
 };
 
+/** Urutan grup di sidebar. Disimpan terpisah agar tampilan tidak ikut data. */
+export const GROUP_ORDER: GrupMenu[] = ["alur", "pantau", "alat"];
+
 /**
- * Page no longer in the sidebar but still live. `/akun` is linked from
- * Pengaturan, section "Profil dan akun" (docs/UI-Spec-Heaviliate.md 2.1).
+ * Page no longer in the sidebar but still live. Sub-pages such as
+ * `/template` and `/akun` are reachable from the pages that own them.
  */
 export const MENU_TANPA_SIDEBAR: Record<string, string> = {
   "/akun": "Akun sosial",
+  "/template": "Template deskripsi",
 };
 
 /** Menu item owning a pathname, falling back to the raw path for breadcrumbs. */
@@ -117,3 +157,36 @@ export function labelHalaman(pathname: string, items: readonly MenuItem[] = MENU
   );
   return item?.label ?? MENU_TANPA_SIDEBAR[pathname] ?? pathname;
 }
+
+/** Menu item + tab owning a pathname (for breadcrumbs "Terbit · Siap copas"). */
+export function menuUntuk(
+  pathname: string,
+  items: readonly MenuItem[] = MENU_ITEMS,
+): { item: MenuItem; tab: TabMenu | null } | null {
+  for (const item of items) {
+    const cocok = item.href === pathname || (item.hrefs ?? []).some((h) => h === pathname);
+    if (!cocok) continue;
+    const tab = item.tabs?.find((t) => t.href === pathname) ?? null;
+    return { item, tab };
+  }
+  return null;
+}
+
+/** Langkah alur utama (1-4) sebagai data, dipakai bilah langkah di Hari Ini. */
+export interface LangkahAlur {
+  nomor: number;
+  label: string;
+  href: string;
+  kapan: string;
+}
+
+export const LANGKAH_ALUR: LangkahAlur[] = MENU_ITEMS.filter(
+  (i) => i.langkah !== undefined && i.aktif !== false,
+)
+  .sort((a, b) => (a.langkah ?? 0) - (b.langkah ?? 0))
+  .map((i) => ({
+    nomor: i.langkah as number,
+    label: i.label,
+    href: i.href,
+    kapan: i.kapan ?? "",
+  }));
