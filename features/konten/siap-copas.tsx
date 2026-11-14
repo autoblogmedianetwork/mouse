@@ -6,6 +6,7 @@
  * tapi persiapannya tidak perlu buka-buka menu lagi.
  */
 import Link from "next/link";
+import { TagShopee } from "./tag-shopee";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
@@ -97,6 +98,10 @@ function Kartu({
           Link sengaja dipisah ke balasan — sesuai strategi minggu pertama (link tidak di
           postingan utama).
         </p>
+      ) : null}
+
+      {k.link_produk && k.letak_link !== "tanpa_link" ? (
+        <TagShopee kontenId={k.id} namaProduk={k.produk_nama ?? ""} link={k.link_produk} />
       ) : null}
       {pesan ? (
         <p className="text-meta text-status-ready" role="status">
