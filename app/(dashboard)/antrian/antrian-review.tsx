@@ -9,9 +9,11 @@
  *
  * Data lives in localStorage until Supabase connects (P3); the shapes already
  * match `contents` in docs/skema-database.md.
+ *
+ * R6d: state & logika pindah ke use-antrian.ts; kartu ke kartu-konten.tsx;
+ * dialog jadwal ke dialog-jadwal.tsx. File ini tinggal tata letak.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { Card } from "@/components/card";
 import { TautanMasuk } from "@/components/pesan-galat";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -19,97 +21,18 @@ import { CostWidget } from "@/components/cost-widget";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { ReviewTabs } from "@/components/review-tabs";
-import { StatusBadge } from "@/components/status-badge";
-import { BATAS_BIAYA_USD_BAWAAN } from "@/lib/ai/biaya";
-import type { StatistikBiaya } from "@/lib/ai/statistik";
-import { usePosting } from "@/features/posting/use-posting";
-import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
 import { LampuShadowban } from "@/features/antrian/lampu-shadowban";
-import { siapkanDraftDaurUlang } from "@/lib/konten/daur-ulang";
-import { eksporCSV, eksporJSON, eksporTXT, gabungKonten, imporJSON } from "@/lib/konten/ekspor";
-import { kemasanMultiPlatform } from "@/lib/konten/kemasan-multi-platform";
-import { catatRiwayat } from "@/lib/konten/riwayat";
+import { RiwayatSupabase } from "@/features/konten/riwayat-supabase";
 import { hitungSkorShadowban } from "@/lib/konten/skor-shadowban";
-import {
-  TAB_REVIEW,
-  bisaTandaiSiap,
-  filterKonten,
-  hitungTab,
-  statusDariTab,
-  type Konten,
-  type TabReview,
-} from "@/lib/konten/skema";
-import {
-  arsipkanKonten,
-  batalkanJadwal,
-  duplikatKonten,
-  jadwalkanKonten,
-  tandaiGagal,
-  tandaiTerkirim,
-} from "@/lib/konten/store";
-import { useLocalState } from "@/lib/konten/use-local-state";
-import { subIdDefault } from "@/lib/performa/atribusi";
+import { TAB_REVIEW, type TabReview } from "@/lib/konten/skema";
 import { cn } from "@/lib/utils";
-
-const inputClass =
-  "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
-const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
-
-interface Konfirmasi {
-  judul: string;
-  pesan: string;
-  labelKonfirmasi: string;
-  destructive?: boolean;
-  jalankan: () => void;
-}
-
-interface AksiKartu {
-  label: string;
-  jalankan: (k: Konten) => void;
-  destructive?: boolean;
-}
-
-function unduh(namaFile: string, isi: string, mime: string) {
-  const blob = new Blob([isi], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = namaFile;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+import { DialogJadwal } from "./dialog-jadwal";
+import { KartuKonten } from "./kartu-konten";
+import { btnGhost, inputClass } from "./antrian-bersama";
+import { useAntrian } from "./use-antrian";
 
 export function AntrianReview() {
-  const [konten, setKonten] = useLocalState<Konten[]>("autothreads-konten", []);
-  const [pengaturan] = useLocalState<{ sebut_kekurangan: boolean }>("autothreads-pengaturan", {
-    sebut_kekurangan: true,
-  });
-  const [tab, setTab] = useState<TabReview>("perlu_review");
-  const [q, setQ] = useState("");
-  const [rentang, setRentang] = useState<"semua" | "7d" | "30d">("semua");
-  const [terpilih, setTerpilih] = useState<string[]>([]);
-  const [bukaId, setBukaId] = useState<string | null>(null);
-  const [produkList] = useLocalState("autothreads-products", [] as Array<Record<string, unknown>>);
-  const [konfirmasi, setKonfirmasi] = useState<Konfirmasi | null>(null);
-  const [pesan, setPesan] = useState<string | null>(null);
-  const [jadwalTarget, setJadwalTarget] = useState<{ id: string; judul: string } | null>(null);
-  const [jadwalTanggal, setJadwalTanggal] = useState("");
-  /** Konten yang menunggu konfirmasi kirim (Fase 7, selalu lewat ConfirmDialog). */
-  const [kirimTarget, setKirimTarget] = useState<Konten | null>(null);
-  const [sedangKirim, setSedangKirim] = useState(false);
-  const posting = usePosting();
-  const [biaya, setBiaya] = useState<StatistikBiaya>({
-    hariIniUsd: null,
-    bulanIniUsd: null,
-    adaCatatan: false,
-    batasUsd: BATAS_BIAYA_USD_BAWAAN,
-    persenBulan: 0,
-    perFungsi: {},
-    perProvider: {},
-    fallbackPanggilan: 0,
-    fallbackTerakhir: null,
-    totalTokens: 0,
-  });
+  const a = useAntrian();
   const fileRef = useRef<HTMLInputElement>(null);
   const dialogJadwalRef = useRef<HTMLDialogElement>(null);
 
@@ -117,362 +40,25 @@ export function AntrianReview() {
   useEffect(() => {
     const d = dialogJadwalRef.current;
     if (!d) return;
-    if (jadwalTarget && !d.open) d.showModal();
-    if (!jadwalTarget && d.open) d.close();
-  }, [jadwalTarget]);
+    if (a.jadwalTarget && !d.open) d.showModal();
+    if (!a.jadwalTarget && d.open) d.close();
+  }, [a.jadwalTarget]);
 
-  // Cost source of truth: /api/biaya reads the `generations` table (Fase 5).
-  // Failure keeps the widget's "belum ada data" state instead of fake zeros.
-  useEffect(() => {
-    let hidup = true;
-    fetch("/api/biaya")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (hidup && d?.ok) {
-          setBiaya({
-            hariIniUsd: d.hariIniUsd ?? null,
-            bulanIniUsd: d.bulanIniUsd ?? null,
-            adaCatatan: Boolean(d.adaCatatan),
-            batasUsd: typeof d.batasUsd === "number" ? d.batasUsd : BATAS_BIAYA_USD_BAWAAN,
-            persenBulan: typeof d.persenBulan === "number" ? d.persenBulan : 0,
-            perFungsi: d.perFungsi ?? {},
-            perProvider: d.perProvider ?? {},
-            fallbackPanggilan:
-              typeof d.fallbackPanggilan === "number" ? d.fallbackPanggilan : 0,
-            fallbackTerakhir: d.fallbackTerakhir ?? null,
-            totalTokens: typeof d.totalTokens === "number" ? d.totalTokens : 0,
-          });
-        }
-      })
-      .catch(() => {
-        // jaringan/API gagal: biarkan state kosong, tanpa angka rekayasa
-      });
-    return () => {
-      hidup = false;
-    };
-  }, []);
-
-  const jumlah = useMemo(() => hitungTab(konten), [konten]);
-  const hasil = useMemo(
-    () =>
-      filterKonten(konten, { q, status: statusDariTab(tab), rentang }),
-    [konten, q, rentang, tab],
-  );
-
-  const lakukan = (fn: (list: Konten[]) => Konten[]) => setKonten(fn);
-
-  const ubahStatus = (ids: string[], status: Konten["status"], catatan: string) => {
-    const set = new Set(ids);
-    const now = new Date().toISOString();
-    lakukan((list) =>
-      list.map((k) => (set.has(k.id) ? { ...k, status, updated_at: now } : k)),
-    );
-    setTerpilih([]);
-    setPesan(catatan);
-  };
-
-  /**
-   * Bulk "tandai siap" runs the same gate as Buat posting for every selected
-   * content; the ones that fail are skipped and reported, never silently
-   * promoted.
-   */
-  const tandaiSiapMassal = (ids: string[]) => {
-    const dipilih = konten.filter((k) => ids.includes(k.id));
-    const lolos = dipilih.filter(
-      (k) => bisaTandaiSiap(k, pengaturan.sebut_kekurangan).boleh,
-    );
-    const dilewat = dipilih.length - lolos.length;
-    if (lolos.length === 0) {
-      setPesan(
-        "Tidak ada yang bisa ditandai siap. Lengkapi checklist di Buat posting dulu.",
-      );
-      return;
-    }
-    ubahStatus(
-      lolos.map((k) => k.id),
-      "siap_posting",
-      `${lolos.length} konten ditandai siap posting.${
-        dilewat > 0 ? ` ${dilewat} konten dilewati karena checklist belum lengkap.` : ""
-      }`,
-    );
-  };
-
-  const mintaTandaiSiap = (id: string) => {
-    const k = konten.find((x) => x.id === id);
-    if (!k) return;
-    const hasil = bisaTandaiSiap(k, pengaturan.sebut_kekurangan);
-    if (!hasil.boleh) {
-      setPesan(`“${k.judul}” belum bisa ditandai siap: ${hasil.alasan}`);
-      return;
-    }
-    ubahStatus([id], "siap_posting", "Konten ditandai siap posting.");
-  };
-
-  const mintaTolak = (ids: string[]) => {
-    if (ids.length === 0) return;
-    const label = ids.length === 1 ? `“${konten.find((k) => k.id === ids[0])?.judul}”` : `${ids.length} konten`;
-    setKonfirmasi({
-      judul: ids.length === 1 ? "Tolak konten?" : `Tolak ${ids.length} konten?`,
-      pesan: `${label} dipindahkan ke tab Ditolak. Anda bisa memulihkannya kapan saja.`,
-      labelKonfirmasi: "Tolak",
-      destructive: true,
-      jalankan: () =>
-        ubahStatus(ids, "ditolak", `${ids.length} konten ditolak.`),
-    });
-  };
-
-  const mintaHapus = (ids: string[]) => {
-    if (ids.length === 0) return;
-    const set = new Set(ids);
-    setKonfirmasi({
-      judul: ids.length === 1 ? "Hapus konten?" : `Hapus ${ids.length} konten?`,
-      pesan:
-        ids.length === 1
-          ? `“${konten.find((k) => k.id === ids[0])?.judul}” akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`
-          : `${ids.length} konten akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`,
-      labelKonfirmasi: "Hapus",
-      destructive: true,
-      jalankan: () => {
-        lakukan((list) => list.filter((k) => !set.has(k.id)));
-        setTerpilih([]);
-        setPesan(`${ids.length} konten dihapus.`);
-      },
-    });
-  };
-
-  const router = useRouter();
-  const onDaurUlang = (k: Konten) => {
-    const draft = siapkanDraftDaurUlang(k, produkList);
-    try {
-      window.localStorage.setItem("autothreads-draft-posting", JSON.stringify(draft));
-    } catch {
-      setPesan("Penyimpanan penuh — draft daur ulang gagal disimpan.");
-      return;
-    }
-    setPesan(`Konten "${k.judul}" dibuka di wizard sebagai daur ulang.`);
-    router.push("/posting/baru");
-  };
-
-  const onArsip = (id: string) => {
-    const k = konten.find((x) => x.id === id);
-    if (!k) return;
-    if (k.arsip) {
-      lakukan((list) => arsipkanKonten(list, id, false));
-      setPesan("Konten dikembalikan dari arsip.");
-      return;
-    }
-    setKonfirmasi({
-      judul: "Arsipkan konten?",
-      pesan: `“${k.judul}” dipindahkan ke arsip. Arsip lebih dari 90 hari bisa dibersihkan (K3).`,
-      labelKonfirmasi: "Arsipkan",
-      jalankan: () => {
-        lakukan((list) => arsipkanKonten(list, id, true));
-        setPesan("Konten diarsipkan.");
-      },
-    });
-  };
-
-  const onDuplikat = (id: string) => {
-    const k = konten.find((x) => x.id === id);
-    if (!k) return;
-    lakukan((list) => [duplikatKonten(k), ...list]);
-    setPesan("Konten diduplikat sebagai draft baru.");
-  };
-
-  const salinUtas = (k: Konten) => {
-    void navigator.clipboard.writeText(k.statuses.map((s) => s.trim()).join("\n\n"));
-    setPesan(`Utas “${k.judul}” disalin ke clipboard.`);
-  };
-
-  /** Skor shadowban per konten yang tampil di kartu (ide #32). */
-  const skorKartu = useMemo(() => {
-    const peta = new Map<string, ReturnType<typeof hitungSkorShadowban>>();
-    for (const k of hasil) peta.set(k.id, hitungSkorShadowban(k.statuses));
-    return peta;
-  }, [hasil]);
-
-  /** Kemasan 3 platform (Gelombang 2): utas + caption TikTok + status WA sekaligus. */
-  const salinKemasan = (k: Konten) => {
-    const kemasan = kemasanMultiPlatform(k);
-    void navigator.clipboard.writeText(kemasan.teks);
-    setPesan(
-      `Kemasan “${k.judul}” disalin: utas Threads, caption TikTok, dan status WhatsApp.`,
-    );
-  };
-
-  const salinSubId = (id: string) => {
-    void navigator.clipboard.writeText(subIdDefault(id));
-    setPesan(`Kode pelacak ${subIdDefault(id)} disalin.`);
-  };
-
-  /**
-   * Kirim satu konten ke provider posting (Fase 7). Selalu dipicu aksi user:
-   * tombol -> konfirmasi -> rute server. Konten yang belum disetujui ditolak di
-   * sini dan sekali lagi di server (lib/posting/antrian.ts).
-   */
-  const mintaKirim = (k: Konten) => {
-    const izin = posting.izinKirim(k);
-    if (!izin.boleh) {
-      setPesan(`“${k.judul}” belum bisa dikirim: ${izin.alasan}`);
-      return;
-    }
-    setKirimTarget(k);
-  };
-
-  const jalankanKirim = async (k: Konten) => {
-    setSedangKirim(true);
-    const hasil = await posting.kirim(k);
-    setSedangKirim(false);
-    if (hasil.ok) {
-      lakukan((list) => tandaiTerkirim(list, k.id));
-      catatRiwayat({
-        konten_judul: k.judul,
-        mode: hasil.penyedia === "manual" ? "manual" : "auto",
-        status_akhir: "terkirim",
-        catatan:
-          hasil.penyedia === "manual"
-            ? "Dikirim lewat mode manual (salin utas)."
-            : `Terkirim ke Threads (${hasil.id_terkirim.length} status).`,
-      });
-      setPesan(
-        hasil.penyedia === "manual"
-          ? `Mode manual: utas “${k.judul}” siap disalin.`
-          : `“${k.judul}” terkirim ke Threads (${hasil.id_terkirim.length} status).`,
-      );
-      return;
-    }
-
-    // Gagal API bukan alasan menghapus konten: status jadi `gagal`, utas tetap
-    // utuh, dan user diarahkan ke salin manual (ADR 0002).
-    lakukan((list) => tandaiGagal(list, k.id));
-    catatRiwayat({
-      konten_judul: k.judul,
-      mode: "auto",
-      status_akhir: "gagal",
-      catatan: hasil.error ?? "Pengiriman gagal.",
-    });
-    setPesan(
-      hasil.jatuh_ke_manual
-        ? `${hasil.error} Konten tetap ada di daftar konten dan bisa disalin manual.`
-        : (hasil.error ?? "Pengiriman tidak diizinkan."),
-    );
-  };
-
-  const ekspor = (format: "json" | "txt" | "csv") => {
-    const stamp = new Date().toISOString().slice(0, 10);
-    if (format === "json") {
-      unduh(`autothreads-cadangan-${stamp}.json`, eksporJSON(konten), "application/json");
-    } else if (format === "csv") {
-      unduh(`autothreads-konten-${stamp}.csv`, eksporCSV(hasil), "text/csv;charset=utf-8");
-    } else {
-      unduh(`autothreads-konten-${stamp}.txt`, eksporTXT(hasil), "text/plain");
-    }
-    setPesan(`Ekspor ${format.toUpperCase()} diunduh.`);
-  };
-
-  const impor = async (file: File) => {
-    try {
-      const teks = await file.text();
-      const data = imporJSON(teks);
-      setKonten((prev) => gabungKonten(prev, data));
-      setPesan(`${data.length} konten diimpor dari cadangan.`);
-    } catch (err) {
-      setPesan(err instanceof Error ? err.message : "Impor gagal.");
-    }
-  };
-
-  const aksiKartu = (k: Konten): AksiKartu[] => {
-    const salin = { label: "Salin utas", jalankan: salinUtas };
-    const buka = { label: "Lihat", jalankan: (x: Konten) => setBukaId(x.id) };
-    const kembaliDraft = {
-      label: "Kembalikan ke draft",
-      jalankan: (x: Konten) => ubahStatus([x.id], "draft", "Konten kembali ke draft."),
-    };
-    const hapus = {
-      label: "Hapus",
-      jalankan: (x: Konten) => mintaHapus([x.id]),
-      destructive: true,
-    };
-    const duplikat = { label: "Duplikat", jalankan: (x: Konten) => onDuplikat(x.id) };
-
-    switch (k.status) {
-      case "draft":
-        return [
-          { label: "Tandai siap", jalankan: (x: Konten) => mintaTandaiSiap(x.id) },
-          { label: "Tolak", jalankan: (x: Konten) => mintaTolak([x.id]) },
-          buka,
-          { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) },
-          hapus,
-        ];
-      case "siap_posting":
-        return [
-          salin,
-          { label: "Jadwalkan", jalankan: (x: Konten) => setJadwalTarget({ id: x.id, judul: x.judul }) },
-          kembaliDraft,
-          { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) },
-          hapus,
-        ];
-      case "terjadwal":
-        return [
-          // Tombol kirim hanya muncul kalau provider posting siap (aturan 8).
-          ...(posting.bisaKirimApi
-            ? [{ label: "Kirim sekarang", jalankan: (x: Konten) => mintaKirim(x) }]
-            : []),
-          {
-            label: "Batalkan jadwal",
-            jalankan: (x: Konten) => {
-              lakukan((list) => batalkanJadwal(list, x.id));
-              setPesan("Jadwal dibatalkan. Konten kembali ke siap posting.");
-            },
-          },
-          salin,
-          hapus,
-        ];
-      case "gagal":
-        return [
-          salin,
-          kembaliDraft,
-          ...(posting.bisaKirimApi
-            ? [{ label: "Coba lagi", jalankan: (x: Konten) => mintaKirim(x) }]
-            : []),
-          hapus,
-        ];
-      case "terkirim":
-        return [
-          salin,
-          duplikat,
-          { label: "Daur ulang", jalankan: (x: Konten) => onDaurUlang(x) },
-          { label: "Arsipkan", jalankan: (x: Konten) => onArsip(x.id) },
-          hapus,
-        ];
-      case "ditolak":
-        return [
-          {
-            label: "Pulihkan ke draft",
-            jalankan: (x: Konten) => ubahStatus([x.id], "draft", "Konten dipulihkan ke draft."),
-          },
-          duplikat,
-          hapus,
-        ];
-      default:
-        return [salin, kembaliDraft, hapus];
-    }
-  };
-
-  const dibuka = bukaId ? konten.find((k) => k.id === bukaId) : null;
-  const semuaTerpilih = hasil.length > 0 && hasil.every((k) => terpilih.includes(k.id));
+  const dibuka = a.bukaId ? a.konten.find((k) => k.id === a.bukaId) : null;
+  const semuaTerpilih =
+    a.hasil.length > 0 && a.hasil.every((k) => a.terpilih.includes(k.id));
 
   return (
     <div className="space-y-4">
-      {pesan ? (
+      {a.pesan ? (
         <p
           className={
-            posting.perluMasuk ? "text-badan text-status-failed" : "text-badan text-status-ready"
+            a.posting.perluMasuk ? "text-badan text-status-failed" : "text-badan text-status-ready"
           }
           aria-live="polite"
         >
-          {pesan}
-          {posting.perluMasuk ? (
+          {a.pesan}
+          {a.posting.perluMasuk ? (
             <>
               {" "}
               <TautanMasuk tujuan="/antrian" />
@@ -487,27 +73,27 @@ export function AntrianReview() {
         description="Semua konten menunggu tinjauan Anda. Tidak ada yang menjadi siap posting tanpa checklist."
       >
         <CostWidget
-          hariIniUsd={biaya.hariIniUsd}
-          bulanIniUsd={biaya.bulanIniUsd}
-          adaCatatan={biaya.adaCatatan}
-          batasUsd={biaya.batasUsd}
-          perProvider={biaya.perProvider}
-          fallbackPanggilan={biaya.fallbackPanggilan}
-          fallbackTerakhir={biaya.fallbackTerakhir}
+          hariIniUsd={a.biaya.hariIniUsd}
+          bulanIniUsd={a.biaya.bulanIniUsd}
+          adaCatatan={a.biaya.adaCatatan}
+          batasUsd={a.biaya.batasUsd}
+          perProvider={a.biaya.perProvider}
+          fallbackPanggilan={a.biaya.fallbackPanggilan}
+          fallbackTerakhir={a.biaya.fallbackTerakhir}
         />
       </PageHeader>
 
       {/* Status provider posting (UI-Spec 3.8): jelas mode apa yang aktif sekarang. */}
-      {posting.siap ? (
+      {a.posting.siap ? (
         <p className="text-meta text-muted-foreground">
           Provider posting:{" "}
           <span className="text-foreground font-medium">
-            {posting.bisaKirimApi ? "Threads API siap dipakai" : "manual saja (salin utas)"}
+            {a.posting.bisaKirimApi ? "Threads API siap dipakai" : "manual saja (salin utas)"}
           </span>
           .{" "}
-          {posting.bisaKirimApi
+          {a.posting.bisaKirimApi
             ? "Tombol Kirim sekarang muncul di tab Terjadwal dan Gagal posting."
-            : posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
+            : a.posting.tersedia.find((p) => p.id === "threads_api")?.alasan ??
               "Mode manual selalu tersedia tanpa API."}
         </p>
       ) : null}
@@ -516,12 +102,12 @@ export function AntrianReview() {
         tabs={TAB_REVIEW.map((t) => ({
           value: t.value,
           label: t.label,
-          jumlah: jumlah[t.value],
+          jumlah: a.jumlah[t.value],
         }))}
-        aktif={tab}
+        aktif={a.tab}
         onSelect={(value) => {
-          setTab(value as TabReview);
-          setTerpilih([]);
+          a.setTab(value as TabReview);
+          a.setTerpilih([]);
         }}
       />
 
@@ -530,14 +116,14 @@ export function AntrianReview() {
         <input
           type="search"
           placeholder="Cari judul atau isi status…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
+          value={a.q}
+          onChange={(e) => a.setQ(e.target.value)}
           aria-label="Cari konten"
           className={cn(inputClass, "sm:max-w-xs")}
         />
         <select
-          value={rentang}
-          onChange={(e) => setRentang(e.target.value as typeof rentang)}
+          value={a.rentang}
+          onChange={(e) => a.setRentang(e.target.value as typeof a.rentang)}
           aria-label="Filter tanggal"
           className={cn(inputClass, "sm:w-40")}
         >
@@ -547,13 +133,13 @@ export function AntrianReview() {
         </select>
 
         <div className="flex flex-wrap gap-2 sm:ml-auto">
-          <button type="button" onClick={() => ekspor("csv")} className={btnGhost}>
+          <button type="button" onClick={() => a.ekspor("csv")} className={btnGhost}>
             Ekspor CSV
           </button>
-          <button type="button" onClick={() => ekspor("json")} className={btnGhost}>
+          <button type="button" onClick={() => a.ekspor("json")} className={btnGhost}>
             Ekspor JSON
           </button>
-          <button type="button" onClick={() => ekspor("txt")} className={btnGhost}>
+          <button type="button" onClick={() => a.ekspor("txt")} className={btnGhost}>
             Ekspor TXT
           </button>
           <button type="button" onClick={() => fileRef.current?.click()} className={btnGhost}>
@@ -567,7 +153,7 @@ export function AntrianReview() {
             aria-label="File cadangan JSON"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) void impor(f);
+              if (f) void a.impor(f);
               e.target.value = "";
             }}
           />
@@ -575,23 +161,23 @@ export function AntrianReview() {
       </div>
 
       {/* Aksi massal (UI-Spec 3.9) */}
-      {terpilih.length > 0 ? (
+      {a.terpilih.length > 0 ? (
         <Card padat className="flex flex-wrap items-center gap-3 px-4 py-3">
-          <p className="text-badan font-medium">{terpilih.length} konten dipilih</p>
+          <p className="text-badan font-medium">{a.terpilih.length} konten dipilih</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => tandaiSiapMassal(terpilih)}
+              onClick={() => a.tandaiSiapMassal(a.terpilih)}
               className={cn(btnGhost, "text-status-ready")}
             >
               Tandai siap
             </button>
-            <button type="button" onClick={() => mintaTolak(terpilih)} className={btnGhost}>
+            <button type="button" onClick={() => a.mintaTolak(a.terpilih)} className={btnGhost}>
               Tolak
             </button>
             <button
               type="button"
-              onClick={() => mintaHapus(terpilih)}
+              onClick={() => a.mintaHapus(a.terpilih)}
               className={cn(btnGhost, "text-status-failed")}
             >
               Hapus
@@ -599,7 +185,7 @@ export function AntrianReview() {
           </div>
           <button
             type="button"
-            onClick={() => setTerpilih([])}
+            onClick={() => a.setTerpilih([])}
             className={cn(btnGhost, "sm:ml-auto")}
           >
             Bersihkan pilihan
@@ -607,11 +193,11 @@ export function AntrianReview() {
         </Card>
       ) : null}
 
-      {hasil.length === 0 ? (
+      {a.hasil.length === 0 ? (
         <EmptyState
-          title={konten.length === 0 ? "Antrian masih kosong" : "Tidak ada yang cocok"}
+          title={a.konten.length === 0 ? "Antrian masih kosong" : "Tidak ada yang cocok"}
           description={
-            konten.length === 0
+            a.konten.length === 0
               ? "Konten dari Buat posting masuk ke tab Perlu review sebagai draft sampai Anda menandainya siap."
               : "Ubah kata kunci atau filter tanggal untuk melihat konten lain."
           }
@@ -625,7 +211,7 @@ export function AntrianReview() {
               type="checkbox"
               checked={semuaTerpilih}
               onChange={(e) =>
-                setTerpilih(e.target.checked ? hasil.map((k) => k.id) : [])
+                a.setTerpilih(e.target.checked ? a.hasil.map((k) => k.id) : [])
               }
               aria-label="Pilih semua konten di tab ini"
               className="h-4 w-4 accent-[var(--primary)]"
@@ -635,91 +221,21 @@ export function AntrianReview() {
             </span>
           </li>
 
-          {hasil.map((k) => (
+          {a.hasil.map((k) => (
             <li key={k.id}>
-              <Card padat className="flex flex-col gap-3 p-4 sm:flex-row">
-                <input
-                  type="checkbox"
-                  checked={terpilih.includes(k.id)}
-                  onChange={(e) =>
-                    setTerpilih((prev) =>
-                      e.target.checked ? [...prev, k.id] : prev.filter((id) => id !== k.id),
-                    )
-                  }
-                  aria-label={`Pilih ${k.judul}`}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--primary)]"
-                />
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-badan font-semibold">{k.judul}</h3>
-                    <StatusBadge status={k.status} />
-                    {k.otomatis ? (
-                      <span className="border border-surface-border px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge text-status-scheduled">
-                        Otomatis
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <p className="mt-1 text-meta text-muted-foreground">
-                    {k.produk_nama || "Tanpa produk"} ·{" "}
-                    {new Date(k.updated_at).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                    {" · "}
-                    {k.statuses.length} status
-                    {k.skor !== null ? ` · skor ide ${k.skor}` : ""}
-                    {k.letak_link !== "tanpa_link" ? " · link aktif" : ""}
-                  </p>
-
-                  <p className="mt-2 line-clamp-2 text-meta text-muted-foreground">
-                    {k.statuses[0]}
-                  </p>
-
-                  <div className="mt-2 max-w-xl">
-                    <LampuShadowban
-                      hasil={skorKartu.get(k.id) ?? hitungSkorShadowban([])}
-                      padat
-                    />
-                  </div>
-
-                  <p className="mt-2 flex flex-wrap items-center gap-2 text-meta text-muted-foreground">
-                    <span>Kode pelacak</span>
-                    <span className="font-mono text-foreground">{subIdDefault(k.id)}</span>
-                    <button
-                      type="button"
-                      onClick={() => salinSubId(k.id)}
-                      className="underline-offset-2 hover:text-foreground hover:underline"
-                      aria-label={`Salin kode pelacak ${k.judul}`}
-                    >
-                      Salin
-                    </button>
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
-                  {aksiKartu(k).map((a) => (
-                    <button
-                      key={a.label}
-                      type="button"
-                      onClick={() => a.jalankan(k)}
-                      className={cn(btnGhost, a.destructive && "text-status-failed")}
-                    >
-                      {a.label}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => salinKemasan(k)}
-                    className={btnGhost}
-                    title="Salin utas Threads + caption TikTok + status WhatsApp"
-                  >
-                    Kemasan 3 platform
-                  </button>
-                </div>
-              </Card>
+              <KartuKonten
+                k={k}
+                dipilih={a.terpilih.includes(k.id)}
+                onToggle={(id, centang) =>
+                  a.setTerpilih((prev) =>
+                    centang ? [...prev, id] : prev.filter((x) => x !== id),
+                  )
+                }
+                aksi={a.aksiKartu(k)}
+                skor={a.skorKartu.get(k.id)}
+                onSalinKemasan={a.salinKemasan}
+                onSalinSubId={a.salinSubId}
+              />
             </li>
           ))}
         </ul>
@@ -738,120 +254,57 @@ export function AntrianReview() {
             labelKonfirmasi="Salin utas"
             destructive={false}
             onKonfirmasi={() => {
-              salinUtas(dibuka);
-              setBukaId(null);
+              a.salinUtas(dibuka);
+              a.setBukaId(null);
             }}
-            onBatal={() => setBukaId(null)}
+            onBatal={() => a.setBukaId(null)}
           />
           <LampuShadowban hasil={hitungSkorShadowban(dibuka.statuses)} />
         </>
       ) : null}
 
       <ConfirmDialog
-        open={konfirmasi !== null}
-        judul={konfirmasi?.judul ?? ""}
-        pesan={konfirmasi?.pesan ?? ""}
-        labelKonfirmasi={konfirmasi?.labelKonfirmasi ?? "Lanjutkan"}
-        destructive={konfirmasi?.destructive ?? false}
+        open={a.konfirmasi !== null}
+        judul={a.konfirmasi?.judul ?? ""}
+        pesan={a.konfirmasi?.pesan ?? ""}
+        labelKonfirmasi={a.konfirmasi?.labelKonfirmasi ?? "Lanjutkan"}
+        destructive={a.konfirmasi?.destructive ?? false}
         onKonfirmasi={() => {
-          konfirmasi?.jalankan();
-          setKonfirmasi(null);
+          a.konfirmasi?.jalankan();
+          a.setKonfirmasi(null);
         }}
-        onBatal={() => setKonfirmasi(null)}
+        onBatal={() => a.setKonfirmasi(null)}
       />
 
       {/* Konfirmasi kirim (Fase 7): tidak ada pengiriman tanpa aksi user. */}
       <ConfirmDialog
-        open={kirimTarget !== null}
+        open={a.kirimTarget !== null}
         judul="Kirim ke Threads?"
         pesan={
-          kirimTarget
-            ? `“${kirimTarget.judul}” akan dikirim sebagai utas ${kirimTarget.statuses.length} status, berurutan. Setelah terkirim, konten berpindah ke tab Sudah posting.`
+          a.kirimTarget
+            ? `“${a.kirimTarget.judul}” akan dikirim sebagai utas ${a.kirimTarget.statuses.length} status, berurutan. Setelah terkirim, konten berpindah ke tab Sudah posting.`
             : ""
         }
-        labelKonfirmasi={sedangKirim ? "Mengirim…" : "Kirim sekarang"}
+        labelKonfirmasi={a.sedangKirim ? "Mengirim…" : "Kirim sekarang"}
         destructive={false}
         onKonfirmasi={() => {
-          const target = kirimTarget;
-          setKirimTarget(null);
-          if (target) void jalankanKirim(target);
+          const target = a.kirimTarget;
+          a.setKirimTarget(null);
+          if (target) void a.jalankanKirim(target);
         }}
-        onBatal={() => setKirimTarget(null)}
+        onBatal={() => a.setKirimTarget(null)}
       />
 
       {/* Dialog jadwal (UI-Spec 2.5/3.4): hanya siap_posting, konfirmasi di dalam dialog. */}
-      {jadwalTarget !== null ? (
-        <dialog
-          ref={dialogJadwalRef}
-          aria-labelledby="jadwal-judul"
-          onCancel={(e) => {
-            e.preventDefault();
-            setJadwalTarget(null);
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setJadwalTarget(null);
-          }}
-          className="m-auto w-[min(94vw,26rem)] border-0 bg-transparent p-0 backdrop:bg-black/50"
-        >
-          <Card
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="jadwal-judul"
-            className="w-[min(94vw,26rem)] p-5"
-          >
-            <h2 id="jadwal-judul" className="text-isi font-semibold">
-              Jadwalkan konten
-            </h2>
-            <p className="mt-2 text-badan text-muted-foreground">
-              Hanya penanda jadwal di kalender (mode manual tetap jalur utama). Konten yang dijadwalkan
-              bisa dibatalkan kapan saja dari tab Terjadwal.
-            </p>
-            <p className="mt-3 text-badan font-medium">{jadwalTarget.judul}</p>
-            <label className="mt-3 block text-meta text-muted-foreground">
-              Tanggal dan jam
-              <input
-                type="datetime-local"
-                value={jadwalTanggal}
-                onChange={(e) => setJadwalTanggal(e.target.value)}
-                className={cn(inputClass, "mt-1")}
-              />
-            </label>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setJadwalTarget(null)}
-                className="h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                autoFocus
-                onClick={() => {
-                  // datetime-local has no zone: append local offset by parsing as local.
-                  const d = new Date(jadwalTanggal);
-                  const hasil = jadwalkanKonten(konten, jadwalTarget.id, d.toISOString());
-                  if (!hasil.ok) {
-                    setPesan(hasil.alasan ?? "Jadwal tidak bisa disimpan.");
-                    setJadwalTarget(null);
-                    return;
-                  }
-                  setKonten(hasil.list);
-                  setPesan(
-                    `Jadwal disimpan: ${d.toLocaleString("id-ID", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}. Buka /kalender untuk melihatnya.`,
-                  );
-                  setJadwalTarget(null);
-                }}
-                className="h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-              >
-                Simpan jadwal
-              </button>
-            </div>
-          </Card>
-        </dialog>
+      {a.jadwalTarget !== null ? (
+        <DialogJadwal
+          judul={a.jadwalTarget.judul}
+          tanggal={a.jadwalTanggal}
+          setTanggal={a.setJadwalTanggal}
+          refDialog={dialogJadwalRef}
+          onBatal={() => a.setJadwalTarget(null)}
+          onSimpan={a.simpanJadwal}
+        />
       ) : null}
 
       {/* Riwayat hasil terakhir dari tabel contents Supabase (N-5). */}
