@@ -28,7 +28,7 @@ export interface GenerateStatusInput {
   kategori?: string;
 }
 
-const HOOK_INSTRUCTIONS: Record<Pengaturan["gaya_hook"], string> = {
+const HOOK_INSTRUCTIONS: Partial<Record<Pengaturan["gaya_hook"], string>> = {
   curiosity_gap:
     "Status pertama dibuka dengan formula CURIOSITY GAP: ungkapkan fakta unik atau celah penasaran yang memancing pembaca untuk membaca kelanjutannya tanpa clickbait palsu.",
   before_after:
@@ -130,7 +130,7 @@ PENGATURAN:
 ${panjangLine}
 ${personaLine}
 ${kategoriLine}
-- ${HOOK_INSTRUCTIONS[pengaturan.gaya_hook]}
+- ${HOOK_INSTRUCTIONS[pengaturan.gaya_hook] ?? "Status pertama dibuka dengan hook kuat yang cocok untuk platform ini."}
 - ${linkLine}
 ${trustLine}
 ${slopLine}

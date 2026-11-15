@@ -10,7 +10,7 @@
  * kerangka baru cukup satu entri, dan label UI ikut dari sini.
  */
 
-export const KERANGKA_IDS = ["bebas", "psc", "aida", "pas", "bab", "hbsc", "msspc"] as const;
+export const KERANGKA_IDS = ["bebas", "psc", "aida", "pas", "bab", "hbsc", "msspc", "cerita"] as const;
 
 export type KerangkaId = (typeof KERANGKA_IDS)[number];
 
@@ -22,6 +22,7 @@ export const LABEL_KERANGKA: Record<KerangkaId, string> = {
   bab: "BAB — Before, After, Bridge",
   hbsc: "HBSC — Hook, Benefit, Social Proof, CTA",
   msspc: "MSSPC — Masalah, Situasi, Solusi, Pertimbangan, CTA",
+  cerita: "Cerita — Mini Story Telling",
 };
 
 /** Keterangan singkat untuk UI: kapan kerangka ini cocok. */
@@ -33,6 +34,7 @@ export const KETERANGAN_KERANGKA: Record<KerangkaId, string> = {
   bab: "Produk yang hasil akhirnya mudah dibayangkan.",
   hbsc: "Produk yang sudah punya bukti nyata (ulasan atau angka penjualan).",
   msspc: "Alur mengobrol: masalah, situasi, solusi, lalu pertimbangan sebelum beli.",
+  cerita: "Format cerita mini ala postingan natural: situasi awal, momen pakai, kesimpulan jujur, CTA lembut.",
 };
 
 const ATURAN_KERANGKA = `Cara memakai kerangka:
@@ -42,7 +44,7 @@ const ATURAN_KERANGKA = `Cara memakai kerangka:
 - Jangan memancing interaksi dengan pertanyaan kosong seperti "beda banget kan?" atau "kelihatan kaku banget kan". Pertanyaan reflektif boleh, tetapi maksimal satu dan tidak boleh jadi pola tetap.
 - Semua fakta (harga, bahan, kekurangan, hasil) hanya dari data penawaran di atas. Bagian yang butuh data yang tidak ada dilewati, bukan dikarang.`;
 
-const BAGIAN: Record<Exclude<KerangkaId, "bebas">, string> = {
+export const BAGIAN: Record<Exclude<KerangkaId, "bebas">, string> = {
   psc: `- Problem: masalah atau kebutuhan nyata yang dirasakan audiens.
 - Solution: bagaimana penawaran ini menjawabnya, dalam bahasa pemakaian sehari-hari.
 - CTA: ajakan yang natural, tanpa memaksa checkout.`,
@@ -70,6 +72,15 @@ const BAGIAN: Record<Exclude<KerangkaId, "bebas">, string> = {
 - Solusi: penawaran ini dan cara pakainya.
 - Pertimbangan: bantu pembaca menilai sendiri — untuk siapa cocok, untuk siapa kurang cocok, batasan yang jujur. Ini bukan bagian jualan, jadi jangan diubah jadi pujian.
 - CTA: ajakan natural setelah pembaca punya cukup informasi.`,
+
+  // Mini Story Telling (dari file referensi user "Contoh Prompt natural").
+  // Contoh pola: "Niatnya nonton 1 episode, eh tau-tau udah jam 2 pagi" ->
+  // momen pakai produk -> "Ga nyangka barang sekecil ini kepake banget" ->
+  // "Link gue taro".
+  cerita: `- Situasi awal: niat atau keseharian pembaca SEBELUM berkenalan dengan produk (mis. "udah lama nyari yang begini", "niatnya cuma mau beresin satu hal"). Ceritakan seperti pengakuan sehari-hari; produk belum disebut di sini.
+- Momen pakai: momen kecil saat produk dipakai — SATU detail konkret dari data penawaran (bahan, tombol, ukuran, bunyi, cara kerja). Ini jantung ceritanya; jangan diganti klaim besar.
+- Kesimpulan jujur: satu-dua kalimat ringan dan rendah hati (mis. "ga nyangka kepake banget", "bukan instan, tapi kepake"), bukan pujian berlebihan.
+- CTA lembut: arahkan ke link di bio/komentar atau janji update ("testimoni menyusul, follow dulu") — tanpa mendesak, tanpa urgensi palsu.`,
 };
 
 /** Nilai tak dikenal (draf lama, jsonb liar) jatuh ke "bebas". */

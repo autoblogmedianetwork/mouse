@@ -91,6 +91,13 @@ export const pengaturanSkema = z.object({
     "curiosity_gap",
     "before_after",
     "contrarian",
+    // Lima gaya baru dari file referensi "Contoh Prompt natural" (masukan user):
+    // instruksinya ada di generate-status.v8, bukan di v4 (rule 13).
+    "educative",
+    "fomo_lembut",
+    "negative_stop",
+    "urgensi_rasional",
+    "pengalaman_nyata",
     "bawaan",
   ]),
   aturan_kepercayaan: z.boolean(),

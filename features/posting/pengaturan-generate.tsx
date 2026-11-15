@@ -337,6 +337,11 @@ export function PengaturanGenerate({
             { value: "masalah_relatif", label: "Audience Pain (Keluhan Nyata)" },
             { value: "pertanyaan", label: "Pertanyaan Reflektif" },
             { value: "pernyataan_mengejutkan", label: "Pernyataan Mengejutkan" },
+            { value: "educative", label: "Educative (Yang Perlu Dicek Sebelum Beli)" },
+            { value: "fomo_lembut", label: "FOMO Lembut (Konteks Waktu, Bukan Panik)" },
+            { value: "negative_stop", label: "Negative/Stop (Rem Impuls)" },
+            { value: "urgensi_rasional", label: "Urgensi Rasional (Tanpa Countdown)" },
+            { value: "pengalaman_nyata", label: "Real Experience (Paling Aman)" },
           ]}
         />
         <div>

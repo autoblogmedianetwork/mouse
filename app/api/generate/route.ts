@@ -15,7 +15,7 @@ import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { BATAS_JUMLAH, generateRequestSkema, statusesSkema } from "@/lib/ai/schemas";
 import { batasPlatform, type PlatformId } from "@/lib/platforms/batas";
-import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v7";
+import { buildGenerateStatusPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/generate-status.v8";
 import { ATURAN_MARKETPLACE, deteksiMarketplaceLink } from "@/lib/affiliate/rules";
 import { siapkanBody } from "@/lib/api/siapkan-body";
 

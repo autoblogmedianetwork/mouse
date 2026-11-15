@@ -69,12 +69,6 @@ export function BagianInputRiset({
   // Audiens terakhir disusun otomatis dari chip (masih boleh diedit manual).
   const [audiensDariChip, setAudiensDariChip] = useState(false);
 
-  const toggleDari =
-    (setter: React.Dispatch<React.SetStateAction<string[]>>) => (nilai: string) =>
-      setter((prev) =>
-        prev.includes(nilai) ? prev.filter((x) => x !== nilai) : [...prev, nilai],
-      );
-
   const pilihan: PilihanAudiens = {
     usia: usiaPilih ?? undefined,
     gender: genderPilih ?? undefined,
