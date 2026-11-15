@@ -46,7 +46,7 @@ Keluaran:
 Aturan:
 - Jangan menambah masalah yang tidak tertulis di review.
 - Kosakata disalin apa adanya, boleh tidak baku.
-- Nama orang/city tidak perlu disebut.
+- Nama orang atau kota tidak perlu disebut.
 
 ${ATURAN_BAHASA}
 

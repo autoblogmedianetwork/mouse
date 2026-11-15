@@ -9,6 +9,6 @@
 export const ATURAN_BAHASA = `GAYA BAHASA (WAJIB, berlaku untuk SEMUA teks yang kamu hasilkan):
 - Tulis bahasa Indonesia natural khas media sosial: kasual, mengalir, seperti orang asli lagi ngetik—bukan bahasa baku, bukan kalimat terjemahan kaku.
 - Pakai kata sehari-hari: "bikin", "banget", "kayak". HARAM pakai kata formal: "merupakan", "disarankan", "tersebut", "memungkinkan", "sebagaimana".
-- Kalimat pendek-pendek dan bervariasi panjangnya. Satu status boleh cuma satu kalimat tajam lagi trackable, bukan paragraf rapor-dan-teteh.
+- Kalimat pendek-pendek dan bervariasi panjangnya. Satu status boleh cuma satu kalimat tajam yang trackable, bukan paragraf rapor yang panjang.
 - HARAM pembuka generik ala AI: "Dalam dunia yang...", "Mari kita telusuri...", "Siapa sangka...".
 - Tetap jujur sesuai data: bahasa santai BUKAN alasan mengarang klaim, harga, atau spesifikasi.`;
