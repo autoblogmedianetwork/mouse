@@ -1,10 +1,11 @@
+"use client";
+
 /**
- * Bagian 1: input niche & audiens + kartu persona + chip preset (Fase 3-B).
- * Dipecah dari panel-riset.tsx (R6c) — state preset kini lokal di sini karena
- * hanya dipakai untuk menyusun teks audiens.
+ * Bagian 1 panel riset: niche & audiens (dipecah dari panel-riset.tsx, R6c;
+ * ditata ulang per masukan review UI — kategori chip dipisah tegas, persona
+ * mengisi chip, audiens tersusun otomatis dari chip).
  */
 import { useState } from "react";
-import { Card } from "@/components/card";
 import { PesanGalat } from "@/components/pesan-galat";
 import { PemilihChip } from "@/components/pemilih-chip";
 import {
@@ -15,10 +16,13 @@ import {
 import {
   KARTU_PERSONA,
   PILIHAN_GENDER,
+  PILIHAN_KEBUTUHAN,
   PILIHAN_MINAT,
   PILIHAN_PERILAKU,
   PILIHAN_USIA,
   bangunDeskripsiAudiens,
+  personaDimodifikasi,
+  type KartuPersona,
   type PilihanAudiens,
 } from "@/lib/riset/preset";
 import type { RiwayatRiset } from "@/lib/riset/riwayat-pencarian";
@@ -54,11 +58,16 @@ export function BagianInputRiset({
   jalankanRiset,
   susunPeluang,
 }: Props) {
-  // Fase 3-B: pilihan preset (kartu persona + chip ala Meta Ads) — lokal.
+  // Pilihan chip per kategori — dikelompokkan tegas (masukan review UI).
   const [usiaPilih, setUsiaPilih] = useState<string | null>(null);
   const [genderPilih, setGenderPilih] = useState<string | null>(null);
   const [minatPilih, setMinatPilih] = useState<string[]>([]);
+  const [kebutuhanPilih, setKebutuhanPilih] = useState<string[]>([]);
   const [perilakuPilih, setPerilakuPilih] = useState<string[]>([]);
+  // Persona siap pakai yang sedang aktif (null = rakit sendiri murni).
+  const [personaAktif, setPersonaAktif] = useState<KartuPersona | null>(null);
+  // Audiens terakhir disusun otomatis dari chip (masih boleh diedit manual).
+  const [audiensDariChip, setAudiensDariChip] = useState(false);
 
   const toggleDari =
     (setter: React.Dispatch<React.SetStateAction<string[]>>) => (nilai: string) =>
@@ -70,81 +79,178 @@ export function BagianInputRiset({
     usia: usiaPilih ?? undefined,
     gender: genderPilih ?? undefined,
     minat: minatPilih,
+    kebutuhan: kebutuhanPilih,
     perilaku: perilakuPilih,
   };
   const pratinjauPreset = bangunDeskripsiAudiens(pilihan);
 
+  /** Ubah satu grup chip lalu susun ulang audiens bila audiens masih otomatis. */
+  const ubahChip = (perubahan: Partial<PilihanAudiens>) => {
+    const baru: PilihanAudiens = { ...pilihan, ...perubahan };
+    if (perubahan.usia !== undefined) setUsiaPilih(perubahan.usia ?? null);
+    if (perubahan.gender !== undefined) setGenderPilih(perubahan.gender ?? null);
+    if (perubahan.minat !== undefined) setMinatPilih([...perubahan.minat]);
+    if (perubahan.kebutuhan !== undefined) setKebutuhanPilih([...perubahan.kebutuhan]);
+    if (perubahan.perilaku !== undefined) setPerilakuPilih([...perubahan.perilaku]);
+    if (audiensDariChip) setAudiens(bangunDeskripsiAudiens(baru));
+  };
+
+  const pilihPersona = (kartu: KartuPersona) => {
+    setPersonaAktif(kartu);
+    setUsiaPilih(kartu.chips.usia ?? null);
+    setGenderPilih(kartu.chips.gender ?? null);
+    setMinatPilih([...kartu.chips.minat]);
+    setKebutuhanPilih([...kartu.chips.kebutuhan]);
+    setPerilakuPilih([...kartu.chips.perilaku]);
+    // Persona mengisi kolom audiens dengan kalimat preset-nya sendiri.
+    setAudiens(kartu.deskripsi);
+    setAudiensDariChip(false);
+  };
+
+  const rakitSendiri = () => {
+    setPersonaAktif(null);
+    setUsiaPilih(null);
+    setGenderPilih(null);
+    setMinatPilih([]);
+    setKebutuhanPilih([]);
+    setPerilakuPilih([]);
+    setAudiensDariChip(false);
+  };
+
+  const dimodifikasi = personaAktif
+    ? personaDimodifikasi(personaAktif, pilihan)
+    : false;
+
   return (
-    <Card>
+    <div>
       <h2 className="text-isi font-semibold">1. Niche &amp; audiens</h2>
       <p className="mt-1 text-badan text-muted-foreground">
-        Satu niche dan satu target audiens menghasilkan 10 masalah nyata, lalu 20 kategori
+        Satu niche dan satu target audiens menghasilkan 10 masalah, lalu 20 kategori
         produk yang berpotensi dipromosikan di Threads. Semua hasil berstatus draft.
       </p>
 
-      {/* Fase 3-B: preset tinggal pilih — kartu persona + chip ala Meta Ads. */}
+      {/* Persona siap pakai: gabungan preset dari empat kategori di bawah. */}
       <div className="mt-4">
-        <p className="mb-2 text-badan font-medium">Kartu persona (tinggal pilih)</p>
+        <p className="mb-2 text-badan font-medium">Persona siap pakai</p>
         <div className="flex flex-wrap gap-2">
           {KARTU_PERSONA.map((kartu) => (
             <button
               key={kartu.id}
               type="button"
               title={kartu.deskripsi}
-              onClick={() => {
-                setAudiens(kartu.deskripsi);
-                setUsiaPilih(null);
-                setGenderPilih(null);
-                setMinatPilih([]);
-                setPerilakuPilih([]);
-              }}
-              className="h-8 border border-surface-border bg-surface px-3 text-meta font-medium transition-colors hover:border-primary"
+              aria-pressed={personaAktif?.id === kartu.id}
+              onClick={() =>
+                personaAktif?.id === kartu.id ? rakitSendiri() : pilihPersona(kartu)
+              }
+              className="inline-flex h-11 items-center border border-surface-border bg-surface px-3 text-badan font-medium transition-colors hover:border-primary"
             >
               {kartu.nama}
             </button>
           ))}
         </div>
+        {personaAktif ? (
+          <p className="mt-2 text-meta text-muted-foreground">
+            Persona <span className="font-medium text-foreground">{personaAktif.nama}</span>{" "}
+            aktif — chip di bawah terisi otomatis dan boleh diubah.
+            {dimodifikasi ? (
+              <span className="ml-1 font-medium text-foreground">
+                Dimodifikasi dari persona {personaAktif.nama}.
+              </span>
+            ) : null}{" "}
+            Paling cocok untuk niche <strong>{personaAktif.kelompok}</strong> — kalau
+            niche-mu berbeda, yang dipakai tetap niche yang kamu tulis.
+          </p>
+        ) : null}
+      </div>
 
-        <p className="mb-2 mt-4 text-badan font-medium">
-          Atau rakit sendiri (ala iklan Meta):
+      {/* Rakit sendiri: empat kategori terpisah dengan judul jelas. */}
+      <div className="mt-4 space-y-4">
+        <p className="text-badan font-medium">
+          Atau rakit sendiri — pilih per kategori:
         </p>
-        <div className="space-y-2">
+        <fieldset className="space-y-2">
+          <legend className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+            Demografi — menentukan bahasa dan contoh konten
+          </legend>
           <PemilihChip
             labelGrup="Usia"
             pilihan={PILIHAN_USIA}
             terpilih={usiaPilih ? [usiaPilih] : []}
-            onPilih={(v) => setUsiaPilih((prev) => (prev === v ? null : v))}
+            onPilih={(v) => ubahChip({ usia: usiaPilih === v ? undefined : v })}
           />
           <PemilihChip
             labelGrup="Gender"
             pilihan={PILIHAN_GENDER}
             terpilih={genderPilih ? [genderPilih] : []}
-            onPilih={(v) => setGenderPilih((prev) => (prev === v ? null : v))}
+            onPilih={(v) => ubahChip({ gender: genderPilih === v ? undefined : v })}
           />
+        </fieldset>
+        <fieldset>
+          <legend className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+            Minat — memilih kategori produk dan angle
+          </legend>
           <PemilihChip
             labelGrup="Minat"
             pilihan={PILIHAN_MINAT}
             terpilih={minatPilih}
             multi
-            onPilih={toggleDari(setMinatPilih)}
+            onPilih={(v) =>
+              ubahChip({
+                minat: minatPilih.includes(v)
+                  ? minatPilih.filter((x) => x !== v)
+                  : [...minatPilih, v],
+              })
+            }
           />
+        </fieldset>
+        <fieldset>
+          <legend className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+            Kebutuhan — masalah yang ingin diselesaikan
+          </legend>
+          <PemilihChip
+            labelGrup="Kebutuhan"
+            pilihan={PILIHAN_KEBUTUHAN}
+            terpilih={kebutuhanPilih}
+            multi
+            onPilih={(v) =>
+              ubahChip({
+                kebutuhan: kebutuhanPilih.includes(v)
+                  ? kebutuhanPilih.filter((x) => x !== v)
+                  : [...kebutuhanPilih, v],
+              })
+            }
+          />
+        </fieldset>
+        <fieldset>
+          <legend className="text-meta font-semibold uppercase tracking-meta text-muted-foreground">
+            Perilaku belanja — menentukan jenis hook dan CTA
+          </legend>
           <PemilihChip
             labelGrup="Perilaku belanja"
             pilihan={PILIHAN_PERILAKU}
             terpilih={perilakuPilih}
             multi
-            onPilih={toggleDari(setPerilakuPilih)}
+            onPilih={(v) =>
+              ubahChip({
+                perilaku: perilakuPilih.includes(v)
+                  ? perilakuPilih.filter((x) => x !== v)
+                  : [...perilakuPilih, v],
+              })
+            }
           />
-        </div>
+        </fieldset>
         {pratinjauPreset ? (
-          <div className="mt-3 flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <p className="text-badan text-muted-foreground">
               Hasil rakitan: <span className="text-foreground">{pratinjauPreset}</span>
             </p>
             <button
               type="button"
               className={btnGhost}
-              onClick={() => setAudiens(pratinjauPreset)}
+              onClick={() => {
+                setAudiens(pratinjauPreset);
+                setAudiensDariChip(true);
+              }}
             >
               Pakai untuk riset
             </button>
@@ -172,10 +278,18 @@ export function BagianInputRiset({
           <input
             id="r-audiens"
             value={audiens}
-            onChange={(e) => setAudiens(e.target.value)}
+            onChange={(e) => {
+              // Edit manual memutus ikatan chip → teks.
+              setAudiens(e.target.value);
+              setAudiensDariChip(false);
+            }}
             placeholder={AUDIENS_CONTOH}
             className={inputClass}
           />
+          <p className="mt-1 text-meta text-muted-foreground">
+            Terisi otomatis dari chip saat persona atau rakitan dipakai; tetap boleh
+            diedit langsung di sini.
+          </p>
         </div>
       </div>
 
@@ -244,6 +358,6 @@ export function BagianInputRiset({
           {catatan}
         </p>
       ) : null}
-    </Card>
+    </div>
   );
 }

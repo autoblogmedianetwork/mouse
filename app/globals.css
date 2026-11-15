@@ -19,7 +19,7 @@
   --primary-foreground: #ffffff;
 
   --muted: #f5f5f4;
-  --muted-foreground: #78716c;
+  --muted-foreground: #57534e;
 
   /* Status colors (UI-Spec 6): abu draft, hijau siap, biru terjadwal, 
      hijau tua terkirim, merah gagal */
@@ -104,7 +104,7 @@
     --primary-foreground: #1c1917;
 
     --muted: #292524;
-    --muted-foreground: #a8a29e;
+    --muted-foreground: #b8b2ab;
 
     --status-draft: #a8a29e;
     --status-ready: #4ade80;
