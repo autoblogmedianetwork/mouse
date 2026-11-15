@@ -1,5 +1,8 @@
 /**
  * POST /api/ghostwriter — ubah transkrip menjadi status Threads (Gelombang 3).
+ *
+ * Draf saja TULISAN UNTUK ORANG LAIN: hasil wajib ditinjau user sebelum dipakai.
+ * Tidak pernah dikirim ke akun mana pun oleh aplikasi ini.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

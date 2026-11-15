@@ -1,10 +1,12 @@
 /**
  * POST /api/mirror — mirror competitor (manual, tanpa scraping) (Gelombang 3).
+ *
+ * Draf saja: meniru POLA gaya referensi (bukan menyalin kalimat), tidak pernah dikirim.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { mirrorRequestSkema, mirrorSkema } from "@/lib/ai/schemas";
-import { buildMirrorPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/mirror.v1";
+import { buildMirrorPrompt, PROMPT_VERSION } from "@/lib/ai/prompts/mirror.v2";
 import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {

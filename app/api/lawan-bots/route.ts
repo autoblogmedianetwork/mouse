@@ -1,5 +1,7 @@
 /**
  * POST /api/lawan-bots — lawan bots (Gelombang 3).
+ *
+ * Draf saja: contoh dialog untuk disunting user, aplikasi tidak pernah mengirim balasan.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

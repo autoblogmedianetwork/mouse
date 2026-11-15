@@ -4,6 +4,8 @@
  * Menilai konten dari tiga persona pembeli virtual. Sesi wajib karena rute ini
  * membakar kredit AI (AGENTS rule 11). Hasilnya selalu bahan tinjauan, bukan
  * status posting.
+ *
+ * Draf saja: keluaran uji untuk perbandingan, tidak pernah dikirim apa pun.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

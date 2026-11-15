@@ -1,5 +1,7 @@
 /**
  * POST /api/nyanyian — mode nyanyian (Gelombang 3).
+ *
+ * Draf saja: lirik untuk dipakai user, tidak pernah dikirim apa pun.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

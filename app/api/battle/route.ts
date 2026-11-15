@@ -1,5 +1,7 @@
 /**
  * POST /api/battle — Roulette/battle gabungan produk (Gelombang 3).
+ *
+ * Draf saja: dua sudut pandang produk untuk dibaca user, tidak pernah dikirim apa pun.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

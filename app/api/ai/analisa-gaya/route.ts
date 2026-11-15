@@ -14,7 +14,7 @@ export const maxDuration = 180;
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
 import { analisaGayaRequestSkema, analisaGayaSkema } from "@/lib/ai/schemas";
-import { PROMPT_VERSION, buildAnalisaGayaPrompt } from "@/lib/ai/prompts/analisa-gaya.v1";
+import { PROMPT_VERSION, buildAnalisaGayaPrompt } from "@/lib/ai/prompts/analisa-gaya.v2";
 import { periksaTempelan } from "@/lib/ai/analisa-gaya";
 import { siapkanBody } from "@/lib/api/siapkan-body";
 

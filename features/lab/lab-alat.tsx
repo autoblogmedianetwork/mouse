@@ -120,8 +120,8 @@ export function BagianNyanyian() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3h. Mode nyanyian</h2>
-      <p className="mt-1 text-badan text-muted-foreground">Ubah status jadi lirik singkat.</p>
+      <h2 className="text-isi font-semibold">3h. Ubah jadi lirik</h2>
+      <p className="mt-1 text-badan text-muted-foreground">Ubah status jadi lirik 3-6 baris yang mudah dinyanyikan, pesan tetap jujur. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.</p>
       <textarea value={teks} onChange={(e) => setTeks(e.target.value)} rows={4} placeholder="Status asli…" className={cn(inputClass, "mt-3 resize-y")} />
       <button type="button" onClick={() => void jalankan()} disabled={memuat} className={cn(btnPrimary, "mt-3")}>
         {memuat ? "Menulis…" : "Buat lirik"}
@@ -208,7 +208,7 @@ export function BagianLawanBots() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3j. Lawan bots</h2>
+      <h2 className="text-isi font-semibold">3j. Dialog dua bot berdebat</h2>
       <p className="mt-1 text-badan text-muted-foreground">Dialog debat dua bot tentang topik/produk.</p>
       <input value={topik} onChange={(e) => setTopik(e.target.value)} placeholder="Topik" className={cn(inputClass, "mt-3")} />
       <input value={produka} onChange={(e) => setProduka(e.target.value)} placeholder="Produk A (opsional)" className={cn(inputClass, "mt-2")} />
@@ -314,9 +314,10 @@ export function BagianMirror() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3m. Mirror competitor (manual)</h2>
+      <h2 className="text-isi font-semibold">3m. Tiru pola gaya kompetitor</h2>
       <p className="mt-1 text-badan text-muted-foreground">
-        Tempel konten kompetitor sebagai referensi gaya; hasil orisinal (tanpa scraping).
+        Tempel konten kompetitor sebagai referensi POLA saja (panjang kalimat, nada, urutan bagian).
+        Kalimat yang ditulis AI harus orisinal — menyalin teks kreator lain dilarang. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.
       </p>
       <textarea value={konten} onChange={(e) => setKonten(e.target.value)} rows={5} placeholder="Konten kompetitor…" className={cn(inputClass, "mt-3 resize-y")} />
       <input value={namaProduk} onChange={(e) => setNamaProduk(e.target.value)} placeholder="Nama produk Anda (opsional)" className={cn(inputClass, "mt-2")} />

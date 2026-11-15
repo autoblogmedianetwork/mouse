@@ -1,5 +1,7 @@
 /**
  * POST /api/paralel — mode paralel universe (Gelombang 3).
+ *
+ * Draf saja: versi genre lain dari teks user, tidak pernah dikirim apa pun.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";

@@ -18,7 +18,7 @@ import { reviewPasarRequestSkema, reviewPasarSkema } from "@/lib/ai/schemas";
 import {
   PROMPT_VERSION,
   buildReviewPasarPrompt,
-} from "@/lib/ai/prompts/review-pasar.v1";
+} from "@/lib/ai/prompts/review-pasar.v2";
 import { siapkanBody } from "@/lib/api/siapkan-body";
 
 export async function POST(req: Request) {

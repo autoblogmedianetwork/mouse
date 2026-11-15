@@ -1,5 +1,7 @@
 /**
  * POST /api/kembaran-jujur — AI kembaran jujur (Gelombang 3).
+ *
+ * Draf saja: tulis ulang agar lebih jujur, tidak pernah dikirim apa pun.
  */
 import { NextResponse } from "next/server";
 import { jalankanAI } from "@/lib/ai/jalankan-ai";
