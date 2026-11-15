@@ -126,7 +126,7 @@ export function BagianInputRiset({
       <h2 className="text-isi font-semibold">1. Niche &amp; audiens</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Satu niche dan satu target audiens menghasilkan 10 masalah, lalu 20 kategori
-        produk yang berpotensi dipromosikan di Threads. Semua hasil berstatus draft.
+        produk saran awal untuk dipromosikan di Threads. Semua hasil berstatus draft.
       </p>
 
       {/* Persona siap pakai: gabungan preset dari empat kategori di bawah. */}

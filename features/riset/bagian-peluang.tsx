@@ -94,7 +94,13 @@ export function BagianHasilRiset({ riset, peluang, simpanKeBank }: PropsHasil) {
               <span className="font-mono text-meta text-muted-foreground">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <p className="text-badan font-medium">{m.masalah}</p>
+              <div className="min-w-0">
+                <p className="text-badan font-medium">{m.masalah}</p>
+                {/* Label sumber (masukan review UI): jujur soal asal data. */}
+                <p className="mt-0.5 text-mikro font-medium uppercase tracking-badge text-muted-foreground">
+                  sumber: analisis AI
+                </p>
+              </div>
             </div>
             {m.situasi ? (
               <p className="mt-1 text-meta text-muted-foreground">{m.situasi}</p>
@@ -173,6 +179,11 @@ export function BagianPeluang({
         <p className="mt-1 text-badan text-muted-foreground">
           Tekan “Buat produk” pada kategori yang ingin dikerjakan. Produk dibuat dengan
           sumber manual; harga dan tautan diisi di form produk.
+        </p>
+        <p className="border border-surface-border bg-muted px-3 py-2 text-meta text-muted-foreground">
+          Skor di bawah adalah <strong className="text-foreground">saran awal AI</strong>,
+          bukan data penjualan. Validasi dulu lewat Review pasar (bagian atas halaman ini)
+          dan performa kontenmu di Analitik sebelum menekan “Buat produk”.
         </p>
         <button
           type="button"

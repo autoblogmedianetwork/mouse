@@ -102,7 +102,7 @@ export function BagianReviewPasar({ niche, audiens, simpanKeBank }: PropsReview)
       <p className="mt-1 text-badan text-muted-foreground">
         Buka halaman produk di marketplace, salin 5–10 review — campuran
         <strong> 5 keluhan (1–2 bintang) + 5 pujian (4–5 bintang)</strong> — lalu tempel di
-        sini. AI memilah masalah nyata, angle yang terbukti, dan kosakata pembeli.
+        sini. AI memilah masalah dari ulasanmu, angle yang sering dipuji, dan kosakata pembeli.
         Nama pembeli sebaiknya dibuang sebelum ditempel.
       </p>
       <textarea
@@ -127,7 +127,7 @@ export function BagianReviewPasar({ niche, audiens, simpanKeBank }: PropsReview)
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {(
             [
-              ["Masalah nyata", hasilReview.masalah],
+              ["Masalah dari ulasanmu", hasilReview.masalah],
               ["Angle terbukti", hasilReview.angle],
               ["Kosakata pembeli", hasilReview.kosakata],
               ["Klaim yang dihindari", hasilReview.red_flag],
