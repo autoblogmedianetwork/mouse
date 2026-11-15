@@ -16,9 +16,11 @@ membantu pemilik akun baru — terutama yang belum pernah menghasilkan komisi �
 menjalankan siklus lengkap: **riset → ide → tulis → jadwalkan → posting
 manual → ukur hasil → putuskan ulang.**
 
-Bukan aplikasi auto-posting. Bukan alat scraping. Semua pengambilan data
-eksternal dan penayangan konten **dilakukan manual oleh user** (tempel,
-salin, posting sendiri).
+**Bukan alat scraping.** Semua pengambilan data eksternal dilakukan manual
+oleh user (tempel, salin).
+
+**Auto-posting: ada tapi opsional dan mati secara default.** Lihat bagian
+"Auto-posting & Fase 7" di bawah — jangan disimpulkan sebagai "tidak ada".
 
 **Target pengguna:** affiliate pemula di Indonesia yang jualan lewat Threads
 (utama), X, WhatsApp Status, dan caption TikTok — dengan produk dari Shopee,
@@ -33,7 +35,7 @@ anak, gaya cerita jujur.
 
 | Prinsip | Artinya |
 |---|---|
-| **Fase 4: manual penuh** | Tidak ada scraping marketplace, tidak ada API marketplace, tidak ada auto-posting. Data masuk lewat tempel manual atau bookmarklet og:image. |
+| **Fase 4: manual penuh** | Tidak ada scraping marketplace, tidak ada API marketplace. Data masuk lewat tempel manual atau bookmarklet og:image. Auto-posting ada sebagai fitur OPSIONAL Fase 7 yang mati secara default — lihat bagian khusus di bawah. |
 | **AI = draf, bukan kebenaran** | Setiap keluaran AI diberi label sumber ("sumber: analisis AI", "saran awal"), dan user wajib menyunting sebelum posting. |
 | **Anti mengarang** | Prompt dilarang mengarang spesifikasi, harga, rating, testimoni, atau klaim "terbaik". Bagian tanpa data dilewati, bukan dikarang. |
 | **Prompt versioned** | File prompt lama tidak boleh diedit. Perubahan = file versi baru (`v2`, `v3`, …). Berlaku juga untuk menghindari regresi tak terukur. |
@@ -52,7 +54,7 @@ anak, gaya cerita jujur.
 | AI | Provider berlapis: Sumopod deepseek-flash → OpenRouter nemotron → env Vercel. Bisa diganti user sendiri (per akun, terenkripsi AES-256-GCM). |
 | Database | Supabase (Postgres + RLS) untuk Bank Konten, performa, peluang, provider AI |
 | Penyimpanan lokal | localStorage, semua kunci berawalan `autothreads-` |
-| Test | Vitest — **924 test, 114 file** |
+| Test | Vitest — **960 test, 117 file** |
 | Deploy | Vercel (Hobby, `maxDuration = 300` untuk route AI) |
 
 ---
@@ -159,16 +161,17 @@ Aturan: **versi lama tidak diedit**; perubahan selalu file baru.
 
 | Prompt | Versi aktif | Dipakai untuk |
 |---|---|---|
-| `generate-status` | **v8** | Menulis status/utas (fork v4 + 12 gaya hook + integrasi kerangka) |
+| `generate-status` | **v9** | Menulis status/utas (fork v4 + 12 gaya hook + integrasi kerangka + aturan fakta untuk `fomo_lembut` & `urgensi_rasional`) |
 | `ide-konten` | v2 → v1 | 10 ide konten |
 | `analisis-penawaran` | v3 → v2 | Analisis produk/penawaran |
 | `carousel-slides` | v2 → v1 | Slide carousel |
 | `naskah-video` | v2 → v1 | Naskah video |
 | `peluang-produk` | v2 | Peluang produk dari keluhan |
-| `review-pasar` | v1 | Ringkasan ulasan pembeli |
-| `analisa-gaya` | v1 | Analisa gaya akun lain |
+| `review-pasar` | **v2** | Ringkasan ulasan pembeli — WAJIB parafrase, larangan salin >8 kata, buang data pribadi |
+| `analisa-gaya` | **v2** | Analisa gaya akun lain — larangan salin >5 kata, catchphrase maks 5 kata |
 | `serial-7-hari` / `serial-30-hari` | v1 | Rancangan serial |
-| `ab-hook`, `battle`, `jujur`, `lab-uji`, `lawan-bots`, `mirror`, `nyanyian`, `paralel`, `ghostwriter`, `ide-masalah`, `riset-audience`, `analisis-produk`, `foto` | v1 | Alat Lab & riset |
+| `mirror` | **v2** | Tiru POLA gaya kompetitor — larangan salin >5 kata, tanpa nama kreator asli |
+| `ab-hook`, `battle`, `kembaran-jujur`, `lab-uji`, `lawan-bots`, `nyanyian`, `paralel`, `ghostwriter`, `ide-masalah`, `riset-audience`, `analisis-produk`, `foto` | v1 | Alat Lab & riset |
 
 **Blok bersama:** `lib/ai/gaya-bahasa.ts` (ATURAN_BAHASA, dipakai semua prompt)
 dan `lib/ai/prompts/generate-status.v7.ts` (ATURAN_ANTI_TERJEMAHAN).
@@ -201,7 +204,6 @@ dan `lib/ai/prompts/generate-status.v7.ts` (ATURAN_ANTI_TERJEMAHAN).
 ## 8. Yang sengaja TIDAK ada (jangan ditambahkan tanpa keputusan baru)
 
 - Scraping marketplace / auto-fetch produk & ulasan.
-- Auto-posting ke Threads/TikTok/Shopee.
 - Rendering video / integrasi CapCut / TTS otomatis.
 - Bot Telegram / webhook dispatcher.
 - Prisma, cheerio, atau ORM/Scraper baru.
@@ -212,6 +214,54 @@ Shopee untuk mencocokkan hook mana yang menghasilkan uang; etalase publik
 "rating kejujuran" dari Katalog.
 
 ---
+
+
+---
+
+## 8b. Auto-posting & Fase 7 (jangan salah baca)
+
+Auto-posting **ADA**, tetapi bukan seperti yang biasa orang maksud:
+
+| Aspek | Kenyataan |
+|---|---|
+| Rute | `POST /api/posting/kirim` — satu-satunya jalur kirim di seluruh aplikasi. |
+| Default | **Mati.** `PENGATURAN_POSTING_AWAL.penyedia = "manual"`, diuji di `lib/posting/antrian.test.ts`. |
+| Kapan aktif | Hanya bila `THREADS_USER_ID` + `THREADS_ACCESS_TOKEN` diisi di server. Kalau tidak, `penyediaEfektif()` otomatis jatuh ke `manual`. |
+| Gerbang wajib | `periksaKirim()` di `lib/posting/antrian.ts` — konten harus berstatus `siap_posting`/`terjadwal`/`gagal`, jadwal sudah tiba, kuota harian belum penuh, jeda antar posting lewat, dan setiap status ≤ 500 byte. |
+| Uji gerbang | 17 test di `lib/posting/antrian.test.ts` (status ditolak, jadwal belum tiba, batas harian, jeda, batas byte, konten tanpa status). |
+| Siapa yang memakai | Hanya `kalender-klien.tsx` (tombol kirim di Kalender) dan `form-pengaturan.tsx`. Alat Lab tidak. |
+
+Yang tetap **tidak ada**: menggenerate lalu memposting otomatis tanpa persetujuan
+user, penjadwal latar belakang (cron) yang mengirim tanpa membuka aplikasi.
+
+**Keputusan K12 (belum diputuskan):** penjadwal latar belakang otomatis
+sengaja belum dibuat. Kode `lib/posting/antrian.ts` menyatakan bahwa pengiriman
+otomatis latar belakang hanya boleh dibuat setelah K12 disetujui. Sampai
+keputusan itu ada, kirim tetap dipicu user dari UI.
+
+**Semua alat Lab (ab-hook, battle, ghostwriter, kembaran-jujur, lab-uji,
+lawan-bots, mirror, nyanyian, paralel) tidak punya jalur kirim.** Ini dikunci
+oleh test `lib/lab/tanpa-jalur-kirim.test.ts`: kalau ada yang menambahkan
+import provider posting atau `/api/posting/kirim` ke salah satu route Lab,
+test gagal.
+
+---
+
+## 8c. Privasi data pihak ketiga
+
+- **Kunci master provider** (`AI_PROVIDER_SECRET`) hanya dibaca di server, tidak
+  pernah masuk bundle klien, dan tidak pernah ada di localStorage — jadi tidak
+  mungkin ikut terekspor di cadangan JSON.
+- **Kunci API provider milik user** disimpan terenkripsi AES-256-GCM di kolom
+  `api_key_enc`. `GET /api/ai-provider` tidak pernah memilih kolom itu, jadi
+  kunci tidak pernah dikirim ke browser.
+- **Teks ulasan pembeli** hanya dikirim ke provider AI saat user menekan tombol
+  analisis, tidak disimpan ke Supabase, tidak di-log, dan tidak masuk
+  `autothreads-riwayat-riset` (riwayat hanya menyimpan niche + audiens).
+  Yang tersimpan di Bank Masalah adalah **parafrase** (prompt `review-pasar.v2`
+  mewajibkan parafrase, melarang menyalin >8 kata, dan membuang data pribadi).
+- **Cadangan JSON** hanya menyapu kunci berawalan `autothreads-`, sehingga
+  tidak pernah memuat kunci API.
 
 ## 9. Peta file penting
 
@@ -246,7 +296,7 @@ supabase/migrations/    0001–0015
 ```bash
 npx tsc --noEmit          # tipe
 npm run lint              # 0 error, 0 warning
-npx vitest run            # 924 test hijau
+npx vitest run            # 960 test hijau
 npm run build             # build produksi
 ```
 
