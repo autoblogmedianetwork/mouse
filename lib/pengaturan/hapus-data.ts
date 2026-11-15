@@ -86,7 +86,11 @@ export const KELOMPOK_DATA: KelompokData[] = [
     label: "Persona & tag",
     keterangan:
       "Nama & gaya bicara persona bernama, serta tag Shopee terakhir per konten (autothreads-tag-shopee-*).",
-    kunci: ["autothreads-persona-bernama"],
+    kunci: [
+      "autothreads-persona-bernama",
+      "autothreads-branding-kit",
+      "autothreads-branding-hasil",
+    ],
     risiko: "perhatian",
     ikon: "PRS",
   },

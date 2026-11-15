@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   GAYA_PERSONA,
   HARI_KIT,
+  LABEL_BUTUH_PENGALAMAN,
+  LABEL_ILUSTRASI,
   bodyAI,
+  bolehSalin,
   isiTemplate,
+  masihAdaKolomKosong,
 } from "./kit";
 
 const data = {
@@ -80,5 +84,58 @@ describe("branding kit", () => {
     const hari3 = HARI_KIT.find((h) => h.id === 3)!;
     const ide = bodyAI(data, hari3).ide as Record<string, unknown>;
     expect(ide.format_label).toBe("Storytelling");
+  });
+});
+
+describe("gerbang pengalaman (anti-cerita karangan)", () => {
+  const hari = (id: number) => HARI_KIT.find((h) => h.id === id)!;
+
+  it("hanya Hari 2, 3, dan 6 yang butuh pengalaman", () => {
+    const butuh = HARI_KIT.filter((h) => h.butuhPengalaman).map((h) => h.id);
+    expect(butuh).toEqual([2, 3, 6]);
+  });
+
+  it("instruksi hari bercerita melarang mengarang dan menyisakan kolom kosong", () => {
+    for (const id of [2, 3, 6]) {
+      const teks = hari(id).instruksi;
+      expect(teks).toContain("JANGAN mengarang");
+      expect(teks).toMatch(/tulis sendiri/i);
+      expect(teks).toContain("APA ADANYA");
+    }
+  });
+
+  it("masihAdaKolomKosong menangkap kurung siku yang belum diisi", () => {
+    const isi = ["Pembuka.", "[tulis sendiri: apa yang terjadi]", "Penutup."].join(String.fromCharCode(10));
+    const contoh = isi;
+    expect(masihAdaKolomKosong(contoh)).toBe(true);
+    expect(masihAdaKolomKosong("(ceritakan kebiasaan lamamu yang keliru)")).toBe(true);
+    expect(masihAdaKolomKosong("Cerita sudah lengkap tanpa kolom.")).toBe(false);
+  });
+
+  it("hari bercerita terkunci walau sudah dicentang bila masih ada kolom kosong", () => {
+    const hasil = bolehSalin(hari(3), "Saya pernah beli [tulis sendiri: apa].", true);
+    expect(hasil.boleh).toBe(false);
+    expect(hasil.alasan).toContain("[...]");
+  });
+
+  it("hari bercerita terkunci bila user belum mencentang", () => {
+    const hasil = bolehSalin(hari(3), "Cerita lengkap tanpa kolom kosong.", false);
+    expect(hasil.boleh).toBe(false);
+    expect(hasil.alasan).toContain("kamu alami sendiri");
+  });
+
+  it("hari bercerita boleh disalin setelah dicentang dan kolom terisi", () => {
+    expect(bolehSalin(hari(3), "Cerita lengkap tanpa kolom kosong.", true).boleh).toBe(true);
+  });
+
+  it("hari non-pengalaman boleh disalin tanpa centang", () => {
+    for (const id of [1, 4, 5, 7]) {
+      expect(bolehSalin(hari(id), "Teks bersih tanpa kolom.", false).boleh).toBe(true);
+    }
+  });
+
+  it("label ilustrasi dan label pengalaman tersedia untuk UI", () => {
+    expect(LABEL_ILUSTRASI).toContain("bukan pengalaman nyata");
+    expect(LABEL_BUTUH_PENGALAMAN).toContain("kejadian asli");
   });
 });

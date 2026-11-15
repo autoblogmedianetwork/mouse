@@ -43,6 +43,13 @@ export interface HariKit {
   template: string;
   /** Brief untuk opsi AI (juga memakai placeholder yang sama). */
   instruksi: string;
+  /**
+   * True bila hari ini BERCERITA TENTANG PENGALAMAN PRIBADI.
+   * Untuk hari seperti ini AI hanya boleh menyusun kerangka dengan kolom kosong
+   * ([...]) — tidak boleh mengarang kejadian — dan tombol Salin baru aktif
+   * setelah user mencentang bahwa kejadiannya benar-benar dialami sendiri.
+   */
+  butuhPengalaman?: boolean;
 }
 
 export const HARI_KIT: HariKit[] = [
@@ -73,7 +80,8 @@ Yang capek sama iklan berlebihan, silakan duduk manis. Ceritanya panjang, tapi j
 Sudah coba macam-macam sistem. Yang paling jalan ternyata yang paling malesnya. Klasik.
 
 Kalau kamu juga punya rutinitas yang kelihatan sepele tapi tiap hari, share dong di komentar. Siapa tahu ada cara yang lebih waras.`,
-    instruksi: `JANGAN memperkenalkan diri dengan nama. Tulis satu cerita keseharian seputar [detail_hidup]: pengakuan jujur bahwa rutinitas itu melelahkan, satu detail konkret yang terasa nyata, lalu pertanyaan ringan meminta trik pembaca. Tanpa produk, tanpa link, tanpa hashtag, maksimal satu emoji.`,
+    butuhPengalaman: true,
+    instruksi: `JANGAN memperkenalkan diri dengan nama. JANGAN mengarang kejadian, nama barang, angka, atau nama orang. Tugasmu HANYA menyusun kerangka cerita keseharian seputar [detail_hidup] dengan tiga bagian: (1) satu kalimat pembuka yang mengakui rutinitas ini melelahkan, (2) baris berisi [tulis sendiri: satu kejadian nyata yang kamu alami soal ini], (3) pertanyaan ringan meminta trik pembaca. Sisakan kurung siku itu APA ADANYA supaya user mengisinya sendiri. Tanpa produk, tanpa link, tanpa hashtag, maksimal satu emoji.`
   },
   {
     id: 3,
@@ -85,7 +93,8 @@ Kalau kamu juga punya rutinitas yang kelihatan sepele tapi tiap hari, share dong
 Saya pernah. Alat "serbaguna" yang sembilan fungsinya cuma numpang nama. Yang kepake satu: gunting kuku. Sekarang jadi tempat pensil.
 
 Sejak itu saya alergi kata "serbaguna". Kamu pernah kena yang sama? Cerita, biar saya tidak merasa sendirian.`,
-    instruksi: `JANGAN memperkenalkan diri dengan nama. Ceritakan satu pengalaman gagal belanja seputar [niche]: awali dengan pertanyaan "pernah beli karena videonya keren, datangnya mengecewakan?", satu contoh konkret yang lucu tapi jujur (tanpa menyebut merek), akhiri ajakan berbagi cerita. Tanpa produk, tanpa link, tanpa hashtag, maksimal satu emoji.`,
+    butuhPengalaman: true,
+    instruksi: `JANGAN memperkenalkan diri dengan nama. JANGAN mengarang kejadian, merek, harga, atau angka apa pun. Tugasmu HANYA menyusun kerangka pengakuan gagal belanja seputar [niche] dengan tiga bagian: (1) pembuka berupa pertanyaan "pernah beli karena videonya keren, datangnya mengecewakan?", (2) baris berisi [tulis sendiri: barang apa yang kamu beli dan apa yang mengecewakan], (3) ajakan berbagi cerita. Sisakan kurung siku itu APA ADANYA supaya user mengisinya sendiri dengan kejadian asli. Tanpa produk, tanpa merek, tanpa link, tanpa hashtag, maksimal satu emoji.`,
   },
   {
     id: 4,
@@ -125,7 +134,8 @@ Aturannya satu: kalau tidak punya pengalaman soal topiknya, diam saja dan cari y
 (ceritakan kebiasaan lamamu yang ternyata keliru, lalu cara barunya yang lebih baik)
 
 Iya, semundur-mundurnya bapak-bapak ini belajar dari kesalahan sehari-hari. Kalau kamu punya trik yang lebih waras, saya tunggu di komentar.`,
-    instruksi: `JANGAN memperkenalkan diri dengan nama. Ceritakan satu hal kecil tentang [niche] yang ternyata selama ini dikerjakan salah, dan cara barunya yang lebih baik. Pola: pengakuan, satu detail konkret, penutup rendah hati yang mengajak pembaca berbagi trik. Tanpa produk, tanpa link, tanpa hashtag, maksimal satu emoji.`,
+    butuhPengalaman: true,
+    instruksi: `JANGAN memperkenalkan diri dengan nama. JANGAN mengarang kejadian, angka, atau pelajaran yang tidak nyata. Tugasmu HANYA menyusun kerangka cerita belajar dengan tiga bagian: (1) pengakuan bahwa selama ini ada hal soal [niche] yang dikerjakan keliru, (2) baris berisi [tulis sendiri: kebiasaan lamamu yang keliru, lalu cara barunya], (3) penutup rendah hati yang mengajak pembaca berbagi trik. Sisakan kurung siku itu APA ADANYA supaya user mengisinya sendiri. Tanpa produk, tanpa link, tanpa hashtag, maksimal satu emoji.`,
   },
   {
     id: 7,
@@ -156,6 +166,50 @@ export function isiTemplate(teks: string, data: DataBranding): string {
     if (bersih) hasil = hasil.split(`[${kunci}]`).join(bersih);
   }
   return hasil;
+}
+
+/**
+ * Label yang WAJIB tampil di setiap hasil AI Branding Kit (semua hari).
+ * Alasannya: AI tidak pernah mengalami kejadian apa pun, jadi hasilnya hanya
+ * ilustrasi gaya — bukan pengalaman, bukan testimoni.
+ */
+export const LABEL_ILUSTRASI =
+  "Ilustrasi gaya dari AI — bukan pengalaman nyata. Ganti dengan kejadianmu sendiri sebelum diposting.";
+
+/** Label khusus hari yang bercerita pengalaman (2, 3, 6). */
+export const LABEL_BUTUH_PENGALAMAN =
+  "Hari ini bercerita pengalaman pribadi. AI hanya menyusun kerangkanya; kolom [...] harus kamu isi dengan kejadian asli.";
+
+/** Tanda kolom kosong yang harus diisi user sebelum boleh posting. */
+const POLA_KOLOM_KOSONG = /\[[^\]]*tulis sendiri[^\]]*\]|\[[^\]]*\]|\(kebiasaan (pertama|kedua|ketiga)mu\)|\(ceritakan kebiasaan lamamu[^)]*\)/i;
+
+/**
+out = true bila teks masih menyisakan kolom kosong yang harus diisi user.
+ */
+export function masihAdaKolomKosong(teks: string): boolean {
+  return POLA_KOLOM_KOSONG.test(teks);
+}
+
+/**
+ * Gerbang salin: hari yang bercerita pengalaman baru boleh disalin bila
+ * (1) user menyatakan kejadiannya dialami sendiri, dan
+ * (2) tidak ada kolom kosong tersisa.
+ */
+export function bolehSalin(
+  hari: HariKit,
+  teks: string,
+  sudahDikonfirmasi: boolean,
+): { boleh: boolean; alasan?: string } {
+  if (masihAdaKolomKosong(teks)) {
+    return { boleh: false, alasan: "Masih ada kolom [...] yang harus kamu isi dengan kejadian nyata." };
+  }
+  if (hari.butuhPengalaman && !sudahDikonfirmasi) {
+    return {
+      boleh: false,
+      alasan: "Centang dulu: kejadian ini benar-benar kamu alami sendiri.",
+    };
+  }
+  return { boleh: true };
 }
 
 /** Body request untuk /api/generate (prompt v8) — satu posting, tanpa link. */

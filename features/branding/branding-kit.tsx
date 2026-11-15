@@ -19,7 +19,10 @@ import {
   HARI_KIT,
   KUNCI_BRANDING,
   KUNCI_BRANDING_HASIL,
+  LABEL_BUTUH_PENGALAMAN,
+  LABEL_ILUSTRASI,
   bodyAI,
+  bolehSalin,
   isiTemplate,
   type DataBranding,
 } from "@/lib/branding/kit";
@@ -48,6 +51,12 @@ export function BrandingKit() {
   const [memproses, setMemproses] = useState<number | null>(null);
   const [pesan, setPesan] = useState<Record<number, string>>({});
   const [tersalin, setTersalin] = useState<number | null>(null);
+  /**
+   * Pernyataan user bahwa kejadian di hari bercerita pengalaman benar-benar
+   * dialami sendiri. Sengaja TIDAK disimpan ke localStorage: harus dinyatakan
+   * ulang tiap sesi, supaya tidak jadi centang asal-asalan yang permanen.
+   */
+  const [dikonfirmasi, setDikonfirmasi] = useState<Record<number, boolean>>({});
 
   const teksHari = (id: number, template: string): string => {
     const h = hasil[id];
@@ -57,6 +66,8 @@ export function BrandingKit() {
 
   const ubahTeks = (id: number, mode: HasilHari["mode"], teks: string) => {
     setHasil((prev) => ({ ...prev, [id]: { mode, teks, diubah: true } }));
+    // Teks berubah => pernyataan pengalaman dianggap batal, harus dicentang lagi.
+    setDikonfirmasi((prev) => (prev[id] ? { ...prev, [id]: false } : prev));
   };
 
   const pilihMode = (id: number, mode: HasilHari["mode"]) => {
@@ -179,6 +190,7 @@ export function BrandingKit() {
         const mode = h?.mode ?? "manual";
         const teks = teksHari(hari.id, hari.template);
         const lebih = teks.length > BATAS_THREADS;
+        const gerbang = bolehSalin(hari, teks, dikonfirmasi[hari.id] === true);
         return (
           <Card key={hari.id}>
             <div className="flex flex-wrap items-center gap-2">
@@ -242,11 +254,38 @@ export function BrandingKit() {
               </p>
             ) : null}
 
+            {hari.butuhPengalaman ? (
+              <div className="mt-3 border-l-4 border-amber-500 bg-amber-50 p-3 dark:bg-amber-950/30">
+                <p className="text-meta font-medium text-amber-800 dark:text-amber-300">
+                  {LABEL_BUTUH_PENGALAMAN}
+                </p>
+                <label className="mt-2 flex cursor-pointer items-start gap-2 text-badan">
+                  <input
+                    type="checkbox"
+                    checked={dikonfirmasi[hari.id] === true}
+                    onChange={(e) =>
+                      setDikonfirmasi((prev) => ({ ...prev, [hari.id]: e.target.checked }))
+                    }
+                    className="mt-0.5 h-4 w-4 shrink-0"
+                  />
+                  <span>Ini kejadian yang saya alami sendiri, bukan karangan.</span>
+                </label>
+              </div>
+            ) : null}
+
+            {mode === "ai" ? (
+              <p className="mt-2 text-meta text-muted-foreground">
+                ⚠️ {LABEL_ILUSTRASI}
+              </p>
+            ) : null}
+
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => salin(hari.id, teks)}
-                className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-badan font-medium text-primary-foreground hover:opacity-90"
+                disabled={!gerbang.boleh}
+                title={gerbang.alasan}
+                className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-badan font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {tersalin === hari.id ? "✓ Tersalin" : "Salin"}
               </button>
@@ -270,6 +309,11 @@ export function BrandingKit() {
                 </button>
               ) : null}
             </div>
+            {!gerbang.boleh ? (
+              <p className="mt-1 text-meta text-muted-foreground">
+                Tombol Salin terkunci: {gerbang.alasan}
+              </p>
+            ) : null}
             {mode === "ai" && !h?.diubah ? (
               <p className="mt-1 text-meta text-muted-foreground">
                 Tekan &quot;Buat dengan AI&quot; — hasilnya gaya cerita Pak-bapak, tanpa link,
