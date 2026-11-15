@@ -4,7 +4,6 @@
  * Halaman Lab (refactor R6): orkestrator saja. Tiap kelompok fitur ada di
  * file sendiri (lab-*.tsx); helper bersama di lab-bersama.tsx.
  */
-import { Card } from "@/components/card";
 import { NotifikasiProaktif } from "@/features/lab/notifikasi-proaktif";
 import { BagianLabUji, BagianIdeMasalah } from "./lab-uji-ide";
 import { BagianSerial, BagianHashtag, BagianSerial30 } from "./lab-serial";

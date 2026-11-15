@@ -67,37 +67,6 @@ function SelectField<T extends string>({
   );
 }
 
-function ToggleField({
-  id,
-  label,
-  description,
-  checked,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4 border border-surface-border p-3">
-      <div>
-        <label htmlFor={id} className="text-badan font-medium">
-          {label}
-        </label>
-        <p className="mt-0.5 text-meta text-muted-foreground">{description}</p>
-      </div>
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="mt-1 h-4 w-4 accent-[var(--primary)]"
-      />
-    </div>
-  );
-}
 
 export function PengaturanGenerate({
   value,
