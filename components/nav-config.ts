@@ -59,6 +59,14 @@ export const MENU_ITEMS: MenuItem[] = [
     ],
   },
   {
+    label: "Branding Kit",
+    href: "/branding",
+    group: "alur",
+    fase: "MVP",
+    kapan:
+      "7 postingan personal branding untuk akun baru: isi sekali, salin per hari, tanpa jualan.",
+  },
+  {
     label: "Riset",
     href: "/riset",
     group: "alur",

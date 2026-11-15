@@ -60,6 +60,9 @@ export type IdeBatch = z.infer<typeof ideSkema>;
 
 /** Status range per "jumlah status" setting (PRD F3). */
 export const BATAS_JUMLAH = {
+  // "satu" khusus fitur Branding Kit (1 posting/hari); tidak ditawarkan di
+  // select jumlah status utama.
+  satu: { min: 1, max: 1 },
   pendek: { min: 3, max: 5 },
   menengah: { min: 6, max: 11 },
   panjang: { min: 12, max: 20 },
@@ -70,7 +73,7 @@ export const pengaturanSkema = z.object({
   // (prompt 09, dienerate lewat /api/naskah-video). Draf lama tanpa kolom ini
   // otomatis mendapat "threads".
   mode_output: z.enum(MODE_OUTPUT_IDS).default("threads"),
-  jumlah_status: z.enum(["pendek", "menengah", "panjang"]),
+  jumlah_status: z.enum(["satu", "pendek", "menengah", "panjang"]),
   panjang_status: z.enum(["singkat", "sedang", "panjang"]),
   instruksi: z.string(),
   anti_ai_slop: z.boolean(),
