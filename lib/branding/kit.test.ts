@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   GAYA_PERSONA,
@@ -137,5 +138,40 @@ describe("gerbang pengalaman (anti-cerita karangan)", () => {
   it("label ilustrasi dan label pengalaman tersedia untuk UI", () => {
     expect(LABEL_ILUSTRASI).toContain("bukan pengalaman nyata");
     expect(LABEL_BUTUH_PENGALAMAN).toContain("kejadian asli");
+  });
+});
+
+describe("gaya antarmuka Branding Akun", () => {
+  const baca = (): string => readFileSync("features/branding/branding-kit.tsx", "utf8");
+
+  it("tidak memakai sudut membulat (aplikasi ini bersudut tajam)", () => {
+    // ADR 0013: --radius-chrome 0px. Komponen lain tidak memakai rounded-*.
+    expect(baca()).not.toMatch(/rounded-(full|md|lg|xl|sm|none)/);
+  });
+
+  it("tidak memakai emoji hiasan di label tombol", () => {
+    // Centang "Tersalin" (U+2713) adalah penanda status, bukan hiasan, jadi
+    // dikecualikan. Emoji dekoratif seperti pena, kilau, dan segitiga
+    // peringatan tidak boleh muncul.
+    const isi = baca().replace(/\u2713/g, "");
+    const hiasan = /[\u{1F300}-\u{1FAFF}\u{2700}-\u{27BF}\u{2B00}-\u{2BFF}]/u;
+    expect(hiasan.test(isi), "ada emoji hiasan di branding-kit.tsx").toBe(false);
+  });
+
+  it("label tombol mode pendek supaya tidak meluber di layar 360px", () => {
+    const isi = baca();
+    expect(isi).toContain("Tulis sendiri");
+    expect(isi).toContain("Buat dengan AI");
+    expect(isi).not.toContain("Tulis sendiri (template)");
+  });
+
+  it("dua tombol mode ditumpuk di layar sempit, bukan dipaksa sebaris", () => {
+    expect(baca()).toContain("grid-cols-1 gap-2 sm:grid-cols-2");
+  });
+
+  it("tombol memenuhi tinggi sentuh 44px", () => {
+    const isi = baca();
+    expect(isi).not.toMatch(/\bh-10\b/);
+    expect(isi).toContain("min-h-11");
   });
 });

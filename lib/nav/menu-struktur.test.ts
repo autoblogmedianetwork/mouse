@@ -136,8 +136,8 @@ describe("label halaman mengikuti label menu", () => {
 });
 
 describe("sidebar tanpa penomoran", () => {
-  it("menu datar tidak memberi nomor langkah", () => {
-    expect(LANGKAH_ALUR.length).toBe(0);
+  it("menu datar tidak memberi nomor langkah di sidebar", () => {
+    expect(MENU_ITEMS.every((m) => m.langkah === undefined)).toBe(true);
   });
 
   it("sidebar tidak menampilkan nomor langkah sama sekali", async () => {
@@ -155,7 +155,15 @@ describe("sidebar tanpa penomoran", () => {
     expect(bilah).toContain("l.nomor");
   });
 
-  it("LANGKAH_ALUR kosong karena menu sudah datar", () => {
-    expect(LANGKAH_ALUR).toEqual([]);
+  it("LANGKAH_ALUR tetap berisi urutan untuk bilah alur Dashboard", () => {
+    // Sidebar datar tidak memberi nomor, tetapi bilah alur di Dashboard masih
+    // butuh urutan supaya pemakai baru tahu tahap berikutnya.
+    expect(LANGKAH_ALUR.map((l) => l.nomor)).toEqual([1, 2, 3, 4]);
+    expect(LANGKAH_ALUR.map((l) => l.label)).toEqual([
+      "Riset",
+      "Buat Posting",
+      "Siap Salin",
+      "Arsip Terbit",
+    ]);
   });
 });

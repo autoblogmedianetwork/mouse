@@ -221,7 +221,13 @@ export function menuUntuk(
   return null;
 }
 
-/** Langkah alur utama (1-4) sebagai data, dipakai bilah langkah di Hari Ini. */
+/**
+ * Langkah alur utama sebagai data, dipakai bilah langkah di Dashboard.
+ *
+ * Menu di sidebar sengaja DATAR (tanpa nomor), tetapi bilah alur tetap perlu
+ * urutan karena tugasnya menunjukkan "saya di tahap mana, berikutnya apa".
+ * Karena itu urutannya ditulis di sini, bukan diambil dari nomor menu.
+ */
 export interface LangkahAlur {
   nomor: number;
   label: string;
@@ -229,13 +235,34 @@ export interface LangkahAlur {
   kapan: string;
 }
 
-export const LANGKAH_ALUR: LangkahAlur[] = MENU_ITEMS.filter(
-  (i) => i.langkah !== undefined && i.aktif !== false,
-)
-  .sort((a, b) => (a.langkah ?? 0) - (b.langkah ?? 0))
-  .map((i) => ({
-    nomor: i.langkah as number,
-    label: i.label,
-    href: i.href,
-    kapan: i.kapan ?? "",
-  }));
+/** Empat tahap perjalanan affiliate, urut dari nol sampai komisi pertama. */
+const URUTAN_LANGKAH: ReadonlyArray<{ nomor: number; label: string; href: string; kapan: string }> = [
+  {
+    nomor: 1,
+    label: "Riset",
+    href: "/riset",
+    kapan: "Cari masalah audiens dan produk yang layak.",
+  },
+  {
+    nomor: 2,
+    label: "Buat Posting",
+    href: "/posting/baru",
+    kapan: "Ubah produk jadi utas siap tempel.",
+  },
+  {
+    nomor: 3,
+    label: "Siap Salin",
+    href: "/siap-copas",
+    kapan: "Salin teks dan link, tempel di Threads.",
+  },
+  {
+    nomor: 4,
+    label: "Arsip Terbit",
+    href: "/riwayat",
+    kapan: "Tandai sudah terbit, catat hasilnya.",
+  },
+];
+
+export const LANGKAH_ALUR: LangkahAlur[] = URUTAN_LANGKAH.filter((l) =>
+  MENU_ITEMS.some((m) => m.href === l.href || (m.hrefs ?? []).includes(l.href)),
+).map((l) => ({ ...l }));

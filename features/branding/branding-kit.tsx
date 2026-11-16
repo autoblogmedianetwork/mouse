@@ -194,44 +194,48 @@ export function BrandingKit() {
         return (
           <Card key={hari.id}>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-primary/10 px-2 text-meta font-semibold text-primary">
+              <span className="inline-flex h-7 min-w-7 items-center justify-center bg-primary/10 px-2 font-mono text-meta font-semibold text-primary">
                 Hari {hari.id}
               </span>
               <h2 className="text-badan font-semibold">{hari.judul}</h2>
               {hari.hariIstirahat ? (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-meta text-muted-foreground">
+                <span className="bg-muted px-2 py-0.5 text-meta text-muted-foreground">
                   tidak posting
                 </span>
               ) : null}
             </div>
             <p className="mt-1 text-meta text-muted-foreground">{isiTemplate(hari.tugas, data)}</p>
 
-            <div className="mt-3 flex gap-2" role="group" aria-label={`Cara isi hari ${hari.id}`}>
+            <div
+              className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+              role="group"
+              aria-label={`Cara isi hari ${hari.id}`}
+            >
               <button
                 type="button"
                 aria-pressed={mode === "manual"}
                 onClick={() => pilihMode(hari.id, "manual")}
                 className={
-                  "h-10 flex-1 rounded-md border-2 px-3 text-badan font-medium " +
+                  "min-h-11 border-2 px-3 py-2 text-badan font-medium " +
                   (mode === "manual"
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-surface-border text-muted-foreground hover:bg-muted/50")
                 }
               >
-                ✍️ Tulis sendiri (template)
+                Tulis sendiri
               </button>
               <button
                 type="button"
                 aria-pressed={mode === "ai"}
                 onClick={() => pilihMode(hari.id, "ai")}
                 className={
-                  "h-10 flex-1 rounded-md border-2 px-3 text-badan font-medium " +
+                  "min-h-11 border-2 px-3 py-2 text-badan font-medium " +
                   (mode === "ai"
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-surface-border text-muted-foreground hover:bg-muted/50")
                 }
               >
-                ✨ Buat dengan AI
+                Buat dengan AI
               </button>
             </div>
 
@@ -275,7 +279,7 @@ export function BrandingKit() {
 
             {mode === "ai" ? (
               <p className="mt-2 text-meta text-muted-foreground">
-                ⚠️ {LABEL_ILUSTRASI}
+                {LABEL_ILUSTRASI}
               </p>
             ) : null}
 
@@ -285,7 +289,7 @@ export function BrandingKit() {
                 onClick={() => salin(hari.id, teks)}
                 disabled={!gerbang.boleh}
                 title={gerbang.alasan}
-                className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-badan font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 items-center bg-primary px-4 text-badan font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {tersalin === hari.id ? "✓ Tersalin" : "Salin"}
               </button>
@@ -294,7 +298,7 @@ export function BrandingKit() {
                   type="button"
                   onClick={() => buatDenganAi(hari.id)}
                   disabled={memproses !== null}
-                  className="inline-flex h-10 items-center rounded-md border-2 border-primary/40 bg-primary/5 px-4 text-badan font-medium text-primary hover:bg-primary/10 disabled:opacity-50"
+                  className="inline-flex min-h-11 items-center border-2 border-primary/40 bg-primary/5 px-4 text-badan font-medium text-primary hover:bg-primary/10 disabled:opacity-50"
                 >
                   {memproses === hari.id ? "Menulis…" : h?.diubah ? "Buat ulang" : "Buat dengan AI"}
                 </button>
@@ -303,7 +307,7 @@ export function BrandingKit() {
                 <button
                   type="button"
                   onClick={() => kembalikanTemplate(hari.id)}
-                  className="inline-flex h-10 items-center rounded-md px-3 text-meta text-muted-foreground hover:text-foreground"
+                  className="inline-flex min-h-11 items-center px-3 text-meta text-muted-foreground hover:text-foreground"
                 >
                   Kembalikan ke template
                 </button>

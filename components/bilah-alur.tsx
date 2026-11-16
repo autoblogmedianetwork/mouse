@@ -3,14 +3,15 @@
 /**
  * Bilah langkah alur kerja (Opsi B).
  *
- * Menampilkan empat langkah utama (Hari Ini → Riset → Bikin Konten → Terbit)
- * dengan status: selesai / sekarang / belum. Tujuannya supaya pemakai baru
- * selalu tahu "saya di tahap mana, berikutnya klik apa" tanpa menghafal menu.
+ * Menampilkan empat langkah utama (Riset -> Buat Posting -> Siap Salin ->
+ * Arsip Terbit) dengan status selesai / sekarang / belum. Tujuannya supaya
+ * pemakai baru selalu tahu "saya di tahap mana, berikutnya klik apa" tanpa
+ * menghafal menu.
  *
  * Status dihitung dari data nyata (bukan tebakan):
  * - Riset selesai bila ada minimal satu riset/peluang tersimpan.
- * - Bikin Konten selesai bila ada minimal satu konten di bank konten.
- * - Terbit selesai bila ada minimal satu konten berstatus terkirim.
+ * - Buat Posting selesai bila ada minimal satu konten di bank konten.
+ * - Siap Salin dan Arsip Terbit selesai bila ada konten berstatus terkirim.
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -44,16 +45,18 @@ export function BilahAlur() {
         }
       }
       if (!aktif) return;
-      // Langkah 1 bukan langkah yang bisa "diselesaikan": ia pintu masuk harian,
-      // jadi tidak pernah diberi centang palsu.
+      // 1 Riset        selesai bila sudah ada riset atau produk tersimpan
+      // 2 Buat Posting selesai bila sudah ada konten di bank konten
+      // 3 Siap Salin   selesai bila sudah ada konten berstatus terkirim
+      // 4 Arsip Terbit selesai bila sudah ada konten berstatus terkirim
       const berikut: Record<number, Status> = {
-        1: adaRiset || adaKonten || adaTerbit ? "selesai" : "sekarang",
-        2: adaRiset ? "selesai" : "belum",
-        3: adaKonten ? "selesai" : "belum",
+        1: adaRiset ? "selesai" : "belum",
+        2: adaKonten ? "selesai" : "belum",
+        3: adaTerbit ? "selesai" : "belum",
         4: adaTerbit ? "selesai" : "belum",
       };
       // Langkah pertama yang belum selesai menjadi "sekarang".
-      const pertama = [2, 3, 4].find((n) => berikut[n] === "belum");
+      const pertama = [1, 2, 3, 4].find((n) => berikut[n] === "belum");
       if (pertama !== undefined) berikut[pertama] = "sekarang";
       setStatus(berikut);
     })();

@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { MENU_ITEMS } from "@/components/nav-config";
+import { LANGKAH_ALUR, MENU_ITEMS } from "@/components/nav-config";
 
 const AKAR = "app/(dashboard)";
 
@@ -136,5 +136,30 @@ describe("struktur menu dangkal, banyak item", () => {
     expect(dashboard!.href).not.toBe(riset!.href);
     expect(dashboard!.href).toBe("/");
     expect(riset!.href).toBe("/riset");
+  });
+});
+
+describe("kartu alur kerja di Dashboard tidak boleh kosong", () => {
+  it("LANGKAH_ALUR berisi empat tahap dengan halaman yang benar-benar ada", () => {
+    // Bug 17 Nov 2026: menu dijadikan datar sehingga LANGKAH_ALUR menjadi array
+    // kosong, dan kartu [ ALUR KERJA ] di Dashboard tampil kosong tanpa pesan.
+    expect(LANGKAH_ALUR.length).toBe(4);
+    const rute = new Set(daftarRute());
+    for (const l of LANGKAH_ALUR) {
+      expect(rute.has(l.href), `${l.label} menunjuk ${l.href} yang tidak ada`).toBe(true);
+      expect(l.kapan.length, `${l.label} tanpa keterangan`).toBeGreaterThan(0);
+    }
+  });
+
+  it("setiap tahap tetap bisa dijangkau dari menu", () => {
+    const dimiliki = new Set(MENU_ITEMS.flatMap((m) => [m.href, ...(m.hrefs ?? [])]));
+    for (const l of LANGKAH_ALUR) {
+      expect(dimiliki.has(l.href), `${l.label} tidak ada di menu`).toBe(true);
+    }
+  });
+
+  it("BilahAlur tidak merender apa pun bila daftar langkah kosong", () => {
+    const isi = readFileSync("components/bilah-alur.tsx", "utf8");
+    expect(isi).toContain("if (Object.keys(status).length === 0) return null");
   });
 });
