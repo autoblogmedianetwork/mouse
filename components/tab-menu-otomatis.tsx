@@ -15,9 +15,14 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { MENU_ITEMS } from "./nav-config";
 
+/** "/antrian/" dan "/antrian" harus dianggap sama saat mencocokkan tab. */
+function rapikan(pathname: string): string {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+}
+
 export function TabMenuOtomatis() {
-  const pathname = usePathname();
-  const menu = MENU_ITEMS.find((i) => (i.hrefs ?? [i.href]).includes(pathname));
+  const pathname = rapikan(usePathname());
+  const menu = MENU_ITEMS.find((i) => (i.hrefs ?? [i.href]).map(rapikan).includes(pathname));
   const tabs = menu?.tabs;
   if (!tabs || tabs.length < 2) return null;
 

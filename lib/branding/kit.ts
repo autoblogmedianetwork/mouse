@@ -200,10 +200,14 @@ export function bolehSalin(
   teks: string,
   sudahDikonfirmasi: boolean,
 ): { boleh: boolean; alasan?: string } {
+  // Gerbang ini hanya berlaku untuk hari yang bercerita pengalaman pribadi.
+  // Hari lain memakai template biasa yang memang boleh memuat tanda kurung
+  // siku sebagai bagian kalimat, jadi tidak boleh ikut terkunci.
+  if (!hari.butuhPengalaman) return { boleh: true };
   if (masihAdaKolomKosong(teks)) {
     return { boleh: false, alasan: "Masih ada kolom [...] yang harus kamu isi dengan kejadian nyata." };
   }
-  if (hari.butuhPengalaman && !sudahDikonfirmasi) {
+  if (!sudahDikonfirmasi) {
     return {
       boleh: false,
       alasan: "Centang dulu: kejadian ini benar-benar kamu alami sendiri.",

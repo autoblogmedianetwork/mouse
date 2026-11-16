@@ -35,8 +35,10 @@ describe("struktur menu", () => {
     }
   });
 
-  it("langkah alur berurutan tanpa lompat", () => {
-    expect(LANGKAH_ALUR.map((l) => l.nomor)).toEqual([1, 2, 3]);
+  it("tidak ada penomoran langkah di menu (menu datar)", () => {
+    // Rombak 17 Nov 2026 menghapus nomor langkah: penyebabnya dulu nomor
+    // melompati Katalog sehingga terlihat timpang.
+    expect(MENU_ITEMS.every((m) => m.langkah === undefined)).toBe(true);
   });
 
   it("tidak ada label ganda di sidebar", () => {
@@ -77,12 +79,15 @@ describe("label bahasa Indonesia, tanpa jargon lama", () => {
 
   it("label yang dipertahankan tetap ada", () => {
     const wajib = [
-      "Hari Ini",
+      "Dashboard",
       "Branding Akun",
       "Riset",
       "Katalog",
-      "Buat Konten",
-      "Terbit",
+      "Buat Posting",
+      "Siap Salin",
+      "Antrian Posting",
+      "Produksi Konten",
+      "Arsip Terbit",
       "Kalender",
       "Analitik",
       "Eksperimen",
@@ -93,39 +98,48 @@ describe("label bahasa Indonesia, tanpa jargon lama", () => {
     }
   });
 
-  it("sub-tab Terbit memakai nama baru", () => {
-    const terbit = MENU_ITEMS.find((m) => m.label === "Terbit")!;
-    const tab = (terbit.tabs ?? []).map((t) => t.label);
-    expect(tab).toEqual(["Siap Salin", "Antrian Posting", "Produksi Konten", "Arsip Terbit"]);
+  it("empat bagian penerbitan menjadi menu datar, bukan tab", () => {
+    // Dulu keempatnya tab di bawah satu menu "Terbit", dan halaman antrian
+    // memakai daftar tab sendiri sehingga tidak bisa kembali.
+    for (const label of ["Siap Salin", "Antrian Posting", "Produksi Konten", "Arsip Terbit"]) {
+      expect(MENU_ITEMS.some((m) => m.label === label), label).toBe(true);
+    }
   });
 });
 
 describe("label halaman mengikuti label menu", () => {
   it("judul halaman memakai label menu yang sama", () => {
     // Kalau berbeda, user klik satu nama dan mendarat di nama lain.
-    expect(labelHalaman("/siap-copas")).toBe("Terbit");
-    expect(labelHalaman("/batch")).toBe("Terbit");
-    expect(labelHalaman("/riwayat")).toBe("Terbit");
+    expect(labelHalaman("/siap-copas")).toBe("Siap Salin");
+    expect(labelHalaman("/batch")).toBe("Produksi Konten");
+    expect(labelHalaman("/riwayat")).toBe("Arsip Terbit");
+    expect(labelHalaman("/antrian")).toBe("Antrian Posting");
     expect(labelHalaman("/lab")).toBe("Eksperimen");
     expect(labelHalaman("/branding")).toBe("Branding Akun");
     expect(labelHalaman("/riset")).toBe("Riset");
     expect(labelHalaman("/link")).toBe("Pengaturan");
   });
 
-  it("menuUntuk mengembalikan tab yang tepat", () => {
-    const hasil = menuUntuk("/batch");
-    expect(hasil?.item.label).toBe("Terbit");
-    expect(hasil?.tab?.label).toBe("Produksi Konten");
+  it("menuUntuk mengembalikan menu yang tepat untuk tiap halaman", () => {
+    expect(menuUntuk("/batch")?.item.label).toBe("Produksi Konten");
+    expect(menuUntuk("/antrian")?.item.label).toBe("Antrian Posting");
+    expect(menuUntuk("/impor")?.item.label).toBe("Analitik");
+    expect(menuUntuk("/link")?.item.label).toBe("Pengaturan");
+    expect(menuUntuk("/impor")?.tab?.label).toBe("Impor Performa");
   });
 
-  it("Lab bukan lagi tab di dalam Buat Konten", () => {
-    const buat = MENU_ITEMS.find((m) => m.label === "Buat Konten")!;
-    expect((buat.tabs ?? []).some((t) => t.href === "/lab")).toBe(false);
+  it("Eksperimen adalah menu sendiri, bukan tab di dalam menu lain", () => {
+    const menuLain = MENU_ITEMS.filter((m) => m.href !== "/lab");
+    expect(menuLain.some((m) => (m.tabs ?? []).some((t) => t.href === "/lab"))).toBe(false);
     expect(MENU_ITEMS.some((m) => m.href === "/lab")).toBe(true);
   });
 });
 
 describe("sidebar tanpa penomoran", () => {
+  it("menu datar tidak memberi nomor langkah", () => {
+    expect(LANGKAH_ALUR.length).toBe(0);
+  });
+
   it("sidebar tidak menampilkan nomor langkah sama sekali", async () => {
     // Nomor 1/2/3 dulu muncul hanya di sebagian menu (Katalog tanpa nomor),
     // sehingga terlihat timpang. Sekarang sidebar murni nama menu; urutan
@@ -141,11 +155,7 @@ describe("sidebar tanpa penomoran", () => {
     expect(bilah).toContain("l.nomor");
   });
 
-  it("LANGKAH_ALUR tetap berisi tiga langkah untuk bilah alur", () => {
-    expect(LANGKAH_ALUR.length).toBe(3);
-    for (const l of LANGKAH_ALUR) {
-      expect(l.label).toBeTruthy();
-      expect(l.href).toMatch(/^\//);
-    }
+  it("LANGKAH_ALUR kosong karena menu sudah datar", () => {
+    expect(LANGKAH_ALUR).toEqual([]);
   });
 });

@@ -1,11 +1,9 @@
-import { MenuTabs } from "@/components/menu-tabs";
-import { MENU_ITEMS } from "@/components/nav-config";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { PageHeader } from "@/components/page-header";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { DetektorLink } from "@/features/link/detektor-link";
 import { TabelLink } from "./tabel-link";
 
-const TABS = MENU_ITEMS.find((i) => i.href === "/link")?.tabs ?? [];
 
 export const metadata = { title: "Link dan Template" };
 
@@ -18,7 +16,7 @@ export default async function LinkPage() {
         title="Link & Template"
         description="Daftar link dengan catatan klik dan komisi manual sesuai PRD F5."
       />
-      <MenuTabs tabs={TABS} />
+      <TabMenuOtomatis />
       <DetektorLink />
       <TabelLink />
     </div>

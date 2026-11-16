@@ -43,18 +43,28 @@ export interface MenuItem {
 }
 
 export const MENU_ITEMS: MenuItem[] = [
-  // --------------------------------------------------------------- mulai --
-  // Dua hal yang dikerjakan SEKALI di awal, sebelum masuk alur harian.
+  // Semua menu berada di satu tingkat. Tidak ada menu yang menyembunyikan
+  // menu lain di dalam tab; tab hanya dipakai untuk bagian dari SATU halaman
+  // kerja (mis. Pengaturan), supaya tidak ada rute yang tidak bisa kembali.
+
+  // -------------------------------------------------------------- mulai --
   {
-    label: "Hari Ini",
+    label: "Dashboard",
     href: "/",
-    hrefs: ["/", "/fokus", "/rencana"],
+    hrefs: ["/"],
     group: "mulai",
     fase: "MVP",
-    kapan: "Mulai di sini setiap hari: apa yang harus dikerjakan sekarang.",
+    kapan: "Ringkasan: sudah sampai mana, apa yang menunggu, berapa komisi.",
+  },
+  {
+    label: "Fokus Hari Ini",
+    href: "/fokus",
+    hrefs: ["/fokus", "/rencana"],
+    group: "mulai",
+    fase: "MVP",
+    kapan: "Satu langkah yang harus dikerjakan hari ini.",
     tabs: [
-      { label: "Ringkasan", href: "/" },
-      { label: "Fokus hari ini", href: "/fokus" },
+      { label: "Fokus", href: "/fokus" },
       { label: "Rencana Perdana", href: "/rencana" },
     ],
   },
@@ -67,15 +77,13 @@ export const MENU_ITEMS: MenuItem[] = [
       "Tujuh postingan pembuka untuk akun baru: isi sekali, salin satu per hari, tanpa jualan.",
   },
 
-  // ---------------------------------------------------------------- alur --
-  // Empat langkah utama. Nomor hanya dipakai di grup ini.
+  // --------------------------------------------------------------- alur --
   {
     label: "Riset",
     href: "/riset",
     group: "alur",
     fase: "MVP",
-    langkah: 1,
-    kapan: "Cari produk yang layak dipromosikan. Sekali saja per produk.",
+    kapan: "Cari masalah audiens dan produk yang layak dipromosikan.",
   },
   {
     label: "Katalog",
@@ -85,32 +93,46 @@ export const MENU_ITEMS: MenuItem[] = [
     kapan: "Daftar produk tersimpan: cari, duplikat, sembunyikan, atau buat konten.",
   },
   {
-    label: "Buat Konten",
+    label: "Buat Posting",
     href: "/posting/baru",
-    hrefs: ["/posting/baru", "/video"],
     group: "alur",
     fase: "MVP",
-    langkah: 2,
-    kapan: "Ubah produk jadi konten siap tempel.",
-    tabs: [
-      { label: "Buat posting", href: "/posting/baru" },
-      { label: "Buat video", href: "/video" },
-    ],
+    kapan: "Ubah satu produk jadi utas Threads siap tempel.",
   },
   {
-    label: "Terbit",
+    label: "Buat Video",
+    href: "/video",
+    group: "alur",
+    fase: "M6",
+    kapan: "Susun naskah dan storyboard video pendek dari produk yang sama.",
+  },
+  {
+    label: "Siap Salin",
     href: "/siap-copas",
-    hrefs: ["/siap-copas", "/antrian", "/batch", "/riwayat"],
     group: "alur",
     fase: "MVP",
-    langkah: 3,
-    kapan: "Salin teks dan link hari ini, lalu tandai sudah ditempel.",
-    tabs: [
-      { label: "Siap Salin", href: "/siap-copas" },
-      { label: "Antrian Posting", href: "/antrian" },
-      { label: "Produksi Konten", href: "/batch" },
-      { label: "Arsip Terbit", href: "/riwayat" },
-    ],
+    kapan: "Konten hari ini yang tinggal disalin ke platform.",
+  },
+  {
+    label: "Antrian Posting",
+    href: "/antrian",
+    group: "alur",
+    fase: "MVP",
+    kapan: "Konten menunggu tinjauan sebelum ditandai siap posting.",
+  },
+  {
+    label: "Produksi Konten",
+    href: "/batch",
+    group: "alur",
+    fase: "MVP",
+    kapan: "Buat banyak draft sekaligus dari beberapa produk.",
+  },
+  {
+    label: "Arsip Terbit",
+    href: "/riwayat",
+    group: "pantau",
+    fase: "MVP",
+    kapan: "Catatan waktu, mode, dan status akhir setiap posting.",
   },
 
   // -------------------------------------------------------------- pantau --
@@ -127,10 +149,10 @@ export const MENU_ITEMS: MenuItem[] = [
     hrefs: ["/analitik", "/impor"],
     group: "pantau",
     fase: "Setelah M5",
-    kapan: "Cek klik dan komisi, impor laporan Shopee.",
+    kapan: "Cek klik dan komisi dari konten yang sudah terbit.",
     tabs: [
       { label: "Ringkasan", href: "/analitik" },
-      { label: "Impor performa", href: "/impor" },
+      { label: "Impor Performa", href: "/impor" },
     ],
   },
 
@@ -145,15 +167,15 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     label: "Pengaturan",
     href: "/pengaturan",
-    hrefs: ["/pengaturan", "/cari", "/biaya", "/link", "/template", "/akun"],
+    hrefs: ["/pengaturan", "/link", "/template", "/biaya", "/akun", "/cari"],
     group: "sistem",
     fase: "MVP",
     kapan: "Profil, persona, link affiliate, template, biaya AI, dan akun.",
     tabs: [
-      { label: "Pengaturan", href: "/pengaturan" },
-      { label: "Pencarian", href: "/cari" },
-      { label: "Biaya AI", href: "/biaya" },
+      { label: "Umum", href: "/pengaturan" },
       { label: "Link dan Template", href: "/link" },
+      { label: "Biaya AI", href: "/biaya" },
+      { label: "Akun", href: "/akun" },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { DaftarAkun } from "@/features/akun/daftar-akun";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 
@@ -11,6 +12,7 @@ export default async function AkunPage() {
 
   return (
     <div className="space-y-6">
+      <TabMenuOtomatis />
       <PageHeader
         title="Akun sosial"
         description="Hubungkan Threads (dan platform lain nanti) supaya konten bisa terkirim dari Heaviliate."

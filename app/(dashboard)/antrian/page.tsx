@@ -1,21 +1,15 @@
-import { MenuTabs } from "@/components/menu-tabs";
+import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { AntrianReview } from "./antrian-review";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 
 export const metadata = { title: "Antrian Posting" };
-
-const TABS = [
-  { label: "Antrian", href: "/antrian" },
-  { label: "Batch", href: "/batch" },
-  { label: "Riwayat", href: "/riwayat" },
-] as const;
 
 export default async function AntrianPage() {
   await wajibSesiHalaman("/antrian");
 
   return (
     <div className="space-y-4">
-      <MenuTabs tabs={TABS} />
+      <TabMenuOtomatis />
       <AntrianReview />
     </div>
   );
