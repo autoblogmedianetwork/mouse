@@ -12,7 +12,7 @@
   --foreground: #1c1917;
 
   --surface: #ffffff;
-  --surface-border: #e7e5e4;
+  --surface-border: #d6d3d1;
 
   --primary: #ea580c;
   --primary-hover: #c2410c;
@@ -65,14 +65,16 @@
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
 
-  /* Type scale from ADR 0013. Named tokens only: text-xs, text-sm, and
-     text-base keep their Tailwind defaults so existing layout does not shift. */
-  --text-mikro: 0.625rem;
-  --text-mikro--line-height: 0.875rem;
-  --text-meta: 0.6875rem;
-  --text-meta--line-height: 1rem;
-  --text-badan: 0.8125rem;
-  --text-badan--line-height: 1.25rem;
+  /* Type scale from ADR 0013, disesuaikan untuk keterbacaan HP (audit 17 Nov
+     2026, docs/AUDIT-RESPONSIF.md): mikro 10->11px, meta 11->12px, badan
+     13->14px. Teks 10px terlalu kecil di layar HP. text-xs, text-sm, dan
+     text-base tetap memakai bawaan Tailwind supaya tata letak lama tidak geser. */
+  --text-mikro: 0.6875rem;
+  --text-mikro--line-height: 1rem;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.125rem;
+  --text-badan: 0.875rem;
+  --text-badan--line-height: 1.375rem;
   --text-isi: 1rem;
   --text-isi--line-height: 1.5rem;
   --text-judul: 1.375rem;
@@ -97,7 +99,7 @@
     --foreground: #e7e5e4;
 
     --surface: #1c1917;
-    --surface-border: #292524;
+    --surface-border: #3f3a36;
 
     --primary: #f97316;
     --primary-hover: #fb923c;
@@ -123,6 +125,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Safari iOS memperbesar halaman sendiri (auto-zoom) saat kolom input berisi
+ * teks di bawah 16px. Semua kontrol form dinaikkan ke 16px HANYA di layar
+ * sentuh supaya tampilan desktop tetap sesuai skala token di atas.
+ */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 /*
