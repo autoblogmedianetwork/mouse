@@ -347,7 +347,7 @@ export function FormPengaturan() {
             className={inputClass}
           />
           <p className="mt-1 text-meta text-muted-foreground">
-            Keputusan K3: 90 hari sejak konten diarsipkan.
+            Konten diarsipkan otomatis dihapus 90 hari setelah diarsipkan.
           </p>
         </div>
         <PembersihDataContoh />

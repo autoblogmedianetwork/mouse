@@ -7,7 +7,7 @@ import { TabelLink } from "./tabel-link";
 
 const TABS = MENU_ITEMS.find((i) => i.href === "/link")?.tabs ?? [];
 
-export const metadata = { title: "Link affiliate" };
+export const metadata = { title: "Link dan Template" };
 
 export default async function LinkPage() {
   await wajibSesiHalaman("/link");
@@ -15,7 +15,7 @@ export default async function LinkPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Link affiliate"
+        title="Link & Template"
         description="Daftar link dengan catatan klik dan komisi manual sesuai PRD F5."
       />
       <MenuTabs tabs={TABS} />

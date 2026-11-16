@@ -137,7 +137,7 @@ export function SiapCopas() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Siap Copas"
+        title="Siap Salin"
         description="Konten hari ini yang tinggal disalin ke platform. Publikasi tetap manual — aman dari risiko ban."
       />
 

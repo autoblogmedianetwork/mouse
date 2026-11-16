@@ -44,8 +44,10 @@ export function BilahAlur() {
         }
       }
       if (!aktif) return;
+      // Langkah 1 bukan langkah yang bisa "diselesaikan": ia pintu masuk harian,
+      // jadi tidak pernah diberi centang palsu.
       const berikut: Record<number, Status> = {
-        1: "selesai",
+        1: adaRiset || adaKonten || adaTerbit ? "selesai" : "sekarang",
         2: adaRiset ? "selesai" : "belum",
         3: adaKonten ? "selesai" : "belum",
         4: adaTerbit ? "selesai" : "belum",

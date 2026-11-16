@@ -30,7 +30,7 @@ export function NotifikasiProaktif() {
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3k. Notifikasi proaktif (lokal)</h2>
+      <h2 className="text-isi font-semibold">Notifikasi proaktif (lokal)</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Pengingat di browser. Tidak mengirim data ke server.
       </p>

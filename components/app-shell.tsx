@@ -20,7 +20,6 @@ import {
   GROUP_LABELS,
   GROUP_ORDER,
   MENU_ITEMS,
-  labelHalaman,
   type MenuItem,
 } from "./nav-config";
 import { ShellPengguna } from "./shell-pengguna";
@@ -129,27 +128,6 @@ function SidebarContent({
   );
 }
 
-/** Breadcrumb from the real menu structure: Workspace › Halaman. */
-function Breadcrumb() {
-  const pathname = usePathname();
-  const halaman = labelHalaman(pathname);
-  const grup = menuUntuk(pathname, MENU_ITEMS)?.group ?? "alur";
-
-  return (
-    <nav aria-label="Breadcrumb" className={cn(mikro, "min-w-0 text-muted-foreground")}>
-      <ol className="flex min-w-0 items-center gap-2">
-        <li className="hidden sm:block">{GROUP_LABELS[grup]}</li>
-        <li aria-hidden="true" className="hidden sm:block">
-          /
-        </li>
-        <li className="truncate text-foreground" aria-current="page">
-          {halaman}
-        </li>
-      </ol>
-    </nav>
-  );
-}
-
 export function AppShell({
   email,
   children,
@@ -198,10 +176,7 @@ export function AppShell({
             </span>
             <span className="hidden sm:inline">Heaviliate</span>
           </Link>
-          <span aria-hidden="true" className="text-muted-foreground">
-            ›
-          </span>
-          <Breadcrumb />
+          <span className="flex-1" />
           <BudgetIndicator />
         </header>
 

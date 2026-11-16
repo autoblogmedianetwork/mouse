@@ -2,7 +2,7 @@ import { MenuTabs } from "@/components/menu-tabs";
 import { AntrianReview } from "./antrian-review";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 
-export const metadata = { title: "Konten — Antrian" };
+export const metadata = { title: "Antrian Posting" };
 
 const TABS = [
   { label: "Antrian", href: "/antrian" },

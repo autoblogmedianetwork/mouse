@@ -5,7 +5,7 @@ Metode: skill `ui-taste` (playbook **distill**) + `ux-flow`.
 Sumber data: `components/nav-config.ts`, `PageHeader` di 22 halaman, label tombol di
 `features/lab/`.
 
-Status: **laporan saja — belum ada yang diubah.**
+Status: **dikerjakan — Opsi C (rombak penuh)**, lihat bagian 7.
 
 ---
 
@@ -176,3 +176,47 @@ sebagai langkah kedua.
 - "Terasa aneh" adalah penilaian bahasa, bukan pengukuran. Kalau kamu justru suka
   istilah "copas" atau "batch", itu bisa dipertahankan.
 - Belum ada berkas yang diubah. Semua perubahan menunggu pilihan arah.
+
+---
+
+## 7. Yang benar-benar dikerjakan (rombak penuh)
+
+Dipilih **Opsi C** dengan koreksi dari review Claude. Struktur sekarang:
+
+```
+Mulai di sini     Hari Ini · Branding Akun
+Alur kerja (1-3)  Riset · Katalog · Buat Konten · Terbit
+Pantau            Kalender · Analitik
+Sistem            Eksperimen · Pengaturan
+```
+
+### Label yang berubah
+
+| Lama | Baru |
+|---|---|
+| Siap copas | Siap Salin |
+| Batch | Produksi Konten |
+| Aset | Link dan Template |
+| Branding Kit | Branding Akun |
+| Lab konten | Eksperimen |
+| Riwayat (tab) | Arsip Terbit |
+| Antrian (tab) | Antrian Posting |
+| Bikin Konten | Buat Konten |
+
+### Lain-lain
+- Penomoran sisa menu lama `3c`–`3m` dihapus dari 12 judul alat Lab.
+- "Time capsule" → "Pesan untuk diri sendiri nanti".
+- Breadcrumb `HEAVILIATE › ALUR KERJA / HARI INI` dihapus (redundan dengan judul).
+- "Retensi 90 hari (K3)" → "Disimpan 90 hari"; "Keputusan K3" → kalimat biasa.
+- Langkah 1 di bilah alur tidak lagi selalu bercentang.
+- Rute URL **tidak** diubah (`/siap-copas`, `/batch` tetap) supaya link lama hidup.
+- `lib/nav/menu-struktur.test.ts` (13 test) menjaga struktur ini.
+
+### Klaim Claude yang tidak terbukti
+- "Centang berasal dari tampilan tetap, bukan data" — **salah**, centang dihitung
+  dari `adaRiset`/`adaKonten`/`adaTerbit`. Yang benar: langkah 1 selalu centang
+  (sudah diperbaiki).
+- "Kontras teks kecil perlu dinaikkan" — **sudah lolos** AA sejak `202f857`
+  (8,3–9,4:1).
+- "Kartu empat langkah cukup satu kolom di HP" — **sudah** `sm:grid-cols-4`,
+  artinya 1 kolom di bawah 640px.

@@ -12,7 +12,7 @@
  * tampil sebagai tab, jadi tautan/bookmark lama tidak mati.
  */
 
-export type GrupMenu = "alur" | "pantau" | "alat";
+export type GrupMenu = "mulai" | "alur" | "pantau" | "sistem";
 
 export type FaseMenu = "MVP" | "M6" | "Level 2" | "Setelah M5";
 
@@ -43,35 +43,38 @@ export interface MenuItem {
 }
 
 export const MENU_ITEMS: MenuItem[] = [
-  // ---------------------------------------------------------------- alur --
+  // --------------------------------------------------------------- mulai --
+  // Dua hal yang dikerjakan SEKALI di awal, sebelum masuk alur harian.
   {
     label: "Hari Ini",
     href: "/",
     hrefs: ["/", "/fokus", "/rencana"],
-    group: "alur",
+    group: "mulai",
     fase: "MVP",
-    langkah: 1,
     kapan: "Mulai di sini setiap hari: apa yang harus dikerjakan sekarang.",
     tabs: [
       { label: "Ringkasan", href: "/" },
-      { label: "Fokus harian", href: "/fokus" },
+      { label: "Fokus hari ini", href: "/fokus" },
       { label: "Rencana Perdana", href: "/rencana" },
     ],
   },
   {
-    label: "Branding Kit",
+    label: "Branding Akun",
     href: "/branding",
-    group: "alur",
+    group: "mulai",
     fase: "MVP",
     kapan:
-      "7 postingan personal branding untuk akun baru: isi sekali, salin per hari, tanpa jualan.",
+      "Tujuh postingan pembuka untuk akun baru: isi sekali, salin satu per hari, tanpa jualan.",
   },
+
+  // ---------------------------------------------------------------- alur --
+  // Empat langkah utama. Nomor hanya dipakai di grup ini.
   {
     label: "Riset",
     href: "/riset",
     group: "alur",
     fase: "MVP",
-    langkah: 2,
+    langkah: 1,
     kapan: "Cari produk yang layak dipromosikan. Sekali saja per produk.",
   },
   {
@@ -79,20 +82,19 @@ export const MENU_ITEMS: MenuItem[] = [
     href: "/katalog",
     group: "alur",
     fase: "MVP",
-    kapan: "Daftar produk tersimpan: cari, duplikat, sembunyikan, atau langsung buat konten.",
+    kapan: "Daftar produk tersimpan: cari, duplikat, sembunyikan, atau buat konten.",
   },
   {
-    label: "Bikin Konten",
+    label: "Buat Konten",
     href: "/posting/baru",
-    hrefs: ["/posting/baru", "/video", "/lab"],
+    hrefs: ["/posting/baru", "/video"],
     group: "alur",
     fase: "MVP",
-    langkah: 3,
+    langkah: 2,
     kapan: "Ubah produk jadi konten siap tempel.",
     tabs: [
       { label: "Buat posting", href: "/posting/baru" },
       { label: "Buat video", href: "/video" },
-      { label: "Lab konten", href: "/lab" },
     ],
   },
   {
@@ -101,15 +103,16 @@ export const MENU_ITEMS: MenuItem[] = [
     hrefs: ["/siap-copas", "/antrian", "/batch", "/riwayat"],
     group: "alur",
     fase: "MVP",
-    langkah: 4,
-    kapan: "Salin teks & link hari ini, lalu tandai sudah ditempel.",
+    langkah: 3,
+    kapan: "Salin teks dan link hari ini, lalu tandai sudah ditempel.",
     tabs: [
-      { label: "Siap copas", href: "/siap-copas" },
-      { label: "Antrian", href: "/antrian" },
-      { label: "Batch", href: "/batch" },
-      { label: "Riwayat", href: "/riwayat" },
+      { label: "Siap Salin", href: "/siap-copas" },
+      { label: "Antrian Posting", href: "/antrian" },
+      { label: "Produksi Konten", href: "/batch" },
+      { label: "Arsip Terbit", href: "/riwayat" },
     ],
   },
+
   // -------------------------------------------------------------- pantau --
   {
     label: "Kalender",
@@ -124,37 +127,46 @@ export const MENU_ITEMS: MenuItem[] = [
     hrefs: ["/analitik", "/impor"],
     group: "pantau",
     fase: "Setelah M5",
-    kapan: "Cek klik & komisi, impor laporan Shopee.",
+    kapan: "Cek klik dan komisi, impor laporan Shopee.",
     tabs: [
       { label: "Ringkasan", href: "/analitik" },
       { label: "Impor performa", href: "/impor" },
     ],
   },
-  // ---------------------------------------------------------------- alat --
+
+  // -------------------------------------------------------------- sistem --
   {
-    label: "Alat & Pengaturan",
+    label: "Eksperimen",
+    href: "/lab",
+    group: "sistem",
+    fase: "MVP",
+    kapan: "Sepuluh alat uji coba untuk menulis dan menguji ide konten.",
+  },
+  {
+    label: "Pengaturan",
     href: "/pengaturan",
     hrefs: ["/pengaturan", "/cari", "/biaya", "/link", "/template", "/akun"],
-    group: "alat",
+    group: "sistem",
     fase: "MVP",
-    kapan: "Pencarian, biaya AI, link affiliate, template, akun.",
+    kapan: "Profil, persona, link affiliate, template, biaya AI, dan akun.",
     tabs: [
       { label: "Pengaturan", href: "/pengaturan" },
       { label: "Pencarian", href: "/cari" },
       { label: "Biaya AI", href: "/biaya" },
-      { label: "Aset", href: "/link" },
+      { label: "Link dan Template", href: "/link" },
     ],
   },
 ];
 
 export const GROUP_LABELS: Record<MenuItem["group"], string> = {
+  mulai: "Mulai di sini",
   alur: "Alur kerja",
   pantau: "Pantau",
-  alat: "Alat",
+  sistem: "Sistem",
 };
 
 /** Urutan grup di sidebar. Disimpan terpisah agar tampilan tidak ikut data. */
-export const GROUP_ORDER: GrupMenu[] = ["alur", "pantau", "alat"];
+export const GROUP_ORDER: GrupMenu[] = ["mulai", "alur", "pantau", "sistem"];
 
 /**
  * Page no longer in the sidebar but still live. Sub-pages such as

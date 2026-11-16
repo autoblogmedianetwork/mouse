@@ -56,7 +56,7 @@ export function BagianTimeCapsule() {
   if (!siap) return null;
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3g. Time capsule</h2>
+      <h2 className="text-isi font-semibold">Pesan untuk diri sendiri nanti</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Simpan draft untuk dibuka di tanggal mendatang. Penyimpanan lokal.
       </p>
@@ -120,7 +120,7 @@ export function BagianNyanyian() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3h. Ubah jadi lirik</h2>
+      <h2 className="text-isi font-semibold">Ubah jadi lirik</h2>
       <p className="mt-1 text-badan text-muted-foreground">Ubah status jadi lirik 3-6 baris yang mudah dinyanyikan, pesan tetap jujur. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.</p>
       <textarea value={teks} onChange={(e) => setTeks(e.target.value)} rows={4} placeholder="Status asli…" className={cn(inputClass, "mt-3 resize-y")} />
       <button type="button" onClick={() => void jalankan()} disabled={memuat} className={cn(btnPrimary, "mt-3")}>
@@ -158,7 +158,7 @@ export function BagianGamifikasi() {
   const badges = badgeUntukLevel(info.level);
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3i. Gamifikasi (poin & level)</h2>
+      <h2 className="text-isi font-semibold">Gamifikasi (poin & level)</h2>
       <p className="mt-1 text-badan text-muted-foreground">XP bertambah lewat aksi Anda (manual).</p>
       <p className="mt-2 text-badan">Level {info.level} · XP {profil.xp} · sisa {info.sisa} ke level berikutnya</p>
       <div className="mt-2 h-2 w-full bg-muted">
@@ -208,7 +208,7 @@ export function BagianLawanBots() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3j. Dialog dua bot berdebat</h2>
+      <h2 className="text-isi font-semibold">Dialog dua bot berdebat</h2>
       <p className="mt-1 text-badan text-muted-foreground">Dialog debat dua bot tentang topik/produk.</p>
       <input value={topik} onChange={(e) => setTopik(e.target.value)} placeholder="Topik" className={cn(inputClass, "mt-3")} />
       <input value={produka} onChange={(e) => setProduka(e.target.value)} placeholder="Produk A (opsional)" className={cn(inputClass, "mt-2")} />
@@ -259,7 +259,7 @@ export function BagianFoto() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3l. Konten dari foto</h2>
+      <h2 className="text-isi font-semibold">Konten dari foto</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Butuh model yang mendukung visi (image_url). Masukkan URL gambar publik.
       </p>
@@ -314,7 +314,7 @@ export function BagianMirror() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3m. Tiru pola gaya kompetitor</h2>
+      <h2 className="text-isi font-semibold">Tiru pola gaya kompetitor</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Tempel konten kompetitor sebagai referensi POLA saja (panjang kalimat, nada, urutan bagian).
         Kalimat yang ditulis AI harus orisinal — menyalin teks kreator lain dilarang. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.

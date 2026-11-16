@@ -3,7 +3,7 @@ import { LabKlien } from "@/features/lab/lab-klien";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
-export const metadata = { title: "Lab konten" };
+export const metadata = { title: "Eksperimen" };
 
 /**
  * Gelombang 3: tiga alat berbasis AI yang tetap berhenti di bahan tinjauan —
@@ -17,7 +17,7 @@ export default async function LabPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <TabMenuOtomatis />
       <PageHeader
-        title="Lab konten"
+        title="Eksperimen"
         description="Uji konten dari mata pembeli, ubah satu masalah jadi tiga hook, atau susun serial 7 hari. Semua hasil berstatus bahan tinjauan — Anda tetap yang memutuskan."
       />
       <LabKlien />

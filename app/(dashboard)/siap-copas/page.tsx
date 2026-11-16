@@ -1,7 +1,7 @@
 import { SiapCopas } from "@/features/konten/siap-copas";
 import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
-export const metadata = { title: "Siap Copas" };
+export const metadata = { title: "Siap Salin" };
 
 export default function SiapCopasPage() {
   return (

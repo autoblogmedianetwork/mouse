@@ -17,7 +17,7 @@ export default async function RiwayatPage() {
     <div className="space-y-6">
       <MenuTabs tabs={TABS} />
       <PageHeader
-        title="Riwayat posting"
+        title="Arsip Terbit"
         description="Catatan waktu, mode (manual atau auto), dan status akhir tiap posting."
       />
       <TabelRiwayat />

@@ -223,7 +223,7 @@ export function BagianSerial30() {
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3b. Serial racun 30 hari</h2>
+      <h2 className="text-isi font-semibold">Serial racun 30 hari</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Satu produk jadi rangkaian 30 hari: penasaran → cerita → jujur → tips → FAQ → ajakan halus.
         Fakta hanya diambil dari deskripsi yang Anda tempel. Keluaran besar; simpan hasilnya.

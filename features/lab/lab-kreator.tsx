@@ -44,7 +44,7 @@ export function BagianGhostwriter() {
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3c. Rapikan curhatan jadi status</h2>
+      <h2 className="text-isi font-semibold">Rapikan curhatan jadi status</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Ubah curhatan atau transkrip suara menjadi status Threads yang terdengar seperti orang
         mengetik sendiri. Fakta hanya dari transkrip yang kamu tempel. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.
@@ -147,7 +147,7 @@ export function BagianBattle() {
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3d. Adu dua produk (dialog dua bot)</h2>
+      <h2 className="text-isi font-semibold">Adu dua produk (dialog dua bot)</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Bandingkan 2-4 produk secara jujur; hasil draft, bukan rekomendasi mutlak.
       </p>
@@ -235,7 +235,7 @@ export function BagianJujur() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3e. Versi lebih jujur</h2>
+      <h2 className="text-isi font-semibold">Versi lebih jujur</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Tulis ulang statusmu jadi versi yang lebih jujur dan transparan: tanpa hype, tanpa klaim
         berlebih, tapi tetap menarik dibaca. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.
@@ -290,7 +290,7 @@ export function BagianParalel() {
   };
   return (
     <Card>
-      <h2 className="text-isi font-semibold">3f. Versi genre lain</h2>
+      <h2 className="text-isi font-semibold">Versi genre lain</h2>
       <p className="mt-1 text-badan text-muted-foreground">
         Tulis ulang statusmu ke genre atau sudut pandang lain (mis. sci-fi, detektif), fakta produk
         tetap sama. Hasilnya draf: aplikasi tidak pernah mengirim apa pun.

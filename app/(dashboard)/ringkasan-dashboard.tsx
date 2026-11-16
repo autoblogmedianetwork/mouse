@@ -84,7 +84,7 @@ export function RingkasanDashboard() {
         />
         <StatCard label="Draft" nilai={ringkas.draft} tone="draft" catatan="Sedang dikerjakan" />
         <StatCard label="Siap posting" nilai={ringkas.siap} tone="siap" catatan="Menunggu disalin ke Threads" />
-        <StatCard label="Arsip" nilai={ringkas.arsip} catatan="Retensi 90 hari (K3)" />
+        <StatCard label="Arsip" nilai={ringkas.arsip} catatan="Disimpan 90 hari" />
       </div>
 
       <Card>

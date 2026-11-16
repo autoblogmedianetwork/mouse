@@ -3,7 +3,7 @@ import { PanelRiset } from "@/features/riset/panel-riset";
 import { TempelCepat } from "@/features/riset/tempel-cepat";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 
-export const metadata = { title: "Riset audiens" };
+export const metadata = { title: "Riset" };
 
 export default async function RisetPage() {
   await wajibSesiHalaman("/riset");
@@ -11,7 +11,7 @@ export default async function RisetPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Riset audiens"
+        title="Riset"
         description="Tahap pertama content machine: temukan masalah audiens, lalu susun kategori produk yang layak dipromosikan. Hasilnya tersimpan dan menjadi bahan tahap berikutnya, bukan percakapan terpisah."
       />
       <TempelCepat />

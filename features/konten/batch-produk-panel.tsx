@@ -104,7 +104,7 @@ export function BatchProdukPanel() {
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Batch produk"
+        title="Produksi Konten"
         description="Buat 3–5 draft konten dari produk terpilih, lalu review satu per satu. Tidak ada posting otomatis."
       />
 
