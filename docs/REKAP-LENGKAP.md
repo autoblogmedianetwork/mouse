@@ -155,7 +155,7 @@ Pemakaian token & estimasi biaya per generate.
 
 ---
 
-## 6. Prompt AI aktif (23 versi)
+## 6. Prompt AI aktif (22 versi)
 
 Aturan: **versi lama tidak diedit**; perubahan selalu file baru.
 
@@ -171,7 +171,7 @@ Aturan: **versi lama tidak diedit**; perubahan selalu file baru.
 | `analisa-gaya` | **v2** | Analisa gaya akun lain — larangan salin >5 kata, catchphrase maks 5 kata |
 | `serial-7-hari` / `serial-30-hari` | v1 | Rancangan serial |
 | `mirror` | **v2** | Tiru POLA gaya kompetitor — larangan salin >5 kata, tanpa nama kreator asli |
-| `ab-hook`, `battle`, `kembaran-jujur`, `lab-uji`, `lawan-bots`, `nyanyian`, `paralel`, `ghostwriter`, `ide-masalah`, `riset-audience`, `analisis-produk`, `foto` | v1 | Alat Lab & riset |
+| `ab-hook`, `battle`, `jujur`, `lab-uji`, `lawan-bots`, `nyanyian`, `paralel`, `ghostwriter`, `ide-masalah`, `riset-audience`, `foto` | v1 | Alat Lab & riset |
 
 **Blok bersama:** `lib/ai/gaya-bahasa.ts` (ATURAN_BAHASA, dipakai semua prompt)
 dan `lib/ai/prompts/generate-status.v7.ts` (ATURAN_ANTI_TERJEMAHAN).
@@ -229,7 +229,7 @@ Auto-posting **ADA**, tetapi bukan seperti yang biasa orang maksud:
 | Kapan aktif | Hanya bila `THREADS_USER_ID` + `THREADS_ACCESS_TOKEN` diisi di server. Kalau tidak, `penyediaEfektif()` otomatis jatuh ke `manual`. |
 | Gerbang wajib | `periksaKirim()` di `lib/posting/antrian.ts` — konten harus berstatus `siap_posting`/`terjadwal`/`gagal`, jadwal sudah tiba, kuota harian belum penuh, jeda antar posting lewat, dan setiap status ≤ 500 byte. |
 | Uji gerbang | 17 test di `lib/posting/antrian.test.ts` (status ditolak, jadwal belum tiba, batas harian, jeda, batas byte, konten tanpa status). |
-| Siapa yang memakai | Hanya `kalender-klien.tsx` (tombol kirim di Kalender) dan `form-pengaturan.tsx`. Alat Lab tidak. |
+| Siapa yang memakai | Hanya `app/(dashboard)/kalender/kalender-klien.tsx` (tombol kirim di Kalender) dan `app/(dashboard)/pengaturan/form-pengaturan.tsx`. Alat Lab tidak. |
 
 Yang tetap **tidak ada**: menggenerate lalu memposting otomatis tanpa persetujuan
 user, penjadwal latar belakang (cron) yang mengirim tanpa membuka aplikasi.
