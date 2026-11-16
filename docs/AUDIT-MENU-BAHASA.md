@@ -220,3 +220,13 @@ Sistem            Eksperimen · Pengaturan
   (8,3–9,4:1).
 - "Kartu empat langkah cukup satu kolom di HP" — **sudah** `sm:grid-cols-4`,
   artinya 1 kolom di bawah 640px.
+
+### Tambahan: nomor di sidebar dihapus
+
+Dulu sidebar menampilkan angka `1 2 3` hanya di **Riset**, **Buat Konten**, dan
+**Terbit** — sementara **Katalog** (yang duduk di antara Riset dan Buat Konten)
+tidak bernomor. Hasilnya terlihat timpang: angka melompati satu menu.
+
+Sekarang sidebar murni nama menu, tanpa angka. Urutan langkah tetap terlihat
+lewat **BilahAlur** di halaman Hari Ini, yang memang tempatnya. Dijaga oleh
+3 test di `lib/nav/menu-struktur.test.ts`.

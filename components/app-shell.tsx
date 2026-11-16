@@ -56,22 +56,7 @@ function NavItem({ item, onNavigate }: { item: MenuItem; onNavigate?: () => void
       onClick={onNavigate}
       title={item.kapan}
     >
-      <span className="flex min-w-0 items-center gap-2">
-        {item.langkah !== undefined ? (
-          <span
-            className={cn(
-              "flex h-5 w-5 shrink-0 items-center justify-center border font-mono text-mikro",
-              active
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-surface-border text-muted-foreground",
-            )}
-            aria-hidden="true"
-          >
-            {item.langkah}
-          </span>
-        ) : null}
-        <span className="truncate">{item.label}</span>
-      </span>
+      <span className="truncate">{item.label}</span>
     </Link>
   );
 }

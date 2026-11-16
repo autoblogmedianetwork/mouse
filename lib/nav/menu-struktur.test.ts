@@ -124,3 +124,28 @@ describe("label halaman mengikuti label menu", () => {
     expect(MENU_ITEMS.some((m) => m.href === "/lab")).toBe(true);
   });
 });
+
+describe("sidebar tanpa penomoran", () => {
+  it("sidebar tidak menampilkan nomor langkah sama sekali", async () => {
+    // Nomor 1/2/3 dulu muncul hanya di sebagian menu (Katalog tanpa nomor),
+    // sehingga terlihat timpang. Sekarang sidebar murni nama menu; urutan
+    // langkah tetap tampil di BilahAlur pada halaman Hari Ini.
+    const fs = await import("node:fs/promises");
+    const shell = await fs.readFile("components/app-shell.tsx", "utf8");
+    expect(shell).not.toContain("item.langkah");
+  });
+
+  it("BilahAlur masih memakai nomor langkah", async () => {
+    const fs = await import("node:fs/promises");
+    const bilah = await fs.readFile("components/bilah-alur.tsx", "utf8");
+    expect(bilah).toContain("l.nomor");
+  });
+
+  it("LANGKAH_ALUR tetap berisi tiga langkah untuk bilah alur", () => {
+    expect(LANGKAH_ALUR.length).toBe(3);
+    for (const l of LANGKAH_ALUR) {
+      expect(l.label).toBeTruthy();
+      expect(l.href).toMatch(/^\//);
+    }
+  });
+});
