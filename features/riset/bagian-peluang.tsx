@@ -87,37 +87,52 @@ export function BagianHasilRiset({ riset, peluang, simpanKeBank }: PropsHasil) {
         <p className="bg-muted px-3 py-2 text-badan">{riset.ringkasan}</p>
       ) : null}
 
-      <ol className="grid gap-3 sm:grid-cols-2">
+      {/* Satu kolom penuh: situasi & alasan butuh lebar baca, bukan grid 2 kolom
+          yang menjepit teks ke ~45% layar dan bikin card tinggi tidak rata. */}
+      <ol className="space-y-3">
         {riset.masalah.map((m, i) => (
-          <li key={`${m.masalah}-${i}`} className="border border-surface-border p-3">
-            <div className="flex gap-2">
-              <span className="font-mono text-meta text-muted-foreground">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div className="min-w-0">
-                <p className="text-badan font-medium">{m.masalah}</p>
-                {/* Label sumber (masukan review UI): jujur soal asal data. */}
-                <p className="mt-0.5 text-mikro font-medium uppercase tracking-badge text-muted-foreground">
-                  sumber: analisis AI
+          <li
+            key={`${m.masalah}-${i}`}
+            className="border border-surface-border p-3 sm:flex sm:gap-3"
+          >
+            <span
+              aria-hidden="true"
+              className="mb-1 block font-mono text-meta text-muted-foreground sm:mb-0 sm:pt-0.5"
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-isi font-semibold leading-snug">{m.masalah}</p>
+              {/* Label sumber (masukan review UI): jujur soal asal data. */}
+              <p className="mt-1 text-mikro font-medium uppercase tracking-badge text-muted-foreground">
+                sumber: analisis AI
+              </p>
+              {m.situasi ? (
+                <p className="mt-2 text-badan text-muted-foreground">
+                  <span className="font-medium text-foreground">situasi: </span>
+                  {m.situasi}
                 </p>
-              </div>
+              ) : null}
+              {m.produk_contoh.length > 0 ? (
+                <div className="mt-2 flex flex-wrap items-center gap-1">
+                  <span className="text-meta text-muted-foreground">produk: </span>
+                  {m.produk_contoh.map((p) => (
+                    <span
+                      key={p}
+                      className="bg-muted px-2 py-0.5 text-meta text-muted-foreground"
+                    >
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {m.alasan ? (
+                <p className="mt-2 text-meta text-muted-foreground">
+                  <span className="font-medium text-foreground">kenapa muncul: </span>
+                  {m.alasan}
+                </p>
+              ) : null}
             </div>
-            {m.situasi ? (
-              <p className="mt-1 text-meta text-muted-foreground">{m.situasi}</p>
-            ) : null}
-            {m.produk_contoh.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {m.produk_contoh.map((p) => (
-                  <span
-                    key={p}
-                    className="bg-muted px-2 py-0.5 text-meta text-muted-foreground"
-                  >
-                    {p}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            {m.alasan ? <p className="mt-2 text-meta">{m.alasan}</p> : null}
           </li>
         ))}
       </ol>
