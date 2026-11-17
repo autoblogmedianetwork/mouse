@@ -56,7 +56,7 @@ Pengguna baru pasti klik ulang → 429 → bingung. Pesan galat bahasa Inggris d
 2. Tangani 429 dengan pesan Indonesia: "Terlalu sering. Tunggu ±1 menit."
 3. Jangan bocorkan teks mentah Supabase.
 
-- [ ] Diperbaiki
+- [x] Diperbaiki (commit 54627d0, terverifikasi di produksi)
 
 ---
 
@@ -71,7 +71,7 @@ Pengguna baru pasti klik ulang → 429 → bingung. Pesan galat bahasa Inggris d
 ### Saran
 Judul `PageHeader` di `app/(dashboard)/page.tsx` → "Dashboard"; deskripsi pakai nama baru. Tambah test anti-nama-lama.
 
-- [ ] Diperbaiki
+- [x] Diperbaiki (commit 54627d0, terverifikasi di produksi)
 
 ---
 
@@ -85,7 +85,7 @@ Snapshot accessibility di `/katalog`, `/batch`, `/analitik`: elemen `alert` beri
 ### Saran
 Cek template `metadata.title` — kemungkinan `%s — Heaviliate` ditumpuk dengan judul yang sudah memuat akhiran.
 
-- [ ] Diperbaiki
+- [x] Diperbaiki (commit 54627d0, terverifikasi di produksi)
 
 ---
 
@@ -99,7 +99,7 @@ Tahap 2 Buat Posting: "Confidence: sedang" ([screenshot](screenshots/buat-postin
 ### Saran
 "Confidence: sedang" → "Perkiraan AI: sedang".
 
-- [ ] Diperbaiki
+- [x] Diperbaiki (commit 54627d0, terverifikasi di produksi)
 
 ---
 
@@ -116,7 +116,7 @@ Pemula bisa memposting manifesto dengan kurung siku mentah ke Threads publik.
 ### Saran
 Gerbang Salin menolak placeholder TERSISA APA PUN (semua hari), dengan pesan beda: "Isi bagian [...] dengan datamu dulu." + peringatan kuning di atas textarea.
 
-- [ ] Diperbaiki
+- [x] Diperbaiki (commit 54627d0, terverifikasi di produksi)
 
 ---
 
