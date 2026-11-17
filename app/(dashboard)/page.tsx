@@ -15,8 +15,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Hari Ini"
-        description="Alur kerja dari nol sampai komisi pertama: Riset → Bikin Konten → Terbit."
+        title="Dashboard"
+        description="Alur kerja dari nol sampai komisi pertama: Riset → Buat Posting → Siap Salin."
       >
         <Link
           href="/posting/baru"

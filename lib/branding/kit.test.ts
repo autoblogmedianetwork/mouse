@@ -9,6 +9,7 @@ import {
   bolehSalin,
   isiTemplate,
   masihAdaKolomKosong,
+  adaPlaceholderTemplate,
 } from "./kit";
 
 const data = {
@@ -173,5 +174,35 @@ describe("gaya antarmuka Branding Akun", () => {
     const isi = baca();
     expect(isi).not.toMatch(/\bh-10\b/);
     expect(isi).toContain("min-h-11");
+  });
+});
+
+describe("gerbang Salin lapis 1: placeholder template (semua hari)", () => {
+  it("Hari 1 terkunci bila [detail_hidup] belum terisi", () => {
+    const teks = "Perkenalkan, saya Pak Slem. Kesehariannya urus [detail_hidup].";
+    const hasil = bolehSalin(HARI_KIT[0], teks, false);
+    expect(hasil.boleh).toBe(false);
+    expect(hasil.alasan).toContain("Isi dulu bagian");
+  });
+
+  it("Hari 1 terbuka setelah placeholder terisi", () => {
+    const teks = "Perkenalkan, saya Pak Slem. Kesehariannya urus kandang ayam.";
+    expect(bolehSalin(HARI_KIT[0], teks, false).boleh).toBe(true);
+  });
+
+  it("adaPlaceholderTemplate mengenali ketiga placeholder, bukan teks lain", () => {
+    expect(adaPlaceholderTemplate("urus [detail_hidup]")).toBe(true);
+    expect(adaPlaceholderTemplate("saya [nama]")).toBe(true);
+    expect(adaPlaceholderTemplate("soal [niche]")).toBe(true);
+    expect(adaPlaceholderTemplate("cerita tanpa kurung")).toBe(false);
+    // kurung milik hari pengalaman bukan placeholder template
+    expect(adaPlaceholderTemplate("[tulis sendiri: kejadian]")).toBe(false);
+  });
+
+  it("hari pengalaman tetap kena lapis 1 juga bila ada placeholder", () => {
+    const teks = "Soal [niche], saya pernah [tulis sendiri: kejadian].";
+    const hasil = bolehSalin(HARI_KIT[1], teks, true);
+    expect(hasil.boleh).toBe(false);
+    expect(hasil.alasan).toContain("Isi dulu bagian");
   });
 });

@@ -191,6 +191,15 @@ export function masihAdaKolomKosong(teks: string): boolean {
 }
 
 /**
+ * Placeholder template [nama] / [detail_hidup] / [niche] yang belum terisi.
+ * Berbeda dengan kolom cerita hari pengalaman ([tulis sendiri: ...]) — ini
+ * cuma soal data form, bukan kejujuran pengalaman.
+ */
+export function adaPlaceholderTemplate(teks: string): boolean {
+  return /\[(?:nama|detail_hidup|niche)\]/.test(teks);
+}
+
+/**
  * Gerbang salin: hari yang bercerita pengalaman baru boleh disalin bila
  * (1) user menyatakan kejadiannya dialami sendiri, dan
  * (2) tidak ada kolom kosong tersisa.
@@ -200,18 +209,28 @@ export function bolehSalin(
   teks: string,
   sudahDikonfirmasi: boolean,
 ): { boleh: boolean; alasan?: string } {
-  // Gerbang ini hanya berlaku untuk hari yang bercerita pengalaman pribadi.
-  // Hari lain memakai template biasa yang memang boleh memuat tanda kurung
-  // siku sebagai bagian kalimat, jadi tidak boleh ikut terkunci.
-  if (!hari.butuhPengalaman) return { boleh: true };
-  if (masihAdaKolomKosong(teks)) {
-    return { boleh: false, alasan: "Masih ada kolom [...] yang harus kamu isi dengan kejadian nyata." };
-  }
-  if (!sudahDikonfirmasi) {
+  // Lapis 1 (semua hari): placeholder dari template belum terisi. Tanpa ini,
+  // pemula bisa menyalin manifesto berisi [detail_hidup] mentah ke Threads.
+  if (adaPlaceholderTemplate(teks)) {
     return {
       boleh: false,
-      alasan: "Centang dulu: kejadian ini benar-benar kamu alami sendiri.",
+      alasan: "Isi dulu bagian [...] dengan datamu (isi form di atas, teks terisi otomatis).",
     };
+  }
+  // Lapis 2 (hari pengalaman 2, 3, 6): kolom cerita pribadi + konfirmasi.
+  if (hari.butuhPengalaman) {
+    if (masihAdaKolomKosong(teks)) {
+      return {
+        boleh: false,
+        alasan: "Masih ada kolom [...] yang harus kamu isi dengan kejadian nyata.",
+      };
+    }
+    if (!sudahDikonfirmasi) {
+      return {
+        boleh: false,
+        alasan: "Centang dulu: kejadian ini benar-benar kamu alami sendiri.",
+      };
+    }
   }
   return { boleh: true };
 }

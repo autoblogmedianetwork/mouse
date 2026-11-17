@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { KatalogProduk } from "@/features/katalog/katalog-produk";
 
-export const metadata: Metadata = { title: "Katalog Produk — Heaviliate" };
+export const metadata: Metadata = { title: "Katalog Produk" };
 
 export default function KatalogPage() {
   return (

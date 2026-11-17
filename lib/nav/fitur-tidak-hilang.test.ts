@@ -227,9 +227,17 @@ describe("setiap fitur bisa dijangkau dari menu", () => {
     }
   });
 
-  it("gerbang Salin Branding tidak mengunci hari yang bukan pengalaman", () => {
+  it("gerbang Salin Branding: lapis placeholder semua hari + lapis pengalaman", () => {
     const isi = readFileSync("lib/branding/kit.ts", "utf8");
-    expect(isi).toContain("if (!hari.butuhPengalaman) return { boleh: true }");
+    // Lapis 1 (semua hari): placeholder template [nama]/[detail_hidup]/[niche]
+    // harus dicek sebelum hari pengalaman — pemula tidak boleh bisa menyalin
+    // teks berisi kurung siku mentah ke Threads.
+    expect(isi).toContain("adaPlaceholderTemplate(teks)");
+    expect(isi.indexOf("adaPlaceholderTemplate(teks)")).toBeLessThan(
+      isi.indexOf("hari.butuhPengalaman"),
+    );
+    // Lapis 2 tetap ada untuk hari pengalaman.
+    expect(isi).toContain("hari.butuhPengalaman");
   });
 
   it("hanya satu sistem tab di seluruh aplikasi", () => {

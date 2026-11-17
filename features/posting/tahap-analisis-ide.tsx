@@ -142,7 +142,7 @@ export function TahapAnalisisIde({
             <div className="flex items-center justify-between">
               <h3 className="text-badan font-semibold">Hasil analisis</h3>
               <span className="text-meta text-muted-foreground">
-                Confidence: {draft.analisis.confidence}
+                Perkiraan AI: {draft.analisis.confidence}
               </span>
             </div>
             <p className="mt-2 whitespace-pre-wrap text-badan leading-6">

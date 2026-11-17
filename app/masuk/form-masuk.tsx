@@ -43,7 +43,34 @@ export function FormMasuk() {
   const [pesan, setPesan] = useState<string | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
   const [sibuk, setSibuk] = useState(false);
+  /** Detik tersisa sebelum tombol boleh dipakai lagi setelah tautan terkirim. */
+  const [tunggu, setTunggu] = useState(0);
   const siap = supabaseSiap();
+
+  // Hitung mundur masa tunggu supaya pengguna tidak mengklik ulang dan kena
+  // pembatasan laju Supabase (429) yang pesannya berbahasa Inggris.
+  useEffect(() => {
+    if (tunggu <= 0) return;
+    const id = setInterval(() => setTunggu((n) => (n > 0 ? n - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [tunggu]);
+
+  /** Galat Supabase diterjemahkan; yang tidak dikenal tetap ditampilkan apa adanya. */
+  const terjemahkanGalat = (pesanGalat: string, status?: number): string => {
+    if (status === 429 || /rate limit|security purposes/i.test(pesanGalat)) {
+      return "Terlalu sering meminta tautan. Tunggu sekitar 1 menit, lalu coba lagi.";
+    }
+    if (/invalid login credentials/i.test(pesanGalat)) {
+      return "Email atau kata sandi salah.";
+    }
+    if (/email not confirmed/i.test(pesanGalat)) {
+      return "Email belum dikonfirmasi. Buka tautan yang dikirim ke emailmu dulu.";
+    }
+    if (/user not found|signup requires/i.test(pesanGalat)) {
+      return "Email ini belum terdaftar. Coba kirim tautan login lewat form di atas.";
+    }
+    return pesanGalat;
+  };
 
   useEffect(() => {
     const supabase = klienPeramban();
@@ -81,9 +108,11 @@ export function FormMasuk() {
     });
     setSibuk(false);
     if (error) {
-      setGalat(error.message);
+      setGalat(terjemahkanGalat(error.message, error.status));
       return;
     }
+    setGalat(null);
+    setTunggu(60);
     setPesan(`Tautan login dikirim ke ${normal}. Buka email itu di peramban ini.`);
   };
 
@@ -170,10 +199,24 @@ export function FormMasuk() {
                 />
               </div>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button type="submit" className={TOMBOL_UTAMA} disabled={sibuk}>
-                  {sibuk ? "MENGIRIM…" : "KIRIM TAUTAN LOGIN >>>"}
+                <button
+                  type="submit"
+                  className={TOMBOL_UTAMA}
+                  disabled={sibuk || tunggu > 0}
+                >
+                  {sibuk
+                    ? "MENGIRIM…"
+                    : tunggu > 0
+                      ? `TAUTAN TERKIRIM — TUNGGU ${tunggu}D`
+                      : "KIRIM TAUTAN LOGIN >>>"}
                 </button>
-                <p className={`${mikro} text-muted-foreground`}>ENTER = KIRIM</p>
+                {tunggu > 0 ? (
+                  <p className={`${mikro} text-status-ready`}>
+                    CEK EMAIL ANDA — BISA MINTA LAGI SETELAH HITUNGAN HABIS
+                  </p>
+                ) : (
+                  <p className={`${mikro} text-muted-foreground`}>ENTER = KIRIM</p>
+                )}
               </div>
 
               {pesan ? (
