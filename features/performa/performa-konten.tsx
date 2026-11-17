@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Card } from "@/components/card";
 import { StatusBadge } from "@/components/status-badge";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
 import { LABEL_GAYA_HOOK, LABEL_LETAK_LINK } from "@/lib/konten/skema";
 import { cn } from "@/lib/utils";
@@ -215,55 +216,55 @@ export function BagianPerformaKonten({ lengkap = false }: { lengkap?: boolean })
             halaman Konten, pasang di link affiliate, lalu impor laporan berikutnya.
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[46rem] text-badan">
-              <caption className="sr-only">Performa per konten</caption>
-              <thead>
-                <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                  <th className="py-2 pr-3 font-medium">Konten</th>
-                  <th className="py-2 pr-3 font-medium">Sub ID</th>
-                  <th className="py-2 pr-3 font-medium">Komisi</th>
-                  <th className="py-2 pr-3 font-medium">Komisi cair</th>
-                  <th className="py-2 pr-3 font-medium">Pesanan</th>
-                  <th className="py-2 pr-3 font-medium">Klik</th>
-                  <th className="py-2 pr-3 font-medium">Rp / klik</th>
-                  <th className="py-2 pr-3 font-medium">Konversi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hasil.per_konten.map((k) => (
-                  <tr key={k.konten_id} className="border-b border-surface-border align-top">
-                    <td className="max-w-[16rem] py-2 pr-3">
-                      <p className="truncate font-medium">{k.judul}</p>
-                      <p className="truncate text-meta text-muted-foreground">
-                        {k.angle || "Tanpa angle"} · {k.produk_nama || "tanpa produk"}
-                      </p>
-                      <p className="truncate text-meta text-muted-foreground">
-                        Hook: {LABEL_GAYA_HOOK[k.gaya_hook] ?? k.gaya_hook} · Link:{" "}
-                        {LABEL_LETAK_LINK[k.letak_link] ?? k.letak_link}
-                      </p>
-                    </td>
-                    <td className="py-2 pr-3 font-mono text-meta text-muted-foreground">
-                      {k.sub_ids.join(", ") || "—"}
-                    </td>
-                    <td className="py-2 pr-3 tabular-nums">{formatRupiah(k.komisi)}</td>
-                    <td className="py-2 pr-3 tabular-nums text-status-ready">
-                      {formatRupiah(k.komisi_cair)}
-                    </td>
-                    <td className="py-2 pr-3 tabular-nums">{formatAngka(k.pesanan)}</td>
-                    <td className="py-2 pr-3 tabular-nums">
-                      {formatAngka(k.klik_dipakai)}
-                      {k.klik_impor === 0 && k.klik_manual > 0 ? (
-                        <span className="ml-1 text-meta text-muted-foreground">(manual)</span>
-                      ) : null}
-                    </td>
-                    <td className="py-2 pr-3 tabular-nums">{formatRupiah(k.komisi_per_klik)}</td>
-                    <td className="py-2 pr-3 tabular-nums">{k.konversi.toFixed(1)}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TabelResponsif
+            kolom={["Konten", "Sub ID", "Komisi", "Komisi cair", "Pesanan", "Klik", "Rp / klik", "Konversi"]}
+            caption="Performa per konten"
+            baris={hasil.per_konten.map(
+              (k): BarisTabel => ({
+                kunci: k.konten_id,
+                sel: [
+                  {
+                    isi: (
+                      <>
+                        <p className="truncate font-medium">{k.judul}</p>
+                        <p className="truncate text-meta text-muted-foreground">
+                          {k.angle || "Tanpa angle"} · {k.produk_nama || "tanpa produk"}
+                        </p>
+                        <p className="truncate text-meta text-muted-foreground">
+                          Hook: {LABEL_GAYA_HOOK[k.gaya_hook] ?? k.gaya_hook} · Link:{" "}
+                          {LABEL_LETAK_LINK[k.letak_link] ?? k.letak_link}
+                        </p>
+                      </>
+                    ),
+                    kelasTabel: "max-w-[16rem]",
+                  },
+                  {
+                    isi: k.sub_ids.join(", ") || "—",
+                    kelasTabel: "font-mono text-meta text-muted-foreground",
+                  },
+                  { isi: formatRupiah(k.komisi), kelasTabel: "tabular-nums" },
+                  {
+                    isi: formatRupiah(k.komisi_cair),
+                    kelasTabel: "tabular-nums text-status-ready",
+                  },
+                  { isi: formatAngka(k.pesanan), kelasTabel: "tabular-nums" },
+                  {
+                    isi: (
+                      <>
+                        {formatAngka(k.klik_dipakai)}
+                        {k.klik_impor === 0 && k.klik_manual > 0 ? (
+                          <span className="ml-1 text-meta text-muted-foreground">(manual)</span>
+                        ) : null}
+                      </>
+                    ),
+                    kelasTabel: "tabular-nums",
+                  },
+                  { isi: formatRupiah(k.komisi_per_klik), kelasTabel: "tabular-nums" },
+                  { isi: `${k.konversi.toFixed(1)}%`, kelasTabel: "tabular-nums" },
+                ],
+              }),
+            )}
+          />
         )}
 
         <div className="mt-3 flex flex-wrap items-center gap-3 px-4 pb-4 text-meta text-muted-foreground sm:px-6 sm:pb-6">

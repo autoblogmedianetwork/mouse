@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Konten } from "@/lib/konten/skema";
 import { useLocalState } from "@/lib/konten/use-local-state";
@@ -365,41 +366,43 @@ export function TabelLink() {
           </div>
         </div>
       ) : (
-        <Card padat className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-badan">
-            <thead>
-              <tr className="border-b border-surface-border bg-muted/20 text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                <th className="px-4 py-3 font-medium">Program / Penawaran</th>
-                <th className="px-4 py-3 font-medium">Link Affiliate</th>
-                <th className="px-4 py-3 font-medium">Catatan Aturan</th>
-                <th className="px-4 py-3 font-medium">Klik</th>
-                <th className="px-4 py-3 font-medium">Komisi (Rp)</th>
-                <th className="px-4 py-3 font-medium text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-border font-mono text-meta">
-              {daftarGabungan.map((b) => (
-                <tr key={b.url} className="hover:bg-muted/10">
-                  <td className="px-4 py-3 font-medium text-foreground">
-                    <div>{b.nama_program}</div>
-                    {b.jumlahKonten > 0 ? (
-                      <span className="text-mikro text-muted-foreground">
-                        {b.jumlahKonten} posting dibuat
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="max-w-[200px] px-4 py-3">
-                    <a
-                      href={b.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block truncate text-primary underline-offset-2 hover:underline"
-                    >
-                      {b.url}
-                    </a>
-                  </td>
-                  <td className="max-w-[260px] px-4 py-3">
-                    {b.catatan_aturan ? (
+        <Card padat>
+          <TabelResponsif
+            kolom={["Program / Penawaran", "Link Affiliate", "Catatan Aturan", "Klik", "Komisi (Rp)", "Aksi"]}
+            caption="Daftar program affiliate dengan klik dan komisi"
+            baris={daftarGabungan.map(
+              (b): BarisTabel => ({
+                kunci: b.url,
+                sel: [
+                  {
+                    isi: (
+                      <>
+                        <div>{b.nama_program}</div>
+                        {b.jumlahKonten > 0 ? (
+                          <span className="text-mikro text-muted-foreground">
+                            {b.jumlahKonten} posting dibuat
+                          </span>
+                        ) : null}
+                      </>
+                    ),
+                    kelasTabel: "px-4 py-3 font-medium text-foreground",
+                  },
+                  {
+                    isi: (
+                      <a
+                        href={b.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block truncate text-primary underline-offset-2 hover:underline"
+                      >
+                        {b.url}
+                      </a>
+                    ),
+                    kelasTabel: "max-w-[200px] px-4 py-3",
+                    kelasKartu: "break-all",
+                  },
+                  {
+                    isi: b.catatan_aturan ? (
                       <div className="border border-warning/40 bg-warning/10 p-1.5 text-meta text-warning">
                         <span className="font-semibold">Aturan:</span> {b.catatan_aturan}
                       </div>
@@ -407,59 +410,67 @@ export function TabelLink() {
                       <span className="text-meta text-muted-foreground">
                         Tidak ada aturan khusus
                       </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    <input
-                      type="number"
-                      min={0}
-                      value={b.klik}
-                      aria-label={`Klik untuk ${b.nama_program}`}
-                      onChange={(e) =>
-                        ubahKlikKomisi(b.url, {
-                          klik: Math.max(0, Number(e.target.value) || 0),
-                        })
-                      }
-                      className={cn(inputClass, "w-20")}
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    <input
-                      type="number"
-                      min={0}
-                      step={100}
-                      value={b.komisi}
-                      aria-label={`Komisi untuk ${b.nama_program}`}
-                      onChange={(e) =>
-                        ubahKlikKomisi(b.url, {
-                          komisi: Math.max(0, Number(e.target.value) || 0),
-                        })
-                      }
-                      className={cn(inputClass, "w-28")}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-1">
-                    <button
-                      type="button"
-                      onClick={() => mulaiEdit(b)}
-                      className={btnGhost}
-                    >
-                      Edit
-                    </button>
-                    {b.id ? (
-                      <button
-                        type="button"
-                        onClick={() => setHapusId(b.id!)}
-                        className={cn(btnGhost, "text-status-failed")}
-                      >
-                        Hapus
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    ),
+                    kelasTabel: "max-w-[260px] px-4 py-3",
+                  },
+                  {
+                    isi: (
+                      <input
+                        type="number"
+                        min={0}
+                        value={b.klik}
+                        aria-label={`Klik untuk ${b.nama_program}`}
+                        onChange={(e) =>
+                          ubahKlikKomisi(b.url, {
+                            klik: Math.max(0, Number(e.target.value) || 0),
+                          })
+                        }
+                        className={cn(inputClass, "w-20")}
+                      />
+                    ),
+                    kelasTabel: "px-4 py-2",
+                  },
+                  {
+                    isi: (
+                      <input
+                        type="number"
+                        min={0}
+                        step={100}
+                        value={b.komisi}
+                        aria-label={`Komisi untuk ${b.nama_program}`}
+                        onChange={(e) =>
+                          ubahKlikKomisi(b.url, {
+                            komisi: Math.max(0, Number(e.target.value) || 0),
+                          })
+                        }
+                        className={cn(inputClass, "w-28")}
+                      />
+                    ),
+                    kelasTabel: "px-4 py-2",
+                  },
+                  {
+                    isi: (
+                      <div className="flex gap-2 sm:justify-end">
+                        <button type="button" onClick={() => mulaiEdit(b)} className={btnGhost}>
+                          Edit
+                        </button>
+                        {b.id ? (
+                          <button
+                            type="button"
+                            onClick={() => setHapusId(b.id!)}
+                            className={cn(btnGhost, "text-status-failed")}
+                          >
+                            Hapus
+                          </button>
+                        ) : null}
+                      </div>
+                    ),
+                    kelasTabel: "px-4 py-3 text-right space-x-1",
+                  },
+                ],
+              }),
+            )}
+          />
         </Card>
       )}
     </div>

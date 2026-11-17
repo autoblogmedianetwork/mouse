@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { csvPeluang, csvRiset, NAMA_BERKAS } from "@/lib/riset/ekspor";
 import {
   urutkanPeluang,
@@ -219,101 +220,107 @@ export function BagianPeluang({
               // storage tidak tersedia: snapshot tetap di layar
             }
           }}
-          className="mt-2 h-8 border border-surface-border px-3 text-meta font-medium hover:bg-muted"
+          className="mt-2 h-11 border border-surface-border px-3 text-meta font-medium hover:bg-muted sm:h-8"
         >
           Simpan untuk perbandingan niche
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[46rem] text-badan">
-          <caption className="sr-only">Daftar kategori peluang produk hasil riset</caption>
-          <thead>
-            <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-              <th className="py-2 pr-3 font-medium">#</th>
-              <th className="py-2 pr-3 font-medium">Kategori</th>
-              <th className="py-2 pr-3 font-medium">Skor</th>
-                <th className="py-2 pr-3 font-medium">Prioritas</th>
-              <th className="py-2 pr-3 font-medium">Masalah terkait</th>
-              <th className="py-2 pr-3 font-medium">Contoh produk</th>
-              <th className="py-2 pr-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {urutkanPeluang(peluang).map((p) => (
-              <tr key={p.id} className="border-b border-surface-border/60 align-top">
-                <td className="py-2 pr-3 font-mono text-meta text-muted-foreground">
-                  {String(p.urutan).padStart(2, "0")}
-                </td>
-                <td className="max-w-[16rem] py-2 pr-3">
-                  <p className="font-medium">{p.kategori}</p>
-                  <p className="mt-0.5 text-meta text-muted-foreground">{p.alasan}</p>
-                </td>
-                <td className="py-2 pr-3">
-                  {p.skor_total ? (
+      <TabelResponsif
+        kolom={["#", "Kategori", "Skor", "Prioritas", "Masalah terkait", "Contoh produk", "Aksi"]}
+        caption="Daftar kategori peluang produk hasil riset"
+        kelasTabel="text-badan"
+        baris={urutkanPeluang(peluang).map(
+          (p): BarisTabel => ({
+            kunci: p.id,
+            sel: [
+              {
+                isi: String(p.urutan).padStart(2, "0"),
+                kelasTabel: "font-mono text-meta text-muted-foreground",
+              },
+              {
+                isi: (
+                  <>
+                    <p className="font-medium">{p.kategori}</p>
+                    <p className="mt-0.5 text-meta text-muted-foreground">{p.alasan}</p>
+                  </>
+                ),
+                kelasTabel: "max-w-[16rem]",
+              },
+              {
+                isi: (
+                  <>
+                    {p.skor_total ? (
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 text-meta font-medium ${
+                          direkomendasikan(p)
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        }`}
+                        title={
+                          p.skor
+                            ? `permintaan ${p.skor.permintaan ?? "-"}: ${p.skor.alasan_permintaan ?? "-"}; kompetisi ${p.skor.kompetisi ?? "-"}: ${p.skor.alasan_kompetisi ?? "-"}; kemudahan konten ${p.skor.kemudahan_konten ?? "-"}: ${p.skor.alasan_kemudahan_konten ?? "-"}; komisi ${p.skor.potensi_komisi ?? "-"}: ${p.skor.alasan_potensi_komisi ?? "-"}`
+                            : undefined
+                        }
+                      >
+                        {p.skor_total}/20{direkomendasikan(p) ? " ★" : ""}
+                      </span>
+                    ) : (
+                      <span className="text-meta text-muted-foreground">—</span>
+                    )}
+                    {p.skor_total ? (
+                      <p className="mt-1 text-meta text-muted-foreground">
+                        layak duluan &ge; {AMBANG_DIREKOMENDASIKAN}
+                      </p>
+                    ) : null}
+                  </>
+                ),
+              },
+              {
+                isi: (
+                  <>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 text-meta font-medium ${
-                        direkomendasikan(p)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
-                      }`}
-                      title={
-                        p.skor
-                          ? `permintaan ${p.skor.permintaan ?? "-"}: ${p.skor.alasan_permintaan ?? "-"}; kompetisi ${p.skor.kompetisi ?? "-"}: ${p.skor.alasan_kompetisi ?? "-"}; kemudahan konten ${p.skor.kemudahan_konten ?? "-"}: ${p.skor.alasan_kemudahan_konten ?? "-"}; komisi ${p.skor.potensi_komisi ?? "-"}: ${p.skor.alasan_potensi_komisi ?? "-"}`
-                          : undefined
-                      }
+                      className={`inline-block px-2 py-0.5 text-meta font-medium ${labelPrioritas[p.prioritas]}`}
                     >
-                      {p.skor_total}/20{direkomendasikan(p) ? " ★" : ""}
+                      {p.prioritas}
                     </span>
-                  ) : (
-                    <span className="text-meta text-muted-foreground">—</span>
-                  )}
-                  {p.skor_total ? (
                     <p className="mt-1 text-meta text-muted-foreground">
-                      layak duluan &ge; {AMBANG_DIREKOMENDASIKAN}
+                      konten: {p.kesulitan_konten}
                     </p>
-                  ) : null}
-                </td>
-                <td className="py-2 pr-3">
-                  <span
-                    className={`inline-block px-2 py-0.5 text-meta font-medium ${labelPrioritas[p.prioritas]}`}
+                  </>
+                ),
+              },
+              {
+                isi: p.masalah_terkait ?? "—",
+                kelasTabel: "max-w-[12rem] text-meta text-muted-foreground",
+              },
+              {
+                isi: p.contoh_produk.join(", ") || "—",
+                kelasTabel: "max-w-[12rem] text-meta text-muted-foreground",
+              },
+              {
+                isi: p.dipilih && p.produk_id ? (
+                  <Link
+                    href="/posting/baru"
+                    className="text-meta font-medium text-primary underline-offset-2 hover:underline"
                   >
-                    {p.prioritas}
-                  </span>
-                  <p className="mt-1 text-meta text-muted-foreground">
-                    konten: {p.kesulitan_konten}
-                  </p>
-                </td>
-                <td className="max-w-[12rem] py-2 pr-3 text-meta text-muted-foreground">
-                  {p.masalah_terkait ?? "—"}
-                </td>
-                <td className="max-w-[12rem] py-2 pr-3 text-meta text-muted-foreground">
-                  {p.contoh_produk.join(", ") || "—"}
-                </td>
-                <td className="py-2 pr-3">
-                  {p.dipilih && p.produk_id ? (
-                    <Link
-                      href="/posting/baru"
-                      className="text-meta font-medium text-primary underline-offset-2 hover:underline"
-                    >
-                      Produk dibuat →
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      className={btnGhost}
-                      onClick={() => buatProduk(p)}
-                      disabled={produkDiproses !== null}
-                    >
-                      {produkDiproses === p.id ? "Membuat…" : "Buat produk"}
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    Produk dibuat →
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className={btnGhost}
+                    onClick={() => buatProduk(p)}
+                    disabled={produkDiproses !== null}
+                  >
+                    {produkDiproses === p.id ? "Membuat…" : "Buat produk"}
+                  </button>
+                ),
+              },
+            ],
+          }),
+        )}
+      />
     </Card>
   );
 }

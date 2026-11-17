@@ -10,6 +10,7 @@
  */
 import { useMemo } from "react";
 import { Card } from "@/components/card";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { formatAngka, formatRupiah } from "@/lib/impor/normalisasi";
 import type { BarisPerforma } from "@/lib/impor/skema";
 import { BLOK_JAM, hitungPetaPanen, LABEL_HARI, labelBlok } from "@/lib/performa/peta-panen";
@@ -96,60 +97,47 @@ export function PetaPanenKomisi({ baris }: { baris: BarisPerforma[] }) {
 
       {peta.ada_jam ? (
         <>
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[34rem] border-collapse text-meta">
-              <caption className="sr-only">
-                Komisi cair per hari dan blok jam. Baris hari Senin sampai Minggu, kolom blok empat
-                jam.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col" className={`${mikro} border-b-2 border-foreground py-2 pr-2 text-left font-medium text-muted-foreground`}>
-                    Hari / jam
-                  </th>
-                  {BLOK_JAM.map((b) => (
-                    <th
-                      key={b.indeks}
-                      scope="col"
-                      className={`${mikro} border-b-2 border-foreground px-1 py-2 text-center font-medium text-muted-foreground`}
-                    >
-                      {b.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {LABEL_HARI.map((label, hari) => (
-                  <tr key={label}>
-                    <th
-                      scope="row"
-                      className="border-b border-surface-border py-1 pr-2 text-left font-mono text-meta font-medium uppercase tracking-meta"
-                    >
-                      {label}
-                    </th>
-                    {BLOK_JAM.map((b) => {
+            <TabelResponsif
+              kolom={["Hari / jam", ...BLOK_JAM.map((b) => b.label)]}
+              caption="Komisi cair per hari dan blok jam. Baris hari Senin sampai Minggu, kolom blok empat jam."
+              kelasTabel="border-collapse text-meta"
+              baris={LABEL_HARI.map(
+                (label, hari): BarisTabel => ({
+                  kunci: label,
+                  sel: [
+                    {
+                      isi: label,
+                      kelasTabel:
+                        "border-b border-surface-border py-1 pr-2 text-left font-mono text-meta font-medium uppercase tracking-meta",
+                    },
+                    ...BLOK_JAM.map((b) => {
                       const sel = peta.per_sel[hari * BLOK_JAM.length + b.indeks];
                       const rasio = peta.maks_sel > 0 ? sel.komisi_cair / peta.maks_sel : 0;
                       const keterangan = `${label} ${b.label}: ${formatRupiah(sel.komisi_cair)} cair, ${formatAngka(sel.pesanan)} pesanan, ${formatAngka(sel.klik)} klik, ${formatAngka(sel.baris)} baris`;
-                      return (
-                        <td key={b.indeks} className="border-b border-surface-border p-0.5">
-                          <div
-                            role="img"
-                            aria-label={keterangan}
-                            title={keterangan}
-                            className={cn(
-                              "h-8 border border-foreground/15 sm:h-9",
-                              tingkatSel(rasio),
-                            )}
-                          />
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      return {
+                        isi: (
+                          <div className="flex items-center gap-2">
+                            <div
+                              role="img"
+                              aria-label={keterangan}
+                              title={keterangan}
+                              className={cn(
+                                "h-6 w-16 shrink-0 border border-foreground/15 sm:h-8 sm:w-full",
+                                tingkatSel(rasio),
+                              )}
+                            />
+                            <span className="font-mono text-meta text-muted-foreground sm:hidden">
+                              {formatRupiah(sel.komisi_cair)}
+                            </span>
+                          </div>
+                        ),
+                        kelasTabel: "border-b border-surface-border p-0.5",
+                      };
+                    }),
+                  ],
+                }),
+              )}
+            />
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-meta text-muted-foreground">
             <span className={mikro}>Sepi</span>

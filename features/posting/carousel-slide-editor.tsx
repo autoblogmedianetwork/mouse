@@ -337,7 +337,7 @@ export function CarouselSlideEditor({
             type="color"
             value={gaya.warnaAksen || TEMPLATE_CONFIG[tema].accent}
             onChange={(e) => ubahGaya({ warnaAksen: e.target.value })}
-            className="h-7 w-9 cursor-pointer border border-surface-border bg-transparent"
+            className="h-11 w-11 cursor-pointer border border-surface-border bg-transparent sm:h-7 sm:w-9"
           />
         </label>
 

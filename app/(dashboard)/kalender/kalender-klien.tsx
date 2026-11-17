@@ -22,6 +22,7 @@ import { TautanMasuk } from "@/components/pesan-galat";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { StatusBadge } from "@/components/status-badge";
 import {
   hariMinggu,
@@ -327,25 +328,24 @@ export default function KalenderKlien() {
               <span className="text-meta text-muted-foreground">{bulan.length} konten</span>
             </div>
 
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full min-w-[54rem] text-badan">
-                <caption className="sr-only">Jadwal konten bulan ini</caption>
-                <thead>
-                  <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                    <th className="px-5 py-2 font-medium">Konten</th>
-                    <th className="py-2 pr-3 font-medium">Jadwal</th>
-                    <th className="py-2 pr-3 font-medium">Ide</th>
-                    <th className="py-2 pr-3 font-medium">Status</th>
-                    <th className="py-2 pr-3 font-medium">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bulan.map((k) => (
-                    <tr key={k.id} className="border-b border-surface-border transition-colors">
-                      <td className="px-5 py-2.5 font-medium">{k.judul}</td>
-                      <td className="py-2.5 pr-3 tabular-nums">{formatJadwal(k.jadwal_at ?? "")}</td>
-                      <td className="py-2.5 pr-3 text-muted-foreground">{k.ide_judul || "—"}</td>
-                      <td className="py-2.5 pr-3">
+            <TabelResponsif
+              kolom={["Konten", "Jadwal", "Ide", "Status", "Aksi"]}
+              caption="Jadwal konten bulan ini"
+              baris={bulan.map(
+                (k): BarisTabel => ({
+                  kunci: k.id,
+                  sel: [
+                    { isi: k.judul, kelasTabel: "px-5 py-2.5 font-medium" },
+                    {
+                      isi: formatJadwal(k.jadwal_at ?? ""),
+                      kelasTabel: "py-2.5 pr-3 tabular-nums",
+                    },
+                    {
+                      isi: k.ide_judul || "—",
+                      kelasTabel: "py-2.5 pr-3 text-muted-foreground",
+                    },
+                    {
+                      isi: (
                         <span className="inline-flex items-center gap-2">
                           <StatusBadge status={k.status} />
                           {lewatDari(k.jadwal_at ?? "") ? (
@@ -354,8 +354,11 @@ export default function KalenderKlien() {
                             </span>
                           ) : null}
                         </span>
-                      </td>
-                      <td className="py-2.5 pr-3">
+                      ),
+                      kelasTabel: "py-2.5 pr-3",
+                    },
+                    {
+                      isi: (
                         <div className="flex flex-wrap gap-3">
                           <button
                             type="button"
@@ -381,12 +384,13 @@ export default function KalenderKlien() {
                             Batalkan di Antrian
                           </Link>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      ),
+                      kelasTabel: "py-2.5 pr-3",
+                    },
+                  ],
+                }),
+              )}
+            />
 
             <div className="flex flex-wrap gap-3 px-5 pb-5 pt-4">
               <Link href="/posting/baru" className={btnUtama}>

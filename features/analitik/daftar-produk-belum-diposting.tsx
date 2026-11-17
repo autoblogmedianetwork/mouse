@@ -18,6 +18,7 @@ import {
   statusPostingProduk,
 } from "@/lib/produk/status-posting";
 import { Card } from "@/components/card";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { kontenSkema, type Konten } from "@/lib/konten/skema";
 import { useLocalState } from "@/lib/konten/use-local-state";
 
@@ -101,50 +102,39 @@ export function DaftarProdukBelumDiposting() {
           Semua produk sudah diposting dalam {batasHari} hari terakhir. Bagus.
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-badan">
-            <caption className="sr-only">
-              Produk beserta waktu terkirim terakhir dan usianya
-            </caption>
-            <thead>
-              <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                <th className="py-2 pr-3 font-medium">Produk</th>
-                <th className="py-2 pr-3 font-medium">Konten</th>
-                <th className="py-2 pr-3 font-medium">Terkirim terakhir</th>
-                <th className="py-2 pr-3 font-medium">Usia</th>
-                <th className="py-2 pr-3 font-medium">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hasil.map((r) => (
-                <tr key={r.produk} className="border-b border-surface-border transition-colors">
-                  <td className="py-2.5 pr-3 font-medium">{r.produk}</td>
-                  <td className="py-2.5 pr-3 text-muted-foreground">
-                    {r.jumlahTerkirim}/{r.jumlahKonten} terkirim
-                  </td>
-                  <td className="py-2.5 pr-3 tabular-nums">{tanggalLabel(r.terakhirTerkirim)}</td>
-                  <td
-                    className={
-                      r.belumPernah
-                        ? "py-2.5 pr-3 font-mono text-meta font-medium uppercase text-status-failed"
-                        : "py-2.5 pr-3 tabular-nums"
-                    }
-                  >
-                    {usiaLabel(r.usiaHari)}
-                  </td>
-                  <td className="py-2.5 pr-3">
+        <TabelResponsif
+          kolom={["Produk", "Konten", "Terkirim terakhir", "Usia", "Aksi"]}
+          caption="Produk beserta waktu terkirim terakhir dan usianya"
+          baris={hasil.map(
+            (r): BarisTabel => ({
+              kunci: r.produk,
+              sel: [
+                { isi: r.produk, kelasTabel: "font-medium" },
+                {
+                  isi: `${r.jumlahTerkirim}/${r.jumlahKonten} terkirim`,
+                  kelasTabel: "text-muted-foreground",
+                },
+                { isi: tanggalLabel(r.terakhirTerkirim), kelasTabel: "tabular-nums" },
+                {
+                  isi: usiaLabel(r.usiaHari),
+                  kelasTabel: r.belumPernah
+                    ? "font-mono text-meta font-medium uppercase text-status-failed"
+                    : "tabular-nums",
+                },
+                {
+                  isi: (
                     <Link
                       href="/posting/baru"
                       className="text-meta text-primary underline-offset-2 hover:underline"
                     >
                       Buat ulang konten
                     </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  ),
+                },
+              ],
+            }),
+          )}
+        />
       )}
     </Card>
   );

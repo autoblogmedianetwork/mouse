@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card } from "@/components/card";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import { EmptyState } from "@/components/empty-state";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -76,45 +77,40 @@ export function TabelRiwayat() {
           actionHref="/posting/baru"
         />
       ) : (
-        <Card padat className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-badan">
-            <thead>
-              <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                <th className="px-4 py-3 font-medium">Waktu</th>
-                <th className="px-4 py-3 font-medium">Konten</th>
-                <th className="px-4 py-3 font-medium">Mode</th>
-                <th className="px-4 py-3 font-medium">Status akhir</th>
-                <th className="px-4 py-3 font-medium">Catatan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hasil.map((e) => (
-                <tr key={e.id} className="border-b border-surface-border last:border-0">
-                  <td className="whitespace-nowrap px-4 py-3 text-meta tabular-nums text-muted-foreground">
-                    {new Date(e.waktu).toLocaleString("id-ID", {
+        <Card padat>
+          <TabelResponsif
+            kolom={["Waktu", "Konten", "Mode", "Status akhir", "Catatan"]}
+            caption="Riwayat posting: waktu, mode, dan status akhir"
+            baris={hasil.map(
+              (e): BarisTabel => ({
+                kunci: e.id,
+                sel: [
+                  {
+                    isi: new Date(e.waktu).toLocaleString("id-ID", {
                       dateStyle: "medium",
                       timeStyle: "short",
-                    })}
-                  </td>
-                  <td className="px-4 py-3 font-medium">{e.konten_judul}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        "border border-surface-border bg-muted px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge",
-                        e.mode === "auto" && "text-status-scheduled",
-                      )}
-                    >
-                      {e.mode === "auto" ? "Auto" : "Manual"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={e.status_akhir} />
-                  </td>
-                  <td className="px-4 py-3 text-meta text-muted-foreground">{e.catatan}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    }),
+                    kelasTabel: "whitespace-nowrap text-meta tabular-nums text-muted-foreground",
+                  },
+                  { isi: e.konten_judul, kelasTabel: "font-medium" },
+                  {
+                    isi: (
+                      <span
+                        className={cn(
+                          "border border-surface-border bg-muted px-2 py-0.5 font-mono text-mikro font-semibold uppercase tracking-badge",
+                          e.mode === "auto" && "text-status-scheduled",
+                        )}
+                      >
+                        {e.mode === "auto" ? "Auto" : "Manual"}
+                      </span>
+                    ),
+                  },
+                  { isi: <StatusBadge status={e.status_akhir} /> },
+                  { isi: e.catatan, kelasTabel: "text-meta text-muted-foreground" },
+                ],
+              }),
+            )}
+          />
         </Card>
       )}
 

@@ -692,7 +692,7 @@ function ScenePrompt({
         <button
           type="button"
           onClick={onSalin}
-          className="h-8 border border-foreground bg-surface px-3 text-meta font-mono uppercase hover:bg-muted"
+          className="h-11 border border-foreground bg-surface px-3 text-meta font-mono uppercase hover:bg-muted sm:h-8"
         >
           Salin scene {scene.urutan}
         </button>

@@ -25,7 +25,7 @@ import {
 } from "@/lib/produk/store";
 
 const btnKecil =
-  "h-8 px-3 border border-surface-border text-meta font-medium transition-colors hover:bg-muted disabled:opacity-40";
+  "h-11 px-3 border border-surface-border text-meta font-medium transition-colors hover:bg-muted disabled:opacity-40 sm:h-8";
 
 /** Badge marketplace dari link produk; produk tanpa link dianggap Lainnya. */
 function badgeMarketplace(p: ProdukRingkas): string {
@@ -245,7 +245,7 @@ export function KatalogProduk() {
                     <button
                       type="button"
                       onClick={() => buatKonten(p)}
-                      className="h-8 bg-primary px-3 text-meta font-medium text-primary-foreground hover:bg-primary-hover"
+                      className="h-11 bg-primary px-3 text-meta font-medium text-primary-foreground hover:bg-primary-hover sm:h-8"
                     >
                       Buat konten
                     </button>

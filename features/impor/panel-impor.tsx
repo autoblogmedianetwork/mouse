@@ -11,6 +11,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { TabelResponsif, type BarisTabel } from "@/components/tabel-responsif";
 import {
   KOLOM_LABEL,
   MARKETPLACE_LABEL,
@@ -342,36 +343,29 @@ export function PanelImpor() {
 
           {/* Pratinjau baris */}
           {hasil.baris.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-badan">
-                <caption className="sr-only">Pratinjau baris performa hasil impor</caption>
-                <thead>
-                  <tr className="border-b border-surface-border text-left font-mono text-meta uppercase tracking-meta text-muted-foreground">
-                    <th className="py-2 pr-3 font-medium">Produk</th>
-                    <th className="py-2 pr-3 font-medium">ID pesanan</th>
-                    <th className="py-2 pr-3 font-medium">Tanggal</th>
-                    <th className="py-2 pr-3 font-medium">Komisi</th>
-                    <th className="py-2 pr-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hasil.baris.slice(0, 8).map((b) => (
-                    <tr key={b.id} className="border-b border-surface-border/60">
-                      <td className="max-w-[18rem] truncate py-2 pr-3">{b.produk || "—"}</td>
-                      <td className="py-2 pr-3 tabular-nums text-muted-foreground">{b.id_pesanan || "—"}</td>
-                      <td className="py-2 pr-3 tabular-nums text-muted-foreground">{b.tanggal ?? "—"}</td>
-                      <td className="py-2 pr-3 tabular-nums">{formatRupiah(b.komisi)}</td>
-                      <td className="py-2 pr-3 text-muted-foreground">{b.status_pesanan || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {hasil.baris.length > 8 ? (
-                <p className="mt-2 text-meta text-muted-foreground">
-                  Menampilkan 8 dari {formatAngka(hasil.baris.length)} baris.
-                </p>
-              ) : null}
-            </div>
+            <>
+            <TabelResponsif
+              kolom={["Produk", "ID pesanan", "Tanggal", "Komisi", "Status"]}
+              caption="Pratinjau baris performa hasil impor"
+              baris={hasil.baris.slice(0, 8).map(
+                (b): BarisTabel => ({
+                  kunci: b.id,
+                  sel: [
+                    { isi: b.produk || "—", kelasTabel: "max-w-[18rem] truncate" },
+                    { isi: b.id_pesanan || "—", kelasTabel: "tabular-nums text-muted-foreground" },
+                    { isi: b.tanggal ?? "—", kelasTabel: "tabular-nums text-muted-foreground" },
+                    { isi: formatRupiah(b.komisi), kelasTabel: "tabular-nums" },
+                    { isi: b.status_pesanan || "—", kelasTabel: "text-muted-foreground" },
+                  ],
+                }),
+              )}
+            />
+            {hasil.baris.length > 8 ? (
+              <p className="mt-2 text-meta text-muted-foreground">
+                Menampilkan 8 dari {formatAngka(hasil.baris.length)} baris.
+              </p>
+            ) : null}
+            </>
           ) : null}
 
           {hasil.ditolak.length > 0 ? (
