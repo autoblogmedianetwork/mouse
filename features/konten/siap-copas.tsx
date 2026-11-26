@@ -13,6 +13,7 @@ import { LanjutLangkah } from "@/components/lanjut-langkah";
 import { PageHeader } from "@/components/page-header";
 import { muatKonten, simpanKonten, tandaiTerkirim } from "@/lib/konten/store";
 import type { Konten } from "@/lib/konten/skema";
+import { bangunIntentThreads } from "@/lib/platforms/intent-threads";
 import {
   jamJadwal,
   kunciTanggalLokal,
@@ -78,6 +79,20 @@ function Kartu({
         <button type="button" className={tombolUtama} onClick={() => salin(utama, "Teks")}>
           Salin teks
         </button>
+        {(() => {
+          const intent = bangunIntentThreads(utama);
+          return intent.ok ? (
+            <a
+              href={intent.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={tombol}
+              title="Buka komposer Threads dengan teks ini sudah terisi — kamu tetap yang menekan kirim"
+            >
+              Buka di Threads ↗
+            </a>
+          ) : null;
+        })()}
         {balasan ? (
           <button type="button" className={tombol} onClick={() => salin(balasan, "Balasan afiliasi")}>
             Salin balasan (link)
@@ -147,6 +162,14 @@ export function SiapCopas() {
           Tanggal {hariIni}. Tempel dari clipboard dengan Ctrl+V di aplikasi platform.
         </p>
       </Card>
+
+      {terjadwal.length > 0 || cadangan.length > 0 ? (
+        <p className="border border-surface-border bg-muted/40 px-3 py-2 text-meta text-muted-foreground">
+          Wajib transparan: postingan dengan link affiliate harus ditandai — pakai label
+          paid partnership bila aplikasimu menampilkannya, atau tulis #iklan di teks
+          (aturan konten berbayar Meta). Utamakan balasan untuk link, sesuai strategi.
+        </p>
+      ) : null}
 
       {terjadwal.length === 0 && cadangan.length === 0 ? (
         <Card className="space-y-3">
