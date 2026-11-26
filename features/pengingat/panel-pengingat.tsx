@@ -141,7 +141,7 @@ export function PanelPengingat() {
               </button>
               <Link
                 href={item.href}
-                className="inline-flex h-8 items-center border border-surface-border bg-surface px-3 text-meta font-medium transition-colors hover:bg-muted"
+                className="inline-flex h-11 items-center border border-surface-border bg-surface px-3 text-meta font-medium transition-colors hover:bg-muted sm:h-8"
               >
                 {item.labelAksi}
               </Link>

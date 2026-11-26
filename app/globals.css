@@ -157,3 +157,16 @@ body {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+/* Audit impeccable 17 Nov: rem darurat motion. Transisi yang ada saat ini
+   hanya warna (aman), tapi blok ini memastikan animasi masa depan tidak
+   pernah berjalan bagi pengguna yang meminta gerak minimal. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
