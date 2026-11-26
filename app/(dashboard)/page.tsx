@@ -4,7 +4,6 @@ import { BilahAlur } from "@/components/bilah-alur";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TurAwal } from "@/features/onboarding/tur-awal";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
-import { KalkulatorKomisi } from "@/features/affiliate/kalkulator-komisi";
 import { PengingatCadangan } from "@/features/konten/pengingat-cadangan";
 
 export const metadata = { title: "Dashboard" };
@@ -14,25 +13,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Tanpa CTA di header: BilahAlur, empty state, dan kartu Lanjutkan sudah
+          mengarahkan ke aksi yang sama. Dua CTA primer bersaing membuat pemula
+          ragu (temuan critique P1). */}
       <PageHeader
         title="Dashboard"
         description="Alur kerja dari nol sampai komisi pertama: Riset → Buat Posting → Siap Salin."
-      >
-        <Link
-          href="/posting/baru"
-          className="inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-        >
-          Buat posting baru
-        </Link>
-      </PageHeader>
+      />
 
       <BilahAlur />
 
       <RingkasanDashboard />
 
       <PengingatCadangan />
-
-      <KalkulatorKomisi />
 
       <TurAwal />
     </div>

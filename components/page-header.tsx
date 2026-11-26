@@ -20,7 +20,7 @@ export function PageHeader({
     <div className="border-b-2 border-foreground pb-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-hero font-black uppercase leading-[0.95] tracking-[-0.03em]">
+          <h1 className="text-[1.75rem] font-black uppercase leading-[0.95] tracking-[-0.03em] sm:text-hero">
             {title}
           </h1>
           {description ? (

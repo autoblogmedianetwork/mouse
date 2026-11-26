@@ -12,6 +12,7 @@ import { ringkasPerforma } from "@/lib/impor/performa";
 import { PerformaRingkas } from "@/features/impor/performa-ringkas";
 import { usePerforma } from "@/features/impor/use-performa";
 import { BagianPerformaKonten } from "@/features/performa/performa-konten";
+import { KalkulatorKomisi } from "@/features/affiliate/kalkulator-komisi";
 import { PanelPengingat } from "@/features/pengingat/panel-pengingat";
 import { BANK_KEY, type ItemBank } from "@/lib/riset/bank-masalah";
 import { ringkasBank } from "@/lib/riset/statistik-bank";
@@ -76,6 +77,9 @@ export function RingkasanDashboard() {
     <div className="space-y-6">
       {/* Pengingat di paling atas; panel menyembunyikan dirinya bila kosong. */}
       <PanelPengingat />
+      {/* Kalkulator butuh 4 input: terlalu berat untuk dashboard yang masih
+          kosong (temuan critique P3). Muncul setelah konten pertama ada. */}
+      {konten.length > 0 ? <KalkulatorKomisi /> : null}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Konten total"

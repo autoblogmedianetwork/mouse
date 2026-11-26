@@ -40,7 +40,7 @@ export function BudgetIndicator() {
       href="/biaya"
       title="Biaya AI bulan ini — buka rincian"
       className={cn(
-        "ml-auto shrink-0 border px-2 py-1 font-mono text-mikro uppercase tracking-badge tabular-nums",
+        "ml-auto inline-flex min-h-11 shrink-0 items-center border px-2 font-mono text-mikro uppercase tracking-badge tabular-nums",
         persen >= 100
           ? "border-status-failed text-status-failed"
           : persen >= 80

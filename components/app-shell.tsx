@@ -145,7 +145,7 @@ export function AppShell({
         <header className="flex h-14 items-center gap-3 border-b-2 border-foreground bg-background px-4">
           <button
             aria-label="Buka menu"
-            className="border-2 border-foreground px-2 py-1 text-badan text-muted-foreground transition-colors hover:bg-muted md:hidden"
+            className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-foreground text-muted-foreground transition-colors hover:bg-muted md:hidden"
             onClick={() => setOpen(true)}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
