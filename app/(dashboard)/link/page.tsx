@@ -2,6 +2,7 @@ import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { PageHeader } from "@/components/page-header";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { DetektorLink } from "@/features/link/detektor-link";
+import { HalamanBio } from "@/features/link/halaman-bio";
 import { TabelLink } from "./tabel-link";
 
 
@@ -18,6 +19,7 @@ export default async function LinkPage() {
       />
       <TabMenuOtomatis />
       <DetektorLink />
+      <HalamanBio />
       <TabelLink />
     </div>
   );
