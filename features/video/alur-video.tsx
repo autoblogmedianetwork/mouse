@@ -14,6 +14,12 @@ import { Card } from "@/components/card";
 import { EmptyState } from "@/components/empty-state";
 import { FORMAT_LABELS } from "@/lib/ai/schemas";
 import { salinKeClipboard } from "@/lib/konten/salin";
+import {
+  LABEL_SUARA,
+  SUARA_SLIDESHOW,
+  susunBahanSlideshow,
+  type SuaraSlideshow,
+} from "@/lib/video/bahan-slideshow";
 import { useLocalState } from "@/lib/konten/use-local-state";
 import { susunPromptStoryboard } from "@/lib/video/prompt-storyboard";
 import { LANGKAH_PROMPT_CEPAT, susunPromptCepat } from "@/lib/video/prompt-cepat";
@@ -38,7 +44,7 @@ import {
 
 const KUNCI_DRAF = "autothreads-video-draf";
 
-type Mode = "json" | "cepat";
+type Mode = "json" | "cepat" | "slideshow";
 
 interface DrafVideo {
   mode: Mode;
@@ -54,6 +60,9 @@ interface DrafVideo {
   gayaVisual: string;
   instruksiTambahan: string;
   storyboardTeks: string;
+  naskahSlideshow: string;
+  fotoSlideshow: string;
+  suaraSlideshow: SuaraSlideshow;
   checkpoint1: boolean;
   linkVideo: string;
   checklist: Record<ChecklistVideo, boolean>;
@@ -73,6 +82,9 @@ const DRAF_AWAL: DrafVideo = {
   gayaVisual: GAYA_FLOW[0],
   instruksiTambahan: "",
   storyboardTeks: "",
+  naskahSlideshow: "",
+  fotoSlideshow: "",
+  suaraSlideshow: "id-ID-ArdiNeural" as SuaraSlideshow,
   checkpoint1: false,
   linkVideo: "",
   checklist: CHECKLIST_AWAL,
@@ -150,6 +162,21 @@ export function AlurVideo() {
     [draf.namaProduk, draf.varian, draf.ringkasan, draf.durasiDetik, draf.jumlahScene, draf.instruksiTambahan],
   );
 
+  const hasilSlideshow = useMemo(
+    () =>
+      draf.mode === "slideshow"
+        ? susunBahanSlideshow({
+            namaProduk: draf.namaProduk,
+            hargaTampil: draf.varian,
+            urlAffiliate: "",
+            suara: draf.suaraSlideshow,
+            naskah: draf.naskahSlideshow,
+            fotoUrls: draf.fotoSlideshow,
+          })
+        : null,
+    [draf.mode, draf.namaProduk, draf.varian, draf.suaraSlideshow, draf.naskahSlideshow, draf.fotoSlideshow],
+  );
+
   const salin = async (teks: string, label: string) => {
     const berhasil = await salinKeClipboard(teks);
     setPesan(
@@ -198,6 +225,7 @@ export function AlurVideo() {
           [
             { id: "json", label: "Mode JSON (diperiksa)" },
             { id: "cepat", label: "Mode cepat (satu prompt)" },
+            { id: "slideshow", label: "Mode slideshow (Colab)" },
           ] as const
         ).map((m) => (
           <button
@@ -379,6 +407,116 @@ export function AlurVideo() {
           Saya punya foto produk sebagai referensi visual
         </label>
       </Card>
+
+      {draf.mode === "slideshow" ? (
+        <>
+          {/* ------------------- 2. Bahan slideshow (Colab) ------------------- */}
+          <Card>
+            <h2 className="text-isi font-semibold">2. Naskah dan foto slideshow</h2>
+            <p className="mt-1 text-badan text-muted-foreground">
+              Satu baris naskah = satu scene (maksimal 6). Foto produk dipakai bergantian bila
+              jumlahnya lebih sedikit dari scene. Video dirender di Colab — aplikasi tidak
+              membuat video (ADR 0018 dan 0021).
+            </p>
+
+            <div className="mt-4">
+              <label htmlFor="video-naskah-slideshow" className={labelCls}>
+                Naskah per scene (satu baris = satu scene)
+              </label>
+              <textarea
+                id="video-naskah-slideshow"
+                rows={5}
+                value={draf.naskahSlideshow}
+                onChange={(e) => ubah({ naskahSlideshow: e.target.value })}
+                placeholder={"Nasi hangat sepanjang hari tanpa ribet.\nKapasitas 1,8 liter, cukup untuk keluarga.\nCek keranjang kuning sebelum habis."}
+                className={inputCls}
+              />
+            </div>
+
+            <div className="mt-4">
+              <label htmlFor="video-foto-slideshow" className={labelCls}>
+                URL foto produk (satu baris = satu foto)
+              </label>
+              <textarea
+                id="video-foto-slideshow"
+                rows={3}
+                value={draf.fotoSlideshow}
+                onChange={(e) => ubah({ fotoSlideshow: e.target.value })}
+                placeholder={"https://down-i0.cc/img/foto1.jpg\nhttps://down-i0.cc/img/foto2.jpg"}
+                className={inputCls}
+              />
+            </div>
+
+            <div className="mt-4 max-w-xs">
+              <label htmlFor="video-suara-slideshow" className={labelCls}>
+                Suara voiceover
+              </label>
+              <select
+                id="video-suara-slideshow"
+                value={draf.suaraSlideshow}
+                onChange={(e) => ubah({ suaraSlideshow: e.target.value as SuaraSlideshow })}
+                className={inputCls}
+              >
+                {SUARA_SLIDESHOW.map((s) => (
+                  <option key={s} value={s}>
+                    {LABEL_SUARA[s]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </Card>
+
+          {/* ----------------------- 3. JSON untuk Colab ----------------------- */}
+          <Card>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-isi font-semibold">3. JSON bahan untuk Colab</h2>
+                <p className="mt-1 text-badan text-muted-foreground">
+                  {hasilSlideshow && hasilSlideshow.ok
+                    ? `Siap: ${hasilSlideshow.jumlahScene} scene, ${hasilSlideshow.jumlahFoto} foto. Berkas keluaran: ${hasilSlideshow.namaBerkas}`
+                    : "Lengkapi nama produk, naskah, dan URL foto di atas."}
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={!hasilSlideshow || !hasilSlideshow.ok}
+                onClick={() => {
+                  if (hasilSlideshow && hasilSlideshow.ok) {
+                    void salin(hasilSlideshow.json, "JSON bahan slideshow");
+                  }
+                }}
+                className={primaryBtn}
+              >
+                Salin JSON bahan
+              </button>
+            </div>
+
+            {hasilSlideshow && !hasilSlideshow.ok ? (
+              <p role="alert" className="mt-3 border border-status-failed/50 bg-status-failed/10 px-3 py-2 text-badan text-status-failed">
+                {hasilSlideshow.galat}
+              </p>
+            ) : null}
+
+            {hasilSlideshow && hasilSlideshow.ok ? (
+              <pre className={`${preCls} mt-3`} aria-label="JSON bahan slideshow">
+                {hasilSlideshow.json}
+              </pre>
+            ) : null}
+
+            <ol className="mt-4 list-decimal space-y-1 pl-5 text-badan text-muted-foreground">
+              <li>
+                Buka notebook{" "}
+                <code className="bg-muted px-1 font-mono text-meta">docs/colab/heaviliate-slideshow.ipynb</code>{" "}
+                di Google Colab (File → Upload notebook).
+              </li>
+              <li>Jalankan sel pertama untuk memasang pustaka (sekali saja, ±1 menit).</li>
+              <li>Tempel JSON ini ke sel BAHAN, ganti isinya.</li>
+              <li>Runtime → Run all. Video jadi ±2-3 menit, lalu unduh hasil .mp4.</li>
+              <li>Unggah manual ke Threads/Shopee — tidak ada pengiriman otomatis.</li>
+            </ol>
+          </Card>
+        </>
+      ) : null}
 
       {draf.mode === "json" ? (
         <>
