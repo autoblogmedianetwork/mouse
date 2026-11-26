@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { FokusHarian } from "@/features/fokus/fokus-harian";
+import { BankBalasan } from "@/features/fokus/bank-balasan";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 
@@ -20,6 +21,7 @@ export default async function FokusPage() {
         description="Satu hal per hari: salin konten yang sudah siap, tandai selesai, jaga rentetan. Tidak ada yang berubah status tanpa tindakan Anda."
       />
       <FokusHarian />
+      <BankBalasan />
     </div>
   );
 }

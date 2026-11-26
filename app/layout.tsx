@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +13,10 @@ const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "600"],
 });
+
+export const viewport: Viewport = {
+  themeColor: "#1c1917",
+};
 
 export const metadata: Metadata = {
   title: {
