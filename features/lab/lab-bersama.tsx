@@ -10,7 +10,7 @@ import { useState } from "react";
 export const inputClass =
   "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 export const btnPrimary =
-  "inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50";
+  "inline-flex h-11 sm:h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50";
 export const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 
 export interface Balasan<T> {

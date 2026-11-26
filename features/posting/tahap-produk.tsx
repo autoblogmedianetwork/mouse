@@ -80,7 +80,7 @@ export function TahapProduk({ prefill, nilaiAwalProduk, produk, analisisManual, 
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="h-9 px-4 border border-surface-border bg-muted/60 hover:bg-muted text-meta font-mono uppercase font-medium transition-colors"
+                className="h-11 sm:h-9 px-4 border border-surface-border bg-muted/60 hover:bg-muted text-meta font-mono uppercase font-medium transition-colors"
                 onClick={() => {
                   if (!analisisManual) {
                     update({
@@ -98,7 +98,7 @@ export function TahapProduk({ prefill, nilaiAwalProduk, produk, analisisManual, 
               </button>
               <button
                 type="button"
-                className="h-9 px-4 bg-primary text-primary-foreground text-meta font-mono uppercase font-semibold hover:bg-primary-hover transition-colors"
+                className="h-11 sm:h-9 px-4 bg-primary text-primary-foreground text-meta font-mono uppercase font-semibold hover:bg-primary-hover transition-colors"
                 onClick={() => setLangkah("analisis")}
               >
                 Lanjut ke analisis &gt;&gt;

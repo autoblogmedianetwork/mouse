@@ -84,7 +84,7 @@ export function TombolRenderVideo({
           type="button"
           onClick={handleRender}
           disabled={!tersedia || loading || statuses.length === 0}
-          className={`h-9 px-4 text-badan font-medium transition-colors ${
+          className={`h-11 sm:h-9 px-4 text-badan font-medium transition-colors ${
             tersedia
               ? "bg-primary text-primary-foreground hover:bg-primary-hover"
               : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"

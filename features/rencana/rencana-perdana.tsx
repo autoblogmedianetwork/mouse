@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 const btnPrimary =
   "inline-flex h-10 items-center rounded-md bg-primary px-5 text-badan font-medium text-primary-foreground hover:opacity-90";
 const btnGhost =
-  "inline-flex h-9 items-center border border-surface-border px-4 text-badan font-medium hover:bg-muted";
+  "inline-flex h-11 sm:h-9 items-center border border-surface-border px-4 text-badan font-medium hover:bg-muted";
 
 export function RencanaPerdana() {
   const [status, setStatus] = useState<StatusRencana | null>(null);

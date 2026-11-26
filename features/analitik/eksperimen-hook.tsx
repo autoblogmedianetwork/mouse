@@ -140,7 +140,7 @@ export function EksperimenHookPanel() {
         <button
           type="button"
           onClick={() => setFormTerbuka((v) => !v)}
-          className="inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="inline-flex h-11 sm:h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           {formTerbuka ? "Tutup" : "Buat eksperimen"}
         </button>
@@ -183,7 +183,7 @@ export function EksperimenHookPanel() {
           type="button"
           onClick={buatOtomatis}
           disabled={abLoading}
-          className="mt-2 inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+          className="mt-2 inline-flex h-11 sm:h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
         >
           {abLoading ? "MEMBUAT…" : "Buat 2 hook otomatis"}
         </button>
@@ -235,14 +235,14 @@ export function EksperimenHookPanel() {
             <button
               type="button"
               onClick={tambah}
-              className="inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover"
+              className="inline-flex h-11 sm:h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               Simpan eksperimen
             </button>
             <button
               type="button"
               onClick={resetForm}
-              className="inline-flex h-9 items-center border-2 border-foreground px-4 font-mono text-meta font-medium uppercase tracking-meta hover:bg-muted"
+              className="inline-flex h-11 sm:h-9 items-center border-2 border-foreground px-4 font-mono text-meta font-medium uppercase tracking-meta hover:bg-muted"
             >
               Batal
             </button>

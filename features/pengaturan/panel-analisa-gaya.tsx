@@ -14,7 +14,7 @@ import { MAKS_GAYA_BICARA, rapikanGayaBicara, type HasilAnalisaGaya } from "@/li
 const inputClass =
   "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
 const tombolUtama =
-  "inline-flex h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90";
+  "inline-flex h-11 sm:h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90";
 
 export function PanelAnalisaGaya({ onPakai }: { onPakai?: (gaya: string) => void }) {
   const [sumber, setSumber] = useState("");

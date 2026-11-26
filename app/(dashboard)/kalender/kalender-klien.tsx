@@ -42,9 +42,9 @@ import { cn } from "@/lib/utils";
 
 const inputClass =
   "w-full border border-surface-border bg-surface px-3 py-2 text-badan outline-none focus:border-primary";
-const btnGhost = "inline-flex h-9 items-center border border-surface-border px-4 text-badan font-medium hover:bg-muted";
+const btnGhost = "inline-flex h-11 sm:h-9 items-center border border-surface-border px-4 text-badan font-medium hover:bg-muted";
 const btnUtama =
-  "inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
+  "inline-flex h-11 sm:h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
 
 function formatJadwal(jadwalAt: string): string {
   const d = new Date(jadwalAt);

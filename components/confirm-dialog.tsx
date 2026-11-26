@@ -49,7 +49,7 @@ export function ConfirmDialog({
           <button
             type="button"
             onClick={onBatal}
-            className="h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
+            className="h-11 sm:h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
           >
             Batal
           </button>
@@ -58,7 +58,7 @@ export function ConfirmDialog({
             onClick={onKonfirmasi}
             autoFocus
             className={cn(
-              "h-9 px-4 text-badan font-medium text-primary-foreground transition-colors",
+              "h-11 sm:h-9 px-4 text-badan font-medium text-primary-foreground transition-colors",
               destructive
                 ? "bg-status-failed hover:opacity-90"
                 : "bg-primary hover:bg-primary-hover",

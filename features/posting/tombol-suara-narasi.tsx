@@ -61,7 +61,7 @@ export function TombolSuaraNarasi({ statuses }: { statuses: string[] }) {
         type="button"
         onClick={berjalan ? hentikan : putar}
         disabled={kosong}
-        className="h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted disabled:opacity-40"
+        className="h-11 sm:h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted disabled:opacity-40"
       >
         {berjalan ? "Hentikan suara" : "Putar suara narasi"}
       </button>

@@ -172,7 +172,7 @@ export function DaftarAkun() {
           <button
             type="button"
             onClick={() => setModalBuka(true)}
-            className="inline-flex h-9 items-center gap-2 bg-primary px-4 text-badan font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex h-11 sm:h-9 items-center gap-2 bg-primary px-4 text-badan font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M12 4v16m8-8H4" />

@@ -205,7 +205,7 @@ export function TagShopee({
         <button
           type="button"
           onClick={buatUlang}
-          className="inline-flex h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted"
+          className="inline-flex h-11 sm:h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted"
         >
           Susun ulang
         </button>
@@ -213,7 +213,7 @@ export function TagShopee({
           type="button"
           onClick={salinLink}
           disabled={!tagValid(tag)}
-          className="inline-flex h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          className="inline-flex h-11 sm:h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
           Salin link bertag
         </button>

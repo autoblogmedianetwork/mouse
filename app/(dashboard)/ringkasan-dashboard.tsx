@@ -135,7 +135,7 @@ export function RingkasanDashboard() {
           </p>
           <Link
             href="/impor"
-            className="mt-3 inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="mt-3 inline-flex h-11 sm:h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             Impor laporan
           </Link>
@@ -159,7 +159,7 @@ export function RingkasanDashboard() {
             </div>
             <Link
               href="/posting/baru"
-              className="inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+              className="inline-flex h-11 sm:h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               Lanjutkan
             </Link>

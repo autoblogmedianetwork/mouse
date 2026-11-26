@@ -31,7 +31,7 @@ import { formatAngka } from "@/lib/impor/normalisasi";
 const mikro = "font-mono text-meta uppercase tracking-meta";
 const btnGhost = "border border-surface-border px-3 py-1.5 text-meta font-medium hover:bg-muted";
 const btnUtama =
-  "inline-flex h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
+  "inline-flex h-11 sm:h-9 items-center border-2 border-foreground bg-primary px-4 font-mono text-meta font-semibold uppercase tracking-meta text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60";
 
 export function BatchProdukPanel() {
   const [produk] = useState<ProdukRingkas[]>(() =>
@@ -257,7 +257,7 @@ export function BatchProdukPanel() {
                           <div className="flex flex-wrap gap-2">
                             <Link
                               href="/antrian"
-                              className="inline-flex h-9 items-center border-2 border-foreground px-4 font-mono text-meta font-medium hover:bg-muted"
+                              className="inline-flex h-11 sm:h-9 items-center border-2 border-foreground px-4 font-mono text-meta font-medium hover:bg-muted"
                             >
                               Buka Konten
                             </Link>

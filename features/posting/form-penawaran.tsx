@@ -366,7 +366,7 @@ export function FormPenawaran({
             <div className="pt-2">
               <button
                 type="submit"
-                className="h-9 bg-primary px-5 font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
+                className="h-11 sm:h-9 bg-primary px-5 font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
               >
                 Simpan Penawaran &gt;&gt;
               </button>
@@ -400,7 +400,7 @@ export function FormPenawaran({
                 type="button"
                 onClick={handleAmbilDariLink}
                 disabled={loadingAmbil}
-                className="h-9 border border-surface-border bg-muted px-4 font-mono text-meta font-medium uppercase hover:bg-muted/80 disabled:opacity-50"
+                className="h-11 sm:h-9 border border-surface-border bg-muted px-4 font-mono text-meta font-medium uppercase hover:bg-muted/80 disabled:opacity-50"
               >
                 {loadingAmbil ? "Mengambil…" : "Ambil Data Link"}
               </button>
@@ -538,7 +538,7 @@ export function FormPenawaran({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="h-9 px-5 bg-primary font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
+                  className="h-11 sm:h-9 px-5 bg-primary font-mono text-meta font-medium uppercase text-primary-foreground transition-colors hover:bg-primary-hover"
                 >
                   Simpan Penawaran &gt;&gt;
                 </button>

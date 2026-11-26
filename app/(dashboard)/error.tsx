@@ -21,7 +21,7 @@ export default function DashboardError({
       <button
         type="button"
         onClick={reset}
-        className="h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+        className="h-11 sm:h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
       >
         Coba lagi
       </button>

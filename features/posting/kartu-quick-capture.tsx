@@ -54,7 +54,7 @@ export function KartuQuickCapture() {
             ref={pasangTautan}
             draggable
             onClick={(e) => e.preventDefault()}
-            className="inline-flex h-9 cursor-grab items-center border-2 border-primary bg-primary/10 px-4 text-badan font-medium text-primary"
+            className="inline-flex h-11 sm:h-9 cursor-grab items-center border-2 border-primary bg-primary/10 px-4 text-badan font-medium text-primary"
             title="Seret saya ke bilah bookmark"
           >
             Quick Capture → Heaviliate
@@ -65,7 +65,7 @@ export function KartuQuickCapture() {
               const ok = await salinKeClipboard(kode);
               setHasilSalin(ok ? "ya" : "gagal");
             }}
-            className="h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted"
+            className="h-11 sm:h-9 border border-surface-border px-3 text-badan font-medium transition-colors hover:bg-muted"
           >
             Salin kode bookmarklet
           </button>

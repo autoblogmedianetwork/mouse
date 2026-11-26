@@ -79,7 +79,7 @@ export function TurAwal() {
             <button
               type="button"
               onClick={() => setLangkah(2)}
-              className="h-9 border-2 border-foreground bg-primary px-4 text-badan font-medium text-primary-foreground hover:bg-primary-hover"
+              className="h-11 sm:h-9 border-2 border-foreground bg-primary px-4 text-badan font-medium text-primary-foreground hover:bg-primary-hover"
             >
               Lanjut
             </button>
@@ -98,14 +98,14 @@ export function TurAwal() {
             <button
               type="button"
               onClick={() => setLangkah(1)}
-              className="h-9 border border-surface-border px-4 text-badan hover:border-primary"
+              className="h-11 sm:h-9 border border-surface-border px-4 text-badan hover:border-primary"
             >
               Kembali
             </button>
             <button
               type="button"
               onClick={() => setLangkah(3)}
-              className="h-9 border-2 border-foreground bg-primary px-4 text-badan font-medium text-primary-foreground hover:bg-primary-hover"
+              className="h-11 sm:h-9 border-2 border-foreground bg-primary px-4 text-badan font-medium text-primary-foreground hover:bg-primary-hover"
             >
               Lanjut
             </button>
@@ -129,14 +129,14 @@ export function TurAwal() {
             <button
               type="button"
               onClick={isiSendiri}
-              className="h-9 border-2 border-foreground bg-surface px-4 text-badan font-medium hover:border-primary"
+              className="h-11 sm:h-9 border-2 border-foreground bg-surface px-4 text-badan font-medium hover:border-primary"
             >
               Isi produk saya sendiri
             </button>
             <button
               type="button"
               onClick={selesai}
-              className="h-9 px-4 text-meta text-muted-foreground underline-offset-2 hover:underline"
+              className="h-11 sm:h-9 px-4 text-meta text-muted-foreground underline-offset-2 hover:underline"
             >
               Jelajahi dulu
             </button>

@@ -66,7 +66,7 @@ export function DialogJadwal({
           <button
             type="button"
             onClick={onBatal}
-            className="h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
+            className="h-11 sm:h-9 border border-surface-border px-4 text-badan font-medium hover:bg-muted"
           >
             Batal
           </button>
@@ -74,7 +74,7 @@ export function DialogJadwal({
             type="button"
             autoFocus
             onClick={onSimpan}
-            className="h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="h-11 sm:h-9 bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             Simpan jadwal
           </button>

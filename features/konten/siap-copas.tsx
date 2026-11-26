@@ -23,9 +23,9 @@ import {
 } from "@/lib/konten/siap-copas";
 
 const tombol =
-  "inline-flex h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted";
+  "inline-flex h-11 sm:h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted";
 const tombolUtama =
-  "inline-flex h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90";
+  "inline-flex h-11 sm:h-9 items-center bg-primary px-3 text-meta font-medium text-primary-foreground hover:opacity-90";
 
 function Kartu({
   k,

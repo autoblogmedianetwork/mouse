@@ -117,7 +117,7 @@ export function PengaturanGenerate({
                 aria-pressed={aktif}
                 onClick={() => set("mode_output", mode)}
                 className={cn(
-                  "h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
+                  "h-11 sm:h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
                   aktif
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-surface-border bg-surface hover:border-primary",
@@ -150,7 +150,7 @@ export function PengaturanGenerate({
                 aria-pressed={aktif}
                 onClick={() => onChange(terapkanPresetThread(value, preset))}
                 className={cn(
-                  "h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
+                  "h-11 sm:h-9 border px-3 text-badan font-medium transition-colors disabled:opacity-50",
                   aktif
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-surface-border bg-surface hover:border-primary",

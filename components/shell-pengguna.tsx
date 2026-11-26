@@ -41,7 +41,7 @@ export function ShellPengguna({ email }: { email: string | null }) {
         type="button"
         onClick={() => void keluar()}
         disabled={sibuk}
-        className={`${mikro} mt-2 inline-flex h-9 w-full items-center justify-center border-2 border-foreground px-3 font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-60`}
+        className={`${mikro} mt-2 inline-flex h-11 sm:h-9 w-full items-center justify-center border-2 border-foreground px-3 font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-60`}
       >
         {sibuk ? "Keluar…" : "Keluar"}
       </button>

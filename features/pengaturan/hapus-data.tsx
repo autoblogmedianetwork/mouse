@@ -21,7 +21,7 @@ import {
 } from "@/lib/pengaturan/hapus-data";
 
 const tombol =
-  "inline-flex h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted";
+  "inline-flex h-11 sm:h-9 items-center border border-surface-border px-3 text-meta font-medium hover:bg-muted";
 
 function daftarKunciStorage(): string[] {
   try {
@@ -205,7 +205,7 @@ export function HapusData() {
           <div className="mt-2 flex gap-2">
             <button
               type="button"
-              className="inline-flex h-9 items-center bg-status-failed px-3 text-meta font-medium text-white hover:opacity-90"
+              className="inline-flex h-11 sm:h-9 items-center bg-status-failed px-3 text-meta font-medium text-white hover:opacity-90"
               onClick={konfirmasi === "semua" ? hapusSemua : hapusKelompok}
             >
               Ya, hapus sekarang

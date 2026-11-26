@@ -67,7 +67,7 @@ export function PengingatCadangan() {
         <button
           type="button"
           onClick={unduh}
-          className="inline-flex h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="inline-flex h-11 sm:h-9 items-center bg-primary px-4 text-badan font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           Unduh cadangan
         </button>
