@@ -11,7 +11,9 @@
     "test:golden": "node scripts/test-golden.mjs",
     "test:rls": "node tests/rls-dua-akun.mjs",
     "akun:kata-sandi": "node scripts/akun-kata-sandi.mjs",
-    "media:video": "node scripts/hyperframes-service.mjs"
+    "media:video": "node scripts/hyperframes-service.mjs",
+    "tipe": "tsc --noEmit",
+    "cek": "tsc --noEmit && vitest run --reporter=dot"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
