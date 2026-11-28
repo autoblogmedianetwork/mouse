@@ -9,11 +9,29 @@
  * - Aset statis (_next/static, ikon, gambar): cache-first (immutable).
  * - API (/api/*): TIDAK pernah di-cache — jawaban AI dan data akun harus
  *   selalu segar dan tidak boleh tersaji basi saat offline.
+ *
+ * Naikkan VERSI setiap kali shell halaman berubah besar; saat activate,
+ * cache dengan nama lama dihapus sehingga pengguna tidak tertahan di versi
+ * lama selamanya.
  */
-const VERSI = "heaviliate-v1";
+const VERSI = "heaviliate-v2";
 const CACHE_ASET = `${VERSI}-aset`;
 const CACHE_HALAMAN = `${VERSI}-halaman`;
 const OFFLINE_URL = "/offline.html";
+
+/**
+ * Hanya simpan jawaban yang benar-benar halaman final.
+ *
+ * Kalau di-cache tanpa syarat, dua hal rusak:
+ *  1. Rute yang di-redirect (mis. `/` → `/masuk` untuk tamu) menyimpan
+ *     jawaban hasil redirect. Browser menolak menyajikan jawaban hasil
+ *     redirect untuk permintaan navigasi, jadi fallback offline.html justru
+ *     tidak pernah muncul dan halaman tampak error.
+ *  2. Jawaban galat (4xx/5xx) ikut tersimpan dan terus disajikan offline.
+ */
+function bolehDisimpan(res) {
+  return Boolean(res) && res.status === 200 && res.type === "basic" && !res.redirected;
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -63,8 +81,10 @@ self.addEventListener("fetch", (event) => {
         (tercache) =>
           tercache ||
           fetch(request).then((res) => {
-            const salinan = res.clone();
-            caches.open(CACHE_ASET).then((cache) => cache.put(request, salinan));
+            if (bolehDisimpan(res)) {
+              const salinan = res.clone();
+              caches.open(CACHE_ASET).then((cache) => cache.put(request, salinan));
+            }
             return res;
           }),
       ),
@@ -77,8 +97,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const salinan = res.clone();
-          caches.open(CACHE_HALAMAN).then((cache) => cache.put(request, salinan));
+          if (bolehDisimpan(res)) {
+            const salinan = res.clone();
+            caches.open(CACHE_HALAMAN).then((cache) => cache.put(request, salinan));
+          }
           return res;
         })
         .catch(() =>

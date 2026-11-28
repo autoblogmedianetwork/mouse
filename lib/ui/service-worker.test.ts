@@ -25,6 +25,22 @@ describe("service worker PWA", () => {
     expect(sw).toContain("OFFLINE_URL");
   });
 
+  it("tidak menyimpan jawaban hasil redirect atau jawaban galat", () => {
+    // Bug lama: rute yang di-redirect (mis. `/` → `/masuk`) ikut di-cache,
+    // lalu browser menolak menyajikannya untuk navigasi sehingga fallback
+    // offline tidak pernah muncul.
+    expect(sw).toContain("function bolehDisimpan");
+    expect(sw).toContain("res.redirected");
+    expect(sw).toContain("res.status === 200");
+    // Kedua tempat penyimpanan (aset & halaman) wajib memakai penjaga itu.
+    const jumlahPenjaga = (sw.match(/bolehDisimpan\(res\)/g) ?? []).length;
+    expect(jumlahPenjaga).toBeGreaterThanOrEqual(3); // definisi + 2 pemakaian
+  });
+
+  it("versi cache sudah dinaikkan supaya cache lama terbuang", () => {
+    expect(sw).toContain('"heaviliate-v2"');
+  });
+
   it("offline.html berisi pesan Indonesia dan tombol coba lagi", () => {
     expect(offline).toContain("Kamu sedang offline");
     expect(offline).toContain("Coba lagi");
