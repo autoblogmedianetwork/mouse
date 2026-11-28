@@ -2,6 +2,7 @@ import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { PageHeader } from "@/components/page-header";
 import { DaftarProdukBelumDiposting } from "@/features/analitik/daftar-produk-belum-diposting";
 import { InsightAtribusi } from "@/features/analitik/insight-atribusi";
+import { RangkingAnglePanel } from "@/features/analitik/rangking-angle";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { AnalitikPerforma } from "./analitik-performa";
 
@@ -20,6 +21,7 @@ export default async function AnalitikPage() {
       <TabMenuOtomatis />
       <AnalitikPerforma />
       <InsightAtribusi />
+      <RangkingAnglePanel />
       {/* Sumbernya pustaka konten, bukan laporan impor, jadi tidak dipandu ini. */}
       <DaftarProdukBelumDiposting />
     </div>

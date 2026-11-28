@@ -13,6 +13,7 @@ import { CarouselSlideEditor } from "./carousel-slide-editor";
 import type { CarouselResponse } from "@/lib/ai/schemas";
 import { ChecklistGate, type ChecklistId } from "./checklist-gate";
 import { UjiPsikologi } from "./uji-psikologi";
+import { PeriksaKepatuhan } from "./periksa-kepatuhan";
 import { ActionBar } from "./action-bar";
 import { charLength } from "@/lib/statuses/validator-500";
 import { TombolSuaraNarasi } from "./tombol-suara-narasi";
@@ -216,6 +217,7 @@ export function TahapPreview({
               batas={batasKarakter}
             />
             <UjiPsikologi statuses={kontenAktif?.statuses ?? []} />
+            <PeriksaKepatuhan statuses={kontenAktif?.statuses ?? []} />
             <ChecklistGate
               nilai={draft.checklist}
               onChange={(id: ChecklistId, checked: boolean) =>
