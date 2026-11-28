@@ -28,6 +28,7 @@ import { TAB_REVIEW, type TabReview } from "@/lib/konten/skema";
 import { cn } from "@/lib/utils";
 import { DialogJadwal } from "./dialog-jadwal";
 import { KartuKonten } from "./kartu-konten";
+import { PanduanPelacak } from "./panduan-pelacak";
 import { btnGhost, inputClass } from "./antrian-bersama";
 import { useAntrian } from "./use-antrian";
 
@@ -82,6 +83,8 @@ export function AntrianReview() {
           fallbackTerakhir={a.biaya.fallbackTerakhir}
         />
       </PageHeader>
+
+      <PanduanPelacak />
 
       {/* Status provider posting (UI-Spec 3.8): jelas mode apa yang aktif sekarang. */}
       {a.posting.siap ? (
