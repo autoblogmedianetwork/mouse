@@ -44,6 +44,7 @@ export function KatalogProduk() {
   const router = useRouter();
   const [produk, setProduk] = useState<ProdukRingkas[]>([]);
   const [kueri, setKueri] = useState("");
+  const [tagAktif, setTagAktif] = useState<string | null>(null);
   const [lihatArsip, setLihatArsip] = useState(false);
   const [dipilih, setDipilih] = useState<Set<string>>(new Set());
   const [pesan, setPesan] = useState<string | null>(null);
@@ -58,6 +59,7 @@ export function KatalogProduk() {
     return produk
       .filter((p) => Boolean(p.arsip) === lihatArsip)
       .filter((p) => {
+        if (tagAktif && !(p.tag ?? []).includes(tagAktif)) return false;
         if (!q) return true;
         const gabung = [p.nama_internal, p.nama, p.varian, ...(p.tag ?? [])]
           .filter(Boolean)
@@ -65,7 +67,17 @@ export function KatalogProduk() {
           .toLowerCase();
         return gabung.includes(q);
       });
-  }, [produk, kueri, lihatArsip]);
+  }, [produk, kueri, lihatArsip, tagAktif]);
+
+  // Semua tag unik dari produk yang tayang (bukan arsip), terurut.
+  const semuaTag = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of produk) {
+      if (Boolean(p.arsip) !== lihatArsip) continue;
+      for (const t of p.tag ?? []) if (t.trim()) set.add(t.trim());
+    }
+    return [...set].sort((a, b) => a.localeCompare(b, "id"));
+  }, [produk, lihatArsip]);
 
   const simpan = (list: ProdukRingkas[], pesanBaru?: string) => {
     setProduk(list);
@@ -142,6 +154,32 @@ export function KatalogProduk() {
           {tersaring.length} produk
         </span>
       </Card>
+
+      {/* Filter tag (bank ide #13): chip dari tag yang benar-benar dipakai produk */}
+      {semuaTag.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter tag">
+          <span className="text-meta text-muted-foreground">Tag:</span>
+          <button
+            type="button"
+            onClick={() => setTagAktif(null)}
+            aria-pressed={tagAktif === null}
+            className={`${btnKecil} ${tagAktif === null ? "" : "opacity-60"}`}
+          >
+            Semua
+          </button>
+          {semuaTag.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTagAktif((v) => (v === t ? null : t))}
+              aria-pressed={tagAktif === t}
+              className={`${btnKecil} ${tagAktif === t ? "" : "opacity-60"}`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {/* Bulk action */}
       {tersaring.length > 0 ? (
