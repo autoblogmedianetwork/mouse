@@ -37,14 +37,16 @@ export async function POST(req: Request) {
   const html = buatkanLandingHTML(parsed);
   const dir = path.join(process.cwd(), "public", "landing");
   const target = path.join(dir, `${parsed.slug}.html`);
+
+  // Di hosting read-only (Vercel) penulisan ke folder proyek gagal dengan EROFS.
+  // Halaman tetap dibuat dan dikirim balik supaya pengguna bisa mengunduhnya
+  // sendiri — fitur tidak boleh mati hanya karena filesystem-nya read-only.
+  let tersimpan = true;
   try {
     await mkdir(dir, { recursive: true });
     await writeFile(target, html, "utf-8");
-  } catch (err) {
-    return NextResponse.json(
-      { ok: false, error: `Gagal menulis file: ${String(err)}` },
-      { status: 500 },
-    );
+  } catch {
+    tersimpan = false;
   }
 
   // --- Simpan metadata ke Supabase ------------------
@@ -66,7 +68,13 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    data: { success: true, url: `/landing/${parsed.slug}` },
+    data: {
+      success: true,
+      /** Kosong bila filesystem read-only; pakai `html` untuk mengunduh. */
+      url: tersimpan ? `/landing/${parsed.slug}` : "",
+      tersimpan,
+      html,
+    },
   });
 }
 

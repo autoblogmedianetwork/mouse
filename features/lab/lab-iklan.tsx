@@ -265,11 +265,13 @@ export function WizardLandingPage() {
   const [pratinjau, setPratinjau] = useState<DataLandingPage | null>(null);
   const [memuat, setMemuat] = useState(false);
   const [galat, setGalat] = useState("");
-  const [generated, setGenerated] = useState(false);
+  const [hasilLanding, setHasilLanding] = useState<
+    { slug: string; url: string; tersimpan: boolean; html: string } | null
+  >(null);
 
   const preview = () => {
     setPratinjau({ ...data });
-    setGenerated(false);
+    setHasilLanding(null);
   };
 
   const buat = async () => {
@@ -280,18 +282,39 @@ export function WizardLandingPage() {
     }
     setMemuat(true);
     setGalat("");
-    const res = await panggilAI<{ success: boolean; url: string }>("/api/marketing/landing-page", {
+    const res = await panggilAI<{
+      success: boolean;
+      url: string;
+      tersimpan: boolean;
+      html: string;
+    }>("/api/marketing/landing-page", {
       ...data,
       slug: slugBersih,
     });
     setMemuat(false);
     if (!res.ok || !res.data?.success) {
-      setGenerated(false);
+      setHasilLanding(null);
       setGalat(res.error ?? "Buat landing page gagal.");
       return;
     }
-    setGenerated(true);
+    setHasilLanding({
+      slug: slugBersih,
+      url: res.data.url,
+      tersimpan: res.data.tersimpan,
+      html: res.data.html,
+    });
     setPratinjau(data);
+  };
+
+  const unduh = () => {
+    if (!hasilLanding) return;
+    const blob = new Blob([hasilLanding.html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${hasilLanding.slug}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -407,12 +430,27 @@ export function WizardLandingPage() {
         </div>
       </div>
 
-      {generated && pratinjau && (
+      {hasilLanding ? (
         <div className="mt-4 rounded bg-green-500/10 p-3 text-meta text-green-700 dark:text-green-400">
-          ✅ Landing page berhasil dibuat. URL tujuan: <code className="text-badan font-mono text-sm">/{pratinjau.slug}</code>{" "}
-          — salin URL ini sebagai target di Meta Ads atau masukkan ke link bio.
+          {hasilLanding.tersimpan ? (
+            <>
+              ✅ Halaman dibuat. URL tujuan:{" "}
+              <code className="font-mono text-badan text-sm">/{hasilLanding.slug}</code> — salin
+              URL ini sebagai target di Meta Ads atau masukkan ke link bio.
+            </>
+          ) : (
+            <div className="space-y-2">
+              <p>
+                ✅ Halaman dibuat, tapi server ini read-only (mis. Vercel) sehingga file tidak bisa
+                ditulis. Unduh HTML-nya lalu hosting sendiri.
+              </p>
+              <button type="button" onClick={unduh} className={btnPrimary}>
+                Unduh {hasilLanding.slug}.html
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
     </Card>
   );
 }
