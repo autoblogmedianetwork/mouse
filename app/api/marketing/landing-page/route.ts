@@ -12,7 +12,7 @@
 import { NextResponse } from "next/server";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { klienServer } from "@/lib/supabase/server";
+import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
 import { siapkanBody } from "@/lib/api/siapkan-body";
 import { z } from "zod";
 
@@ -50,10 +50,14 @@ export async function POST(req: Request) {
   }
 
   // --- Simpan metadata ke Supabase ------------------
+  // Baris terikat ke pemiliknya (RLS 0018). Kalau pengguna tidak dikenali,
+  // metadata dilewati saja — halaman HTML-nya sudah jadi.
   const supabase = await klienServer();
-  if (supabase) {
+  const pengguna = supabase ? await penggunaSaatIni() : null;
+  if (supabase && pengguna) {
     try {
       await supabase.from("landing_pages").insert({
+        user_id: pengguna.id,
         slug: parsed.slug,
         judul: parsed.judul,
         subjudul: parsed.subjudul,
@@ -62,7 +66,7 @@ export async function POST(req: Request) {
         hero_url: parsed.hero || null,
       });
     } catch {
-      /* non-fatal: file sudah ditulis, metadata bisa diisi ulang */
+      /* non-fatal: halaman sudah dibuat, metadata boleh gagal */
     }
   }
 
