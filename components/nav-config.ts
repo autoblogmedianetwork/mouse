@@ -162,7 +162,8 @@ export const MENU_ITEMS: MenuItem[] = [
     href: "/lab",
     group: "sistem",
     fase: "MVP",
-    kapan: "Sepuluh alat uji coba untuk menulis dan menguji ide konten.",
+    kapan:
+      "Tiga belas alat uji coba untuk menulis dan menguji ide konten — termasuk Lab Iklan untuk membuat iklan berbayar dan landing page.",
   },
   {
     label: "Pengaturan",

@@ -11,6 +11,7 @@ import { BagianGhostwriter, BagianBattle, BagianJujur, BagianParalel } from "./l
 import { BagianTimeCapsule, BagianNyanyian, BagianGamifikasi, BagianLawanBots, BagianFoto, BagianMirror } from "./lab-alat";
 import { BagianBedah } from "./lab-bedah";
 import { BagianUtasPanjang } from "./lab-utas";
+import { BagianLabIklan } from "./lab-iklan";
 
 export function LabKlien() {
   return (
@@ -22,6 +23,7 @@ export function LabKlien() {
       </p>
       <BagianBedah />
       <BagianUtasPanjang />
+      <BagianLabIklan />
       <BagianLabUji />
       <BagianIdeMasalah />
       <BagianSerial />

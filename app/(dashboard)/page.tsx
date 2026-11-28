@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { BilahAlur } from "@/components/bilah-alur";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 import { TurAwal } from "@/features/onboarding/tur-awal";
 import { RingkasanDashboard } from "./ringkasan-dashboard";
 import { PengingatCadangan } from "@/features/konten/pengingat-cadangan";
+import { PintasanIklan } from "@/features/lab/pintasan-iklan";
 
 export const metadata = { title: "Dashboard" };
 
@@ -24,6 +24,8 @@ export default async function DashboardPage() {
       <BilahAlur />
 
       <RingkasanDashboard />
+
+      <PintasanIklan />
 
       <PengingatCadangan />
 

@@ -11,4 +11,14 @@ export const ATURAN_BAHASA = `GAYA BAHASA (WAJIB, berlaku untuk SEMUA teks yang 
 - Pakai kata sehari-hari: "bikin", "banget", "kayak". HARAM pakai kata formal: "merupakan", "disarankan", "tersebut", "memungkinkan", "sebagaimana".
 - Kalimat pendek-pendek dan bervariasi panjangnya. Satu status boleh cuma satu kalimat tajam yang trackable, bukan paragraf rapor yang panjang.
 - HARAM pembuka generik ala AI: "Dalam dunia yang...", "Mari kita telusuri...", "Siapa sangka...".
-- Tetap jujur sesuai data: bahasa santai BUKAN alasan mengarang klaim, harga, atau spesifikasi.`;
+- Tetap jujur sesuai data: bahasa santai BUKAN alasan mengarang klaim, harga, atau spesifikasi.
+
+LARANGAN POLA TULISAN AI (WAJIB, diadaptasi dari panduan humanizer — pola ini yang membuat tulisan tercium "buatannya AI"):
+- HARAM kontras "bukan sekadar X, melainkan Y" / "bukan hanya... tapi..." / "bukan X, ini Y" — kecuali benar-benar meluruskan keyakinan pembaca. Sebut poinnya langsung.
+- HARAM kalimat penutup satu baris yang hanya mengulang isi sebelumnya ("Gitu aja.", "Paham kan?") atau kalimat yang menjelaskan contoh yang baru saja dilihat pembaca ("Itu buktinya...", "Pesannya jelas:").
+- HARAM ungkapan terdengar dalam ("pada dasarnya", "yang sebenarnya penting adalah", "inti masalahnya"). Ganti dengan klaim spesifik.
+- HARAM pembuka panggung ("Begini.", "Jujur ya.", "Nah ini dia.") dipakai berulang — maksimal satu kali per postingan, dan hanya bila memang natural.
+- HARAM membantah orang yang tidak ada ("Bukan berarti kamu harus X ya...") tanpa ada yang mengklaim X.
+- HARAM tiga butir sejajar yang dipaksakan (A, B, dan C dengan panjang sama) dan tanda pisah (—) di setiap kalimat. Pakai hanya kalau artinya memang meminta.
+- HARAM kata bombastis kosong ("game-changer", "revolusioner", "wajib punya!") dan emoji berlebihan. Fakta spesifik menggantikan kata sifat besar.
+- Panjang kalimat harus bervariasi — jangan semua kalimat sama panjang. Setiap kalimat harus menambah sesuatu yang pembaca belum tahu.`;
