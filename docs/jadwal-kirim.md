@@ -29,26 +29,46 @@ sebagai jaring pengaman kalau pg_cron mati.
 
 ## Pasang pg_cron (sekali saja)
 
-Buka **Supabase → SQL Editor**, lalu jalankan dua bagian berikut.
+Buka **Supabase → SQL Editor**, lalu jalankan tiga bagian berikut.
 
-### 1. Simpan rahasia di level database
+> `alter database postgres set app.cron_secret = ...` **tidak bisa dipakai di
+> Supabase**: peran `postgres` bukan pemilik database, jadi muncul
+> `42501: permission denied to set parameter`. Rahasianya disimpan di tabel
+> tertutup seperti di bawah.
 
-Rahasia tidak masuk repo, jadi nilainya disimpan sebagai setelan database.
+### 0. Aktifkan ekstensinya lewat Dashboard
+
+`create extension pg_cron` sering ikut kena masalah izin. Lebih aman lewat
+**Supabase → Database → Extensions**, lalu aktifkan **pg_cron** dan **pg_net**.
+Kalau keduanya sudah menyala, lewati langkah ini.
+
+### 1. Simpan rahasia di tabel tertutup
+
+Tabel ini dikunci RLS tanpa aturan akses, jadi `anon` dan `authenticated` tidak
+bisa membacanya. `pg_cron` jalan sebagai pemilik tabel, jadi tetap bisa.
 Ganti `RAHASIA_CRON` dengan nilai `CRON_SECRET` milikmu.
 
 ```sql
-alter database postgres set app.cron_secret = 'RAHASIA_CRON';
+create table if not exists cron_rahasia (
+  kunci  text primary key,
+  nilai  text not null,
+  dibuat timestamptz not null default now()
+);
+
+alter table cron_rahasia enable row level security;
+revoke all on cron_rahasia from anon, authenticated;
+
+insert into cron_rahasia (kunci, nilai)
+values ('cron_secret', 'RAHASIA_CRON')
+on conflict (kunci) do update set nilai = excluded.nilai;
 ```
 
 ### 2. Jadwalkan panggilan tiap 15 menit
 
 Ganti `https://DOMAIN-KAMU` dengan alamat produksi. `pg_net` yang mengirim
-permintaan HTTP, jadi endpoint tetap yang sama dengan milik Vercel Cron.
+permintaan HTTP, jadi endpoint tetap sama dengan milik Vercel Cron.
 
 ```sql
-create extension if not exists pg_cron;
-create extension if not exists pg_net;
-
 select cron.schedule(
   'heaviliate-proses-jadwal',
   '*/15 * * * *',
@@ -56,7 +76,8 @@ select cron.schedule(
   select net.http_post(
     url := 'https://DOMAIN-KAMU/api/threads/proses-jadwal',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer ' || current_setting('app.cron_secret', true),
+      'Authorization',
+      'Bearer ' || coalesce((select nilai from cron_rahasia where kunci = 'cron_secret'), ''),
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb,
@@ -66,11 +87,20 @@ select cron.schedule(
 );
 ```
 
+Kalau `cron.schedule` ditolak karena jadwalnya sudah ada, batalkan dulu:
+
+```sql
+select cron.unschedule('heaviliate-proses-jadwal');
+```
+
 ### 3. Periksa
 
 ```sql
 -- daftar jadwal yang aktif
 select jobid, jobname, schedule, active from cron.job;
+
+-- pastikan rahasianya terbaca (harus keluar satu baris)
+select kunci, length(nilai) as panjang from cron_rahasia;
 
 -- 5 panggilan terakhir beserta kode balasannya
 select id, status_code, created
@@ -79,8 +109,20 @@ order by id desc
 limit 5;
 ```
 
-Kalau `status_code` 200, penjadwal bekerja. Kalau 401, `CRON_SECRET` tidak cocok.
-Kalau 500, cek log fungsi Vercel-nya.
+Kalau `status_code` 200, penjadwal bekerja. Kalau 401, `CRON_SECRET` di Vercel
+tidak sama dengan isi `cron_rahasia`. Kalau 500, cek log fungsi Vercel-nya.
+
+### Alternatif: Supabase Vault
+
+Kalau lebih suka rahasianya terenkripsi, Vault bisa dipakai:
+
+```sql
+select vault.create_secret('RAHASIA_CRON', 'cron_secret');
+```
+
+lalu di dalam job pakai
+`(select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')`
+menggantikan subquery `cron_rahasia`.
 
 ### Membatalkan
 
