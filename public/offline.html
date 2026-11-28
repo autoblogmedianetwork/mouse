@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heaviliate — Offline</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #1c1917;
+        color: #fafaf9;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      main { max-width: 28rem; }
+      h1 { font-size: 1.25rem; margin: 0 0 8px; }
+      p { color: #d6d3d1; line-height: 1.6; margin: 0 0 16px; }
+      button {
+        background: #ea580c;
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Kamu sedang offline</h1>
+      <p>
+        Sinyal internet sedang tidak tersedia. Kabar baiknya: data kontenmu
+        tersimpan di perangkat ini — begitu sinyal kembali, buka aplikasi lagi
+        dan semuanya ada di tempatnya.
+      </p>
+      <button onclick="location.reload()">Coba lagi</button>
+    </main>
+  </body>
+</html>
