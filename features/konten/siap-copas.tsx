@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/page-header";
 import { muatKonten, simpanKonten, tandaiTerkirim } from "@/lib/konten/store";
 import type { Konten } from "@/lib/konten/skema";
 import { bangunIntentThreads } from "@/lib/platforms/intent-threads";
+import { CTA_BAWAAN, gabungCta } from "@/lib/konten/cta";
 import {
   jamJadwal,
   kunciTanggalLokal,
@@ -39,6 +40,7 @@ function Kartu({
 }) {
   const { utama, balasan } = teksSiapCopas(k);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [ctaId, setCtaId] = useState<string>(CTA_BAWAAN[0].id);
 
   const salin = async (teks: string, label: string) => {
     try {
@@ -79,6 +81,37 @@ function Kartu({
         <button type="button" className={tombolUtama} onClick={() => salin(utama, "Teks")}>
           Salin teks
         </button>
+        <select
+          aria-label="Pilih CTA penutup"
+          value={ctaId}
+          onChange={(e) => setCtaId(e.target.value)}
+          className="h-11 sm:h-9 border border-surface-border bg-surface px-2 text-meta"
+        >
+          {CTA_BAWAAN.map((c) => (
+            <option key={c.id} value={c.id}>
+              CTA: {c.label}
+            </option>
+          ))}
+        </select>
+        {(() => {
+          const cta = CTA_BAWAAN.find((c) => c.id === ctaId);
+          if (!cta) return null;
+          const gabung = gabungCta(utama, cta.teks);
+          return (
+            <button
+              type="button"
+              className={tombol}
+              disabled={!gabung.ok}
+              title={gabung.ok ? undefined : gabung.galat}
+              onClick={() => {
+                if (gabung.ok) void salin(gabung.teks, "Teks + CTA");
+                else setPesan(gabung.galat);
+              }}
+            >
+              Salin + CTA
+            </button>
+          );
+        })()}
         {(() => {
           const intent = bangunIntentThreads(utama);
           return intent.ok ? (
