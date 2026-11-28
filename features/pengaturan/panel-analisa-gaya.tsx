@@ -55,7 +55,7 @@ export function PanelAnalisaGaya({ onPakai }: { onPakai?: (gaya: string) => void
 
   const pakai = () => {
     onPakai?.(gaya);
-    setPesan("Gaya ditempel ke kolom persona. Jangan lupa simpan Pengaturan.");
+    setPesan("Gaya tersimpan sebagai persona bernama AKTIF — langsung dipakai saat generate berikutnya.");
   };
 
   return (

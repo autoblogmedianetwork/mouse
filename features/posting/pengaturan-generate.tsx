@@ -291,11 +291,15 @@ export function PengaturanGenerate({
                 <PanelAnalisaGaya
                   onPakai={(gaya) => {
                     const v = gaya.slice(0, 300);
-                    onChange({ ...value, persona_gaya: v });
+                    // Otomatis aktifkan persona bernama + beri nama default bila
+                    // kosong — dulu user harus pilih 'bernama' manual dan pesan
+                    // meminta simpan manual padahal localStorage sudah ditulis.
+                    const nama = value.persona_nama.trim() || "Gaya dari analisa";
+                    onChange({ ...value, persona: "bernama", persona_nama: nama, persona_gaya: v });
                     try {
                       window.localStorage.setItem(
                         "autothreads-persona-bernama",
-                        JSON.stringify({ nama: value.persona_nama, gaya: v }),
+                        JSON.stringify({ nama, gaya: v }),
                       );
                     } catch {
                       // abaikan
