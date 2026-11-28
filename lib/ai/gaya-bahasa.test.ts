@@ -20,6 +20,12 @@ describe("ATURAN_BAHASA — blok larangan pola AI (humanizer)", () => {
     expect(ATURAN_BAHASA).toContain("bombastis");
   });
 
+  it("memuat pagar khusus konten afiliasi: atribusi kabur, basa promosi, pengisi", () => {
+    expect(ATURAN_BAHASA).toContain("atribusi kabur");
+    expect(ATURAN_BAHASA).toContain("basa promosi");
+    expect(ATURAN_BAHASA).toContain("pengisi basa-basi");
+  });
+
   it("aturan lama tetap utuh (aditif, tidak mengganti)", () => {
     expect(ATURAN_BAHASA).toContain("Dalam dunia yang");
     expect(ATURAN_BAHASA).toContain("merupakan");
