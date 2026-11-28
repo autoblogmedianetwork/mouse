@@ -10,6 +10,7 @@ import { BagianSerial, BagianHashtag, BagianSerial30 } from "./lab-serial";
 import { BagianGhostwriter, BagianBattle, BagianJujur, BagianParalel } from "./lab-kreator";
 import { BagianTimeCapsule, BagianNyanyian, BagianGamifikasi, BagianLawanBots, BagianFoto, BagianMirror } from "./lab-alat";
 import { BagianBedah } from "./lab-bedah";
+import { BagianUtasPanjang } from "./lab-utas";
 
 export function LabKlien() {
   return (
@@ -20,6 +21,7 @@ export function LabKlien() {
         bulanan tercapai.
       </p>
       <BagianBedah />
+      <BagianUtasPanjang />
       <BagianLabUji />
       <BagianIdeMasalah />
       <BagianSerial />

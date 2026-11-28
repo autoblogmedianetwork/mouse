@@ -663,3 +663,21 @@ export const bedahPostinganRequestSkema = z.object({
 });
 
 export type BedahPostinganRequest = z.infer<typeof bedahPostinganRequestSkema>;
+
+/** Utas panjang via lampiran teks Threads (ide #5, prompt utas-panjang.v1). */
+export const utasPanjangSkema = z.object({
+  teks: z.string().min(200).max(10000),
+  struktur: z.array(z.string().min(1).max(120)).min(3).max(8),
+  catatan: z.string().max(140).default(""),
+});
+
+export type UtasPanjang = z.infer<typeof utasPanjangSkema>;
+
+export const utasPanjangRequestSkema = z.object({
+  produkNama: z.string().trim().min(2, "Nama produk minimal 2 karakter.").max(160),
+  fakta: z.string().trim().min(20, "Fakta produk minimal 20 karakter.").max(2000),
+  panjangTarget: z.enum(["3000", "6000", "10000"]).default("6000"),
+  gayaBicara: z.string().trim().max(300).optional(),
+});
+
+export type UtasPanjangRequest = z.infer<typeof utasPanjangRequestSkema>;
