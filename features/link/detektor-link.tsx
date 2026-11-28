@@ -24,7 +24,7 @@ export function DetektorLink() {
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://s.shopee.co.id/...?sub_id=..."
-        className="mt-3 w-full rounded-md border border-surface-border bg-background px-3 py-2 text-badan"
+        className="mt-3 w-full border border-surface-border bg-background px-3 py-2 text-badan"
       />
       {url.trim() !== "" ? (
         <div className="mt-3 space-y-1 border-t border-surface-border pt-3 text-badan">
@@ -46,7 +46,7 @@ export function DetektorLink() {
             </p>
           ))}
           {hasil.ok ? (
-            <p className="font-medium text-green-600">✓ Link siap dipakai.</p>
+            <p className="font-medium text-status-ready">✓ Link siap dipakai.</p>
           ) : null}
         </div>
       ) : null}

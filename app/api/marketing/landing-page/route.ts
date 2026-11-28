@@ -10,7 +10,7 @@
  * ke Meta Ads Manager atau tool lain. Heaviliate tidak otomatis menerbitkan iklan.
  */
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { klienServer, penggunaSaatIni } from "@/lib/supabase/server";
 import { siapkanBody } from "@/lib/api/siapkan-body";
@@ -26,6 +26,8 @@ const landingRequestSkema = z.object({
   cta: z.string(),
   deskripsi: z.string(),
   tautan: z.string().url().optional().or(z.literal("")),
+  /** Wajib true kalau pengguna sudah mengonfirmasi menimpa halaman yang ada. */
+  timpa: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -37,6 +39,20 @@ export async function POST(req: Request) {
   const html = buatkanLandingHTML(parsed);
   const dir = path.join(process.cwd(), "public", "landing");
   const target = path.join(dir, `${parsed.slug}.html`);
+
+  // Halaman dengan alamat yang sama tidak ditimpa tanpa persetujuan: iklan yang
+  // sudah berjalan bisa tiba-tiba menampilkan isi lain. Di hosting read-only
+  // pemeriksaan ini gagal dengan ENOENT/EROFS dan dianggap "belum ada".
+  let sudahAda = false;
+  try {
+    await stat(target);
+    sudahAda = true;
+  } catch {
+    sudahAda = false;
+  }
+  if (sudahAda && !parsed.timpa) {
+    return NextResponse.json({ ok: true, data: { sudah_ada: true, slug: parsed.slug } });
+  }
 
   // Di hosting read-only (Vercel) penulisan ke folder proyek gagal dengan EROFS.
   // Halaman tetap dibuat dan dikirim balik supaya pengguna bisa mengunduhnya

@@ -247,13 +247,13 @@ export function BrandingKit() {
               aria-label={`Teks hari ${hari.id}`}
             />
             <p
-              className={`mt-1 text-meta ${lebih ? "font-medium text-red-600 dark:text-red-400" : "text-muted-foreground"}`}
+              className={`mt-1 text-meta ${lebih ? "font-medium text-status-failed" : "text-muted-foreground"}`}
             >
               {teks.length}/{BATAS_THREADS} karakter {lebih ? "— kurangi sebelum posting" : ""}
             </p>
 
             {pesan[hari.id] ? (
-              <p className="mt-1 text-meta font-medium text-red-600 dark:text-red-400">
+              <p className="mt-1 text-meta font-medium text-status-failed">
                 {pesan[hari.id]}
               </p>
             ) : null}

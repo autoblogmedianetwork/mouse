@@ -1,49 +1,54 @@
 "use client";
 
 /**
- * Lab Iklan — pembuat iklan Meta dan landing page.
+ * Lab Iklan — menghitung balik modal, menulis iklan Meta, dan menyiapkan
+ * landing page untuk menampung klik.
  *
- * Alur:
- * 1. Kalkulator → hitung break-even dari komisi, cpc, budget.
- * 2. Generator Iklan → buat 3 varian iklan Meta via AI (pakai prompt ad-iklan-meta).
- * 3. Wizard Landing Page → susun halaman landing sederhana untuk menampung traffic iklan.
- *
- * Semua keluaran berstatus draft. Tidak ada yang otomatis dipublikasikan.
+ * Aturan bentuk (hasil critique 28 Nov):
+ * - Judul mengikuti pola bagian Lab lain: kalimat biasa, tanpa emoji.
+ * - Tidak ada istilah Inggris yang tidak perlu; pengguna afiliator pemula.
+ * - Angka dihitung saat diketik, bukan setelah menekan tombol.
+ * - Sudut siku dan warna memakai token (ADR 0013), bukan palet mentah.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/card";
 import { cn } from "@/lib/utils";
 import { inputClass, btnPrimary, btnGhost, TombolSalin, PesanGalat, panggilAI } from "./lab-bersama";
-import { type IklanParams, type IklanResult, estimateIklan } from "@/lib/advertising/iklan-calculator";
+import { type IklanParams, estimateIklan } from "@/lib/advertising/iklan-calculator";
+
+const rupiah = (nilai: number): string =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(nilai);
 
 /* ------------------------------------------------------------------ kalkulator -- */
 
 export function BagianKalkulator() {
   const [params, setParams] = useState<IklanParams>({ commission: 5, cpc: 2000, budget: 200000 });
-  const [hasil, setHasil] = useState<IklanResult | null>(null);
-  const [galat, setGalat] = useState("");
 
-  const hitung = () => {
+  // Dihitung saat diketik. Kalau angkanya belum masuk akal, yang tampil adalah
+  // alasannya — bukan angka lama yang sudah tidak berlaku.
+  const hasil = useMemo(() => {
     try {
-      setHasil(estimateIklan(params));
-      setGalat("");
+      return { ok: true as const, data: estimateIklan(params) };
     } catch (e) {
-      setHasil(null);
-      setGalat(e instanceof Error ? e.message : "Hitung gagal.");
+      return { ok: false as const, pesan: e instanceof Error ? e.message : "Angka belum valid." };
     }
-  };
+  }, [params]);
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">📊 Kalkulator Break-Even Iklan</h2>
+      <h2 className="text-isi font-semibold">Kalkulator balik modal</h2>
       <p className="mt-1 text-badan text-muted-foreground">
-        Masukkan persentase komisi affiliate, estimasi cost-per-click di Meta Ads, dan budget
-        harian. Alat ini memperkirakan berapa penjualan yang dibutuhkan agar tidak rugi.
+        Perkiraan berapa penjualan yang dibutuhkan agar biaya iklan tertutup komisi. Angkanya
+        berubah saat kamu mengetik.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <label className="block text-meta font-medium">
-          Komisi (%) (rata-rata Shopee Affiliate)
+          Komisi per penjualan (%)
           <input
             type="number"
             min={0.1}
@@ -56,7 +61,7 @@ export function BagianKalkulator() {
         </label>
 
         <label className="block text-meta font-medium">
-          CPC (Rupiah)
+          Biaya per klik (Rp)
           <input
             type="number"
             min={100}
@@ -68,7 +73,7 @@ export function BagianKalkulator() {
         </label>
 
         <label className="block text-meta font-medium">
-          Budget Harian (Rupiah)
+          Budget harian (Rp)
           <input
             type="number"
             min={1000}
@@ -80,41 +85,49 @@ export function BagianKalkulator() {
         </label>
       </div>
 
-      <button type="button" onClick={hitung} disabled={!params.commission || !params.cpc || !params.budget} className={cn(btnPrimary, "mt-4")}>
-        Hitung Break-Even
-      </button>
-      <PesanGalat pesan={galat} />
-
-      {hasil && (
+      {hasil.ok ? (
         <div className="mt-4 space-y-3 border-t border-surface-border pt-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="border border-surface-border p-3">
-              <p className="text-meta text-xs uppercase tracking-badge text-muted-foreground">Penjualan Dibutuhkan</p>
-              <p className="mt-1 text-isi font-bold">{hasil.salesNeeded}</p>
-              <p className="text-meta text-xs text-muted-foreground">minimal per siklus budget</p>
+              <p className="text-meta uppercase tracking-badge text-muted-foreground">
+                Penjualan dibutuhkan
+              </p>
+              <p className="mt-1 text-isi font-bold tabular-nums">{hasil.data.salesNeeded}</p>
+              <p className="text-meta text-muted-foreground">per siklus budget</p>
             </div>
             <div className="border border-surface-border p-3">
-              <p className="text-meta text-xs uppercase tracking-badge text-muted-foreground">Klik Diperlukan</p>
-              <p className="mt-1 text-isi font-bold">{hasil.clicksNeeded.toLocaleString("id-ID")}</p>
-              <p className="text-meta text-xs text-muted-foreground">dengan asumsi konversi {Math.round(hasil.salesNeeded / hasil.clicksNeeded * 100)}%</p>
+              <p className="text-meta uppercase tracking-badge text-muted-foreground">
+                Klik dibutuhkan
+              </p>
+              <p className="mt-1 text-isi font-bold tabular-nums">
+                {hasil.data.clicksNeeded.toLocaleString("id-ID")}
+              </p>
+              <p className="text-meta text-muted-foreground">dengan asumsi tiap klik jadi</p>
             </div>
             <div className="border border-surface-border p-3">
-              <p className="text-meta text-xs uppercase tracking-badge text-muted-foreground">Biaya per Penjualan</p>
-              <p className="mt-1 text-isi font-bold">Rp{Math.round(hasil.costPerSale).toLocaleString("id-ID")}</p>
-              <p className="text-meta text-xs text-muted-foreground">harus di bawah margin keuntungan</p>
+              <p className="text-meta uppercase tracking-badge text-muted-foreground">
+                Biaya per penjualan
+              </p>
+              <p className="mt-1 text-isi font-bold tabular-nums">
+                {rupiah(Math.round(hasil.data.costPerSale))}
+              </p>
+              <p className="text-meta text-muted-foreground">harus di bawah untung per barang</p>
             </div>
           </div>
 
-          <div className="rounded bg-status-failed/10 p-3 text-meta">
-            <p className="font-medium">⚠️ Aturan Shopee Affiliate:</p>
+          <div className="border border-warning/40 bg-warning/10 p-3 text-meta">
+            <p className="font-medium">Aturan Shopee Affiliate yang berlaku untuk iklan</p>
             <ul className="mt-1 list-disc space-y-1 pl-4">
-              <li>Iklan berbayar diizinkan hanya untuk social media (FB/IG/TikTok/Pinterest) dari akun terdaftar.</li>
-              <li>JANGAN gunakan kata &ldquo;Shopee&rdquo; di kreatif atau keyword.</li>
-              <li>Wajib beri disclosure (#publi / #ad).</li>
-              <li>Komisi hangus jika terdeteksi sebagai sumber tidak terlacak.</li>
+              <li>Iklan berbayar hanya di media sosial (Facebook, Instagram, TikTok, Pinterest) dari akun yang terdaftar.</li>
+              <li>Tidak boleh menyebut nama marketplace di kreatif, dan mereknya wajib jadi kata kunci negatif.</li>
+              <li>Wajib bertanda #publi. Komisi bisa hangus kalau pesanan tidak bisa dilacak.</li>
             </ul>
           </div>
         </div>
+      ) : (
+        <p className="mt-3 text-badan text-status-failed" aria-live="polite">
+          {hasil.pesan}
+        </p>
       )}
     </Card>
   );
@@ -128,6 +141,10 @@ export interface VarianIklan {
   cta: string;
 }
 
+function teksVarian(v: VarianIklan): string {
+  return `${v.judul}\n\n${v.isi}\n\nTombol: ${v.cta}`;
+}
+
 export function GeneratorIklanMeta() {
   const [produk, setProduk] = useState("");
   const [harga, setHarga] = useState("");
@@ -135,10 +152,11 @@ export function GeneratorIklanMeta() {
   const [varian, setVarian] = useState<VarianIklan[]>([]);
   const [memuat, setMemuat] = useState(false);
   const [galat, setGalat] = useState("");
+  const [tersalin, setTersalin] = useState("");
 
   const generate = async () => {
     const produkBersih = produk.trim();
-    if (!produkBersih || produkBersih.length < 3) {
+    if (produkBersih.length < 3) {
       setGalat("Isi nama atau deskripsi produk minimal 3 karakter.");
       return;
     }
@@ -152,34 +170,44 @@ export function GeneratorIklanMeta() {
     setMemuat(false);
     if (!res.ok || !res.data?.varian) {
       setVarian([]);
-      setGalat(res.error ?? "Generate iklan gagal.");
+      setGalat(res.error ?? "Iklan gagal dibuat.");
       return;
     }
     setVarian(res.data.varian);
   };
 
+  const salinSemua = async () => {
+    try {
+      await navigator.clipboard.writeText(varian.map(teksVarian).join("\n\n---\n\n"));
+      setTersalin("Ketiga varian tersalin.");
+    } catch {
+      setTersalin("Gagal menyalin. Salin satu per satu.");
+    }
+    setTimeout(() => setTersalin(""), 3000);
+  };
+
   return (
     <Card>
-      <h2 className="text-isi font-semibold">📝 Generator Iklan Meta</h2>
+      <h2 className="text-isi font-semibold">Pembuat iklan Meta</h2>
       <p className="mt-1 text-badan text-muted-foreground">
-        AI membuat 3 varian iklan Meta (headline, primary text, CTA) dalam gaya Pak Slem: santai,
-        memancing, anti-clickbait, dengan kepatuhan aturan Shopee Affiliate. Copy manual ke Ads
-        Manager — Heaviliate tidak mengirim iklan secara otomatis.
+        Tiga varian iklan dalam suara Pak Slem: santai, tanpa clickbait, tanpa menyebut nama
+        marketplace, dan bertanda #publi. Salin lalu tempel sendiri di Ads Manager — Heaviliate
+        tidak mengirim iklan.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <label className="sm:col-span-2 block text-meta font-medium">
-          Nama / deskripsi produk
+          Nama atau deskripsi produk
           <input
             value={produk}
             onChange={(e) => setProduk(e.target.value)}
-            placeholder="Tumbler stainless 750ml, lidah stroberi"
+            placeholder="Tumbler stainless 750 ml"
             className={cn(inputClass, "mt-1")}
           />
         </label>
 
         <label className="block text-meta font-medium">
-          Harga jual (opsional)
+          Harga jual (boleh dikosongkan)
           <input
             value={harga}
             onChange={(e) => setHarga(e.target.value)}
@@ -189,7 +217,7 @@ export function GeneratorIklanMeta() {
         </label>
 
         <label className="block text-meta font-medium">
-          Komisi affiliate (%)
+          Komisi (%)
           <input
             type="number"
             min={1}
@@ -202,45 +230,60 @@ export function GeneratorIklanMeta() {
       </div>
 
       <button type="button" onClick={generate} disabled={memuat} className={cn(btnPrimary, "mt-4")}>
-        {memuat ? "Menulis…" : "Buat 3 Varian Iklan"}
+        {memuat ? "Menulis…" : "Buat 3 varian iklan"}
       </button>
       <PesanGalat pesan={galat} />
 
-      {varian.length > 0 && (
+      {varian.length > 0 ? (
         <div className="mt-4 space-y-4 border-t border-surface-border pt-4">
-          <p className="text-meta font-medium">3 varian iklan siap copas ke Meta Ads Manager:</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-meta font-medium">Siap ditempel di Ads Manager:</p>
+            <button type="button" onClick={() => void salinSemua()} className={btnGhost}>
+              Salin semua varian
+            </button>
+          </div>
+          {tersalin ? (
+            <p className="text-meta text-muted-foreground" aria-live="polite">
+              {tersalin}
+            </p>
+          ) : null}
+
           {varian.map((v, i) => (
-            <div key={i} className="rounded-lg border border-surface-border p-4">
+            <div key={i} className="border border-surface-border p-4">
               <div className="flex items-center justify-between">
                 <p className="text-isi font-semibold">Varian {i + 1}</p>
-                <div className="flex gap-2">
-                  <TombolSalin teks={`${v.judul}\n${v.isi}\nCTA: ${v.cta}`} />
-                </div>
+                <TombolSalin teks={teksVarian(v)} />
               </div>
 
               <div className="mt-3 space-y-2">
                 <div>
-                  <span className="text-meta text-xs uppercase tracking-badge text-muted-foreground">Headline</span>
+                  <span className="text-meta uppercase tracking-badge text-muted-foreground">
+                    Judul iklan
+                  </span>
                   <p className="mt-1 text-badan">{v.judul}</p>
                 </div>
                 <div>
-                  <span className="text-meta text-xs uppercase tracking-badge text-muted-foreground">Primary Text</span>
+                  <span className="text-meta uppercase tracking-badge text-muted-foreground">
+                    Isi iklan
+                  </span>
                   <p className="mt-1 whitespace-pre-wrap text-badan">{v.isi}</p>
                 </div>
                 <div>
-                  <span className="text-meta text-xs uppercase tracking-badge text-muted-foreground">CTA Button</span>
+                  <span className="text-meta uppercase tracking-badge text-muted-foreground">
+                    Teks tombol
+                  </span>
                   <p className="mt-1 text-badan font-medium">{v.cta}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      )}
+      ) : null}
     </Card>
   );
 }
 
-/* ------------------------------------------------------------ wizard landing page -- */
+/* ------------------------------------------------------------ wizard landing -- */
 
 interface DataLandingPage {
   slug: string;
@@ -252,58 +295,68 @@ interface DataLandingPage {
   tautan: string;
 }
 
+/** Alamat halaman dibuat dari judul; pengguna tetap boleh mengubahnya. */
+function buatSlug(teks: string): string {
+  return teks
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 export function WizardLandingPage() {
   const [data, setData] = useState<DataLandingPage>({
     slug: "",
     hero: "",
     judul: "",
     subjudul: "",
-    cta: "Cek Produknya",
+    cta: "Cek produknya",
     deskripsi: "",
     tautan: "",
   });
-  const [pratinjau, setPratinjau] = useState<DataLandingPage | null>(null);
+  const [slugOtomatis, setSlugOtomatis] = useState(true);
+  const [konfirmasiTimpa, setKonfirmasiTimpa] = useState(false);
   const [memuat, setMemuat] = useState(false);
   const [galat, setGalat] = useState("");
   const [hasilLanding, setHasilLanding] = useState<
     { slug: string; url: string; tersimpan: boolean; html: string } | null
   >(null);
 
-  const preview = () => {
-    setPratinjau({ ...data });
-    setHasilLanding(null);
-  };
+  const ubahJudul = (judul: string) =>
+    setData((d) => ({ ...d, judul, slug: slugOtomatis ? buatSlug(judul) : d.slug }));
 
-  const buat = async () => {
-    const slugBersih = data.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
-    if (!slugBersih || slugBersih.length < 2) {
-      setGalat("Slug harus berisi huruf/huruf angka (contoh: tumbler-stroberi).");
+  const buat = async (timpa: boolean) => {
+    const slugBersih = buatSlug(data.slug);
+    if (slugBersih.length < 2) {
+      setGalat("Alamat halaman minimal 2 huruf. Isi judul dulu.");
       return;
     }
     setMemuat(true);
     setGalat("");
-    const res = await panggilAI<{
-      success: boolean;
-      url: string;
-      tersimpan: boolean;
-      html: string;
-    }>("/api/marketing/landing-page", {
-      ...data,
-      slug: slugBersih,
-    });
+    const res = await panggilAI<
+      | { success: true; url: string; tersimpan: boolean; html: string }
+      | { sudah_ada: true; slug: string }
+    >("/api/marketing/landing-page", { ...data, slug: slugBersih, timpa });
     setMemuat(false);
-    if (!res.ok || !res.data?.success) {
+
+    if (!res.ok || !res.data) {
       setHasilLanding(null);
-      setGalat(res.error ?? "Buat landing page gagal.");
+      setGalat(res.error ?? "Halaman gagal dibuat.");
       return;
     }
+    if ("sudah_ada" in res.data) {
+      setKonfirmasiTimpa(true);
+      return;
+    }
+    setKonfirmasiTimpa(false);
     setHasilLanding({
       slug: slugBersih,
       url: res.data.url,
       tersimpan: res.data.tersimpan,
       html: res.data.html,
     });
-    setPratinjau(data);
   };
 
   const unduh = () => {
@@ -319,51 +372,41 @@ export function WizardLandingPage() {
 
   return (
     <Card>
-      <h2 className="text-isi font-semibold">🌐 Wizard Landing Page</h2>
+      <h2 className="text-isi font-semibold">Landing page untuk iklan</h2>
       <p className="mt-1 text-badan text-muted-foreground">
-        Susun satu halaman landing cepat untuk menampung traffic iklan Meta. Halaman dibuat sebagai
-        file statis, bisa dipakai sebagai tujuan link bio atau direct destination URL di iklan.
+        Satu halaman sederhana untuk menampung klik iklan. Halamannya dibuat sebagai berkas HTML
+        yang bisa kamu host sendiri — Heaviliate tidak menerbitkannya.
       </p>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <label className="block text-meta font-medium">
-            Slug (URL)
-            <input
-              value={data.slug}
-              onChange={(e) => setData((d) => ({ ...d, slug: e.target.value }))}
-              placeholder="tumbler-stroberi"
-              className={cn(inputClass, "mt-1")}
-            />
-          </label>
-
-          <label className="block text-meta font-medium">
-            Judul utama (headline)
+            Judul utama
             <input
               value={data.judul}
-              onChange={(e) => setData((d) => ({ ...d, judul: e.target.value }))}
+              onChange={(e) => ubahJudul(e.target.value)}
               placeholder="Pagi hari makin rapi dengan tumbler ini"
               className={cn(inputClass, "mt-1")}
             />
           </label>
 
           <label className="block text-meta font-medium">
-            Sub-judul
+            Kalimat pendukung
             <input
               value={data.subjudul}
               onChange={(e) => setData((d) => ({ ...d, subjudul: e.target.value }))}
-              placeholder="Stainless steel 750ml, tahan panas 12 jam"
+              placeholder="Stainless 750 ml, tahan panas 12 jam"
               className={cn(inputClass, "mt-1")}
             />
           </label>
 
           <label className="block text-meta font-medium">
-            Deskripsi panjang
+            Cerita singkat
             <textarea
               value={data.deskripsi}
               onChange={(e) => setData((d) => ({ ...d, deskripsi: e.target.value }))}
               rows={4}
-              placeholder="Cerita singkat kenapa produk ini worth it..."
+              placeholder="Kenapa produk ini layak dibeli..."
               className={cn(inputClass, "mt-1 resize-y")}
             />
           </label>
@@ -378,71 +421,111 @@ export function WizardLandingPage() {
             />
           </label>
 
-          <label className="block text-meta font-medium">
-            Teks CTA tombol
-            <input
-              value={data.cta}
-              onChange={(e) => setData((d) => ({ ...d, cta: e.target.value }))}
-              placeholder="Cek Produknya"
-              className={cn(inputClass, "mt-1")}
-            />
-          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-meta font-medium">
+              Teks tombol
+              <input
+                value={data.cta}
+                onChange={(e) => setData((d) => ({ ...d, cta: e.target.value }))}
+                placeholder="Cek produknya"
+                className={cn(inputClass, "mt-1")}
+              />
+            </label>
 
-          <div className="flex gap-2">
-            <button type="button" onClick={preview} className={btnGhost}>
-              Pratinjau
-            </button>
-            <button type="button" onClick={buat} disabled={memuat} className={btnPrimary}>
-              {memuat ? "Membuat…" : "Buat Halaman"}
-            </button>
+            <label className="block text-meta font-medium">
+              Alamat halaman
+              <input
+                value={data.slug}
+                onChange={(e) => {
+                  setSlugOtomatis(false);
+                  setData((d) => ({ ...d, slug: e.target.value }));
+                }}
+                placeholder="tumbler-stroberi"
+                className={cn(inputClass, "mt-1")}
+              />
+            </label>
           </div>
+
+          <p className="text-meta text-muted-foreground">
+            Gambar produk tidak diminta di sini — taruh gambarnya di hosting sendiri, lalu isi
+            alamatnya kalau perlu.
+          </p>
+
+          {konfirmasiTimpa ? (
+            <div className="border border-warning/40 bg-warning/10 p-3 text-meta">
+              <p className="font-medium">
+                Halaman dengan alamat “{buatSlug(data.slug)}” sudah ada.
+              </p>
+              <p className="mt-1">
+                Menimpanya akan mengganti berkas lama. Iklan yang sudah memakai alamat itu akan
+                menampilkan isi baru.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void buat(true)}
+                  disabled={memuat}
+                  className={btnPrimary}
+                >
+                  {memuat ? "Menimpa…" : "Timpa halaman lama"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKonfirmasiTimpa(false);
+                    setSlugOtomatis(false);
+                    setData((d) => ({ ...d, slug: `${buatSlug(d.slug)}-2` }));
+                  }}
+                  className={btnGhost}
+                >
+                  Pakai alamat lain
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void buat(false)}
+              disabled={memuat}
+              className={btnPrimary}
+            >
+              {memuat ? "Membuat…" : "Buat halaman"}
+            </button>
+          )}
           <PesanGalat pesan={galat} />
           <p className="text-meta text-muted-foreground">
-            Halaman ditulis sebagai file statis di folder <code>public/landing</code>. Saat
-            dijalankan di server sendiri (atau lokal), file bisa langsung dibuka. Di hosting yang
-            read-only (mis. Vercel), file perlu diunduh lalu di-host sendiri — salin HTML-nya dari
-            lokasi tersebut.
+            Di hosting yang read-only (mis. Vercel) berkas tidak bisa ditulis; tombol unduh muncul
+            sebagai gantinya.
           </p>
         </div>
 
-        {/* Preview */}
-        <div className="rounded border border-surface-border bg-muted p-4">
-          <p className="mb-2 text-meta font-medium">Pratinjau Landing Page</p>
-          {pratinjau ? (
-            <article className="space-y-3">
-              {pratinjau.hero && (
-                <div className="aspect-video w-full rounded bg-muted-foreground/20" />
-              )}
-              <h3 className="text-isi font-bold">{pratinjau.judul || "(kosong)"}</h3>
-              <p className="text-meta text-muted-foreground">{pratinjau.subjudul || ""}</p>
-              <p className="text-badan whitespace-pre-wrap">{pratinjau.deskripsi || ""}</p>
-              <button className={cn(btnPrimary, "mt-2")}>{pratinjau.cta}</button>
-              {pratinjau.tautan && (
-                <p className="text-meta break-all text-muted-foreground">
-                  Tombol mengarah ke: {pratinjau.tautan}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-muted-foreground">#publi</p>
-            </article>
-          ) : (
-            <p className="text-meta text-muted-foreground">Klik pratinjau atau buat halaman untuk melihat hasilnya di sini.</p>
-          )}
+        <div className="border border-surface-border bg-muted p-4">
+          <p className="mb-2 text-meta uppercase tracking-badge text-muted-foreground">
+            Tampilan halamannya
+          </p>
+          <article className="space-y-3">
+            <div className="aspect-video w-full bg-muted-foreground/20" />
+            <h3 className="text-isi font-bold">{data.judul || "Judul belum diisi"}</h3>
+            <p className="text-meta text-muted-foreground">{data.subjudul}</p>
+            <p className="whitespace-pre-wrap text-badan">{data.deskripsi}</p>
+            <span className={cn(btnPrimary, "pointer-events-none")}>{data.cta}</span>
+            <p className="text-meta text-muted-foreground">#publi</p>
+          </article>
         </div>
       </div>
 
       {hasilLanding ? (
-        <div className="mt-4 rounded bg-green-500/10 p-3 text-meta text-green-700 dark:text-green-400">
+        <div className="mt-4 border border-status-ready/40 bg-status-ready/5 p-3 text-meta">
           {hasilLanding.tersimpan ? (
             <>
-              ✅ Halaman dibuat. URL tujuan:{" "}
-              <code className="font-mono text-badan text-sm">/{hasilLanding.slug}</code> — salin
-              URL ini sebagai target di Meta Ads atau masukkan ke link bio.
+              Halaman dibuat di <code className="font-mono">/{hasilLanding.slug}</code> — pakai
+              alamat ini sebagai tujuan iklan atau masukkan ke link bio.
             </>
           ) : (
             <div className="space-y-2">
               <p>
-                ✅ Halaman dibuat, tapi server ini read-only (mis. Vercel) sehingga file tidak bisa
-                ditulis. Unduh HTML-nya lalu hosting sendiri.
+                Halaman dibuat, tapi server ini read-only sehingga berkas tidak bisa ditulis.
+                Unduh HTML-nya lalu host sendiri.
               </p>
               <button type="button" onClick={unduh} className={btnPrimary}>
                 Unduh {hasilLanding.slug}.html
@@ -459,11 +542,10 @@ export function WizardLandingPage() {
 
 export function BagianLabIklan() {
   return (
-    <div id="lab-iklan" className="scroll-mt-24 space-y-6">
+    <div className="space-y-6">
       <p className="text-meta text-muted-foreground">
-        Fitur beriklanan — kalkulator break-even, generator iklan Meta, dan wizard landing page.
-        Semua keluaran berstatus draft dan dikirim manual oleh Anda. Heaviliate tidak mengontrol
-        akun iklan atau menerbitkan konten tanpa persetujuan Anda.
+        Beriklan berbayar: hitung dulu apakah komisi menutup biaya klik, tulis iklannya, baru
+        siapkan halaman tujuan. Semua langkah berhenti di bahan yang kamu kirim sendiri.
       </p>
       <BagianKalkulator />
       <GeneratorIklanMeta />

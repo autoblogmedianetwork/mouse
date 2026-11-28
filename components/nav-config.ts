@@ -163,7 +163,7 @@ export const MENU_ITEMS: MenuItem[] = [
     group: "sistem",
     fase: "MVP",
     kapan:
-      "Tiga belas alat uji coba untuk menulis dan menguji ide konten — termasuk Lab Iklan untuk membuat iklan berbayar dan landing page.",
+      "Alat uji coba untuk menulis dan menguji ide konten, termasuk Lab Iklan untuk menghitung balik modal, menulis iklan Meta, dan menyiapkan landing page.",
   },
   {
     label: "Pengaturan",

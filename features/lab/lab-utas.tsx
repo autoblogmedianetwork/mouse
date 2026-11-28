@@ -109,7 +109,7 @@ export function BagianUtasPanjang() {
           <p className="text-meta text-muted-foreground">
             {hasil.teks.length} karakter {hasil.teks.length > 10000 ? "— MELEBIHI BATAS, pangkas!" : ""}
           </p>
-          <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded border border-surface-border bg-muted p-3 text-badan">
+          <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap border border-surface-border bg-muted p-3 text-badan">
             {hasil.teks}
           </pre>
           <TombolSalin teks={hasil.teks} />
