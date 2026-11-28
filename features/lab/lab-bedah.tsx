@@ -6,11 +6,19 @@
  * pelajaran). Edukasi, bukan penulisan ulang — beda dengan Mirror.
  * Anti-plagiat ditegakkan prompt: maksimal 5 kata berturut-turut.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/card";
 import { cn } from "@/lib/utils";
-import { inputClass, btnPrimary, PesanGalat, panggilAI } from "./lab-bersama";
+import { inputClass, btnPrimary, btnGhost, PesanGalat, panggilAI } from "./lab-bersama";
 import type { BedahPostingan } from "@/lib/ai/schemas";
+import {
+  hapusPelajaran,
+  muatPelajaran,
+  ringkasPelajaran,
+  simpanPelajaran,
+  tambahPelajaran,
+  type Pelajaran,
+} from "@/lib/konten/pelajaran";
 
 const LABEL_HOOK: Record<string, string> = {
   pertanyaan: "Pertanyaan",
@@ -30,9 +38,42 @@ const LABEL_CTA: Record<string, string> = {
 
 export function BagianBedah() {
   const [postingan, setPostingan] = useState("");
+  const [sumber, setSumber] = useState("");
   const [hasil, setHasil] = useState<BedahPostingan | null>(null);
   const [memuat, setMemuat] = useState(false);
   const [galat, setGalat] = useState("");
+  const [pesanSimpan, setPesanSimpan] = useState("");
+  const [pelajaran, setPelajaran] = useState<Pelajaran[]>([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- muat localStorage setelah mount agar markup server dan klien sama
+    setPelajaran(muatPelajaran());
+  }, []);
+
+  const simpanKePelajaran = () => {
+    if (!hasil) return;
+    const hasilTambah = tambahPelajaran(pelajaran, {
+      sumber,
+      hookJenis: hasil.hook.jenis,
+      hookPenjelasan: hasil.hook.penjelasan,
+      ctaJenis: hasil.cta.jenis,
+      ctaAda: hasil.cta.ada,
+      pelajaran: hasil.pelajaran,
+    });
+    if (!hasilTambah.ok) {
+      setPesanSimpan(hasilTambah.galat);
+      return;
+    }
+    setPelajaran(hasilTambah.data);
+    simpanPelajaran(hasilTambah.data);
+    setPesanSimpan("Tersimpan di kumpulan pelajaran ✓");
+  };
+
+  const hapus = (id: string) => {
+    const sisa = hapusPelajaran(pelajaran, id);
+    setPelajaran(sisa);
+    simpanPelajaran(sisa);
+  };
 
   const jalankan = async () => {
     if (postingan.trim().length < 40) {
@@ -108,7 +149,41 @@ export function BagianBedah() {
               Catatan kejujuran: {hasil.peringatan || "postingan ini memuat klaim yang melebih-lebihkan — jangan dijadikan teladan."}
             </p>
           ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              value={sumber}
+              onChange={(e) => setSumber(e.target.value)}
+              placeholder="Nama/topik postingan (opsional)…"
+              aria-label="Sumber pelajaran"
+              className="w-full max-w-xs border border-surface-border bg-surface px-3 py-1.5 text-badan outline-none focus:border-primary"
+            />
+            <button type="button" onClick={simpanKePelajaran} className={btnPrimary}>
+              Simpan ke kumpulan pelajaran
+            </button>
+            {pesanSimpan ? <span className="text-meta text-muted-foreground">{pesanSimpan}</span> : null}
+          </div>
         </div>
+      ) : null}
+
+      {pelajaran.length > 0 ? (
+        <details className="mt-4 border-t border-surface-border pt-4">
+          <summary className="cursor-pointer text-badan font-medium">
+            Kumpulan pelajaran ({pelajaran.length}) — rujukan saat menulis
+          </summary>
+          <ul className="mt-2 space-y-2">
+            {pelajaran.map((p) => (
+              <li key={p.id} className="flex items-start justify-between gap-2 border border-surface-border bg-surface p-2">
+                <div className="min-w-0">
+                  <p className="text-meta font-semibold">{p.sumber}</p>
+                  <p className="text-badan">{ringkasPelajaran(p)}</p>
+                </div>
+                <button type="button" className={btnGhost} onClick={() => hapus(p.id)} aria-label={`Hapus pelajaran ${p.sumber}`}>
+                  Hapus
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
       ) : null}
     </Card>
   );
