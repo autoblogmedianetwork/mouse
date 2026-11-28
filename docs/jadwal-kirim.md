@@ -7,46 +7,60 @@ Vercel menolak build dengan pesan:
 > Hobby accounts are limited to daily cron jobs. This cron expression (\*/15 \* \* \* \*) would run more than once per day.
 
 Penyebabnya `vercel.json` meminta cron **setiap 15 menit**, sedangkan paket Hobby
-hanya mengizinkan **sekali sehari**. Karena cron divalidasi saat build, seluruh
+hanya mengizinkan **sekali sehari**. Cron divalidasi saat build, jadi seluruh
 deployment ikut gagal — bukan hanya fitur kirim otomatis.
 
-Yang sudah dilakukan: `vercel.json` sekarang memakai `0 1 * * *` (08:00 WIB),
-satu kali sehari. Deployment kembali bisa jalan, tapi pengiriman terjadi
-paling cepat sekali sehari lewat Vercel — terlalu kasar untuk "titip kirim".
+Sekarang `vercel.json` memakai `0 1 * * *` (08:00 WIB) sebagai jaring pengaman.
 
-## Pilihan penjadwal (semua gratis)
+## Cara paling simpel (sudah terpasang)
+
+**Kiriman tertunda dipicu saat kamu membuka aplikasi.**
+
+`components/pengirim-tertunda.tsx` memanggil `/api/threads/proses-jadwal` sekali
+saat dashboard dibuka. Endpoint yang sama sudah mendukung mode sesi dan hanya
+memproses konten milikmu.
+
+- Tidak perlu pg_cron, SQL, akun baru, atau langganan
+- Jeda 5 menit lewat localStorage: pindah halaman tidak memicu permintaan
+  berulang, dan dua tab tidak berebut baris yang sama
+- Gagal = diam. Tanpa sesi atau tanpa akun Threads, tidak ada yang dikirim dan
+  tidak ada pesan galat yang mengganggu
+- Kalau ada yang terkirim, muncul satu baris: "2 kiriman terjadwal terkirim."
+
+**Batasnya jujur:** kiriman terkirim saat kamu membuka aplikasi, bukan tepat
+pada menit yang dijadwalkan. Untuk kebiasaan harian (buka Fokus Hari Ini tiap
+pagi), ini biasanya cukup — dan tidak ada yang perlu dipasang.
+
+Butuh tombol untuk memaksa proses tanpa menunggu? Pakai **"Proses sekarang"** di
+halaman Antrian.
+
+## Kalau butuh presisi 15 menit
+
+Hanya perlu kalau kamu menjadwalkan kiriman pada jam tertentu dan tidak membuka
+aplikasi pada jam itu. Pilih salah satu:
 
 | Cara | Frekuensi | Kelebihan | Kekurangan |
 |---|---|---|---|
-| Vercel Cron (Hobby) | 1× sehari | Tanpa setelan tambahan | Terlalu jarang untuk jadwal posting |
-| **Supabase pg_cron** | 1–15 menit | Sudah punya Supabase, gratis, jalan di server | Perlu jalankan SQL sekali |
-| GitHub Actions schedule | 5–15 menit | Gratis | Dimatikan GitHub setelah repo tidak aktif 60 hari |
+| Aplikasi dibuka (terpasang) | saat dipakai | Nol setelan | Tidak presisi |
+| Supabase pg_cron | 1–15 menit | Gratis, sudah punya Supabase | Perlu jalankan SQL sekali |
+| GitHub Actions schedule | 5–15 menit | Gratis | Dimatikan setelah repo 60 hari tidak aktif |
 | cron-job.org | 1 menit | Paling fleksibel | Akun pihak ketiga lagi |
 | Vercel Pro | 1 menit | Paling rapi | Berbayar bulanan |
 
-Rekomendasi: **Supabase pg_cron**, dengan Vercel Cron harian tetap menyala
-sebagai jaring pengaman kalau pg_cron mati.
-
-## Pasang pg_cron (sekali saja)
-
-Buka **Supabase → SQL Editor**, lalu jalankan tiga bagian berikut.
+### Supabase pg_cron
 
 > `alter database postgres set app.cron_secret = ...` **tidak bisa dipakai di
 > Supabase**: peran `postgres` bukan pemilik database, jadi muncul
 > `42501: permission denied to set parameter`. Rahasianya disimpan di tabel
 > tertutup seperti di bawah.
 
-### 0. Aktifkan ekstensinya lewat Dashboard
+**1. Aktifkan ekstensi lewat Dashboard** (bukan SQL — `create extension` sering
+kena masalah izin): Supabase → **Database → Extensions** → nyalakan **pg_cron**
+dan **pg_net**.
 
-`create extension pg_cron` sering ikut kena masalah izin. Lebih aman lewat
-**Supabase → Database → Extensions**, lalu aktifkan **pg_cron** dan **pg_net**.
-Kalau keduanya sudah menyala, lewati langkah ini.
-
-### 1. Simpan rahasia di tabel tertutup
-
-Tabel ini dikunci RLS tanpa aturan akses, jadi `anon` dan `authenticated` tidak
-bisa membacanya. `pg_cron` jalan sebagai pemilik tabel, jadi tetap bisa.
-Ganti `RAHASIA_CRON` dengan nilai `CRON_SECRET` milikmu.
+**2. Simpan rahasia.** Tabel ini dikunci RLS tanpa aturan akses, jadi `anon` dan
+`authenticated` tidak bisa membacanya. `pg_cron` jalan sebagai pemilik tabel,
+jadi tetap bisa.
 
 ```sql
 create table if not exists cron_rahasia (
@@ -63,10 +77,7 @@ values ('cron_secret', 'RAHASIA_CRON')
 on conflict (kunci) do update set nilai = excluded.nilai;
 ```
 
-### 2. Jadwalkan panggilan tiap 15 menit
-
-Ganti `https://DOMAIN-KAMU` dengan alamat produksi. `pg_net` yang mengirim
-permintaan HTTP, jadi endpoint tetap sama dengan milik Vercel Cron.
+**3. Jadwalkan.**
 
 ```sql
 select cron.schedule(
@@ -87,34 +98,25 @@ select cron.schedule(
 );
 ```
 
-Kalau `cron.schedule` ditolak karena jadwalnya sudah ada, batalkan dulu:
+**4. Periksa.**
+
+```sql
+select jobid, jobname, schedule, active from cron.job;
+select id, status_code, created from net._http_response order by id desc limit 5;
+```
+
+`200` jalan; `401` artinya `CRON_SECRET` di Vercel beda dengan isi
+`cron_rahasia`; `500` artinya lihat log fungsi Vercel.
+
+**Membatalkan:**
 
 ```sql
 select cron.unschedule('heaviliate-proses-jadwal');
 ```
 
-### 3. Periksa
-
-```sql
--- daftar jadwal yang aktif
-select jobid, jobname, schedule, active from cron.job;
-
--- pastikan rahasianya terbaca (harus keluar satu baris)
-select kunci, length(nilai) as panjang from cron_rahasia;
-
--- 5 panggilan terakhir beserta kode balasannya
-select id, status_code, created
-from net._http_response
-order by id desc
-limit 5;
-```
-
-Kalau `status_code` 200, penjadwal bekerja. Kalau 401, `CRON_SECRET` di Vercel
-tidak sama dengan isi `cron_rahasia`. Kalau 500, cek log fungsi Vercel-nya.
-
 ### Alternatif: Supabase Vault
 
-Kalau lebih suka rahasianya terenkripsi, Vault bisa dipakai:
+Kalau mau rahasianya terenkripsi:
 
 ```sql
 select vault.create_secret('RAHASIA_CRON', 'cron_secret');
@@ -124,17 +126,10 @@ lalu di dalam job pakai
 `(select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')`
 menggantikan subquery `cron_rahasia`.
 
-### Membatalkan
-
-```sql
-select cron.unschedule('heaviliate-proses-jadwal');
-```
-
 ## Catatan keamanan
 
 - Endpoint tetap *fail-closed*: tanpa `Authorization: Bearer <CRON_SECRET>` yang
   benar dan tanpa sesi pengguna, tidak ada yang dikirim.
-- Rahasia hanya ada di setelan database dan di environment Vercel, tidak pernah
-  di file repo.
-- Jangan mengganti `CRON_SECRET` tanpa memperbarui `app.cron_secret`; kalau
-  tidak, semua panggilan berhenti dengan 401 dan tidak ada yang terkirim.
+- Rahasia tidak pernah masuk repo.
+- Mengganti `CRON_SECRET` menuntut memperbarui isi `cron_rahasia`; kalau tidak,
+  semua panggilan berhenti dengan 401 dan tidak ada yang terkirim.

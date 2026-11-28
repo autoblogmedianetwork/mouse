@@ -23,6 +23,7 @@ import {
   type MenuItem,
 } from "./nav-config";
 import { ShellPengguna } from "./shell-pengguna";
+import { PengirimTertunda } from "./pengirim-tertunda";
 
 /** Terminal meta style: small mono uppercase with wide tracking (ADR 0013). */
 const mikro = "font-mono text-meta uppercase tracking-meta";
@@ -165,7 +166,10 @@ export function AppShell({
           <BudgetIndicator />
         </header>
 
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          <PengirimTertunda />
+          {children}
+        </main>
       </div>
     </div>
   );
