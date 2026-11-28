@@ -1,6 +1,6 @@
-# ADR 0023: Auto-posting yang aman (K12 / Fase 7) — DESAIN, MENUNGGU KEPUTUSAN
+# ADR 0023: Auto-posting yang aman (K12 / Fase 7)
 
-Status: **diusulkan** (menunggu keputusan user; belum diimplementasi)
+Status: **diterima** (disetujui user 17 Nov 2026; implementasi v1 selesai — lihat bagian Implementasi)
 Tanggal: 2026-11-17
 
 ## Konteks
@@ -56,6 +56,34 @@ terleasing**:
 - Mengirim konten yang belum lolos checklist kejujuran.
 - Membaca/mengambil data pengguna lain (scraping).
 
+## Implementasi v1 (17 Nov 2026) — arsitektur "titip kirim"
+
+Fakta arsitektur: konten & jadwal user ada di **localStorage** (per
+perangkat) — server tidak bisa membacanya, dan sinkronisasi penuh masih
+on-hold. Maka pengirim otomatis memakai pola **titip kirim**:
+
+- Server tidak pernah membaca localStorage. Yang tersimpan di tabel
+  `jadwal_kirim` hanyalah teks yang user **titipkan secara eksplisit**
+  lewat checkbox "kirim otomatis" di dialog jadwal Antrian — persetujuan
+  ganda tetap terjaga (checklist di klien + penekanan jadwalkan).
+- Koneksi akun: OAuth resmi (`/api/threads/authorize` → callback dengan
+  pengecekan `state` anti-CSRF). Token disimpan TERENKRIPSI di tabel
+  `threads_akun` (AES-256-GCM, pola ADR 0031) dan tidak pernah dikirim
+  terang ke klien.
+- Pengirim: `/api/threads/proses-jadwal`, dipanggil Vercel Cron tiap 15
+  menit (auth `CRON_SECRET`, memakai service-role) atau manual dari UI
+  (sesi user, hanya miliknya). Maks 10 kiriman per siklus.
+- Kill switch: tombol "Batalkan semua jadwal" menandai seluruh antrean
+  `dibatalkan` — seketika, satu klik.
+- Kegagalan ditandai `gagal` + pesan Indonesia (token kedaluwarsa, rate
+  limit, dsb.) dan **tidak pernah diulang otomatis** — anti dobel kirim.
+- v1 hanya postingan teks utama (≤500 karakter); balasan dan media
+  menyusul bila dibutuhkan.
+
+Berkas: `lib/threads-api/*` (config, akun, kirim, jadwal), route
+`/api/threads/*` + `/auth/threads/callback`, `features/akun/threads-otomatis.tsx`,
+migrasi `0016_fase7_kirim.sql`, `vercel.json`. 14 test baru.
+
 ## Konsekuensi bila disetujui
 
 - Butuh: Meta app + OAuth flow + penyimpanan token terenkripsi + pekerjaan
@@ -67,7 +95,6 @@ terleasing**:
 
 ## Keputusan yang diminta dari user
 
-- [ ] Setuju menjalankan Fase 7 dengan desain di atas (ya/tidak)
-- [ ] Bila ya: buat Meta app + daftarkan diri sebagai Threads tester
-- [ ] Bila tidak: ADR ini ditutup sebagai "ditunda tanpa batas waktu";
-      jalur manual + web intent tetap jalur utama
+- [x] Setuju menjalankan Fase 7 dengan desain di atas (disetujui 17 Nov 2026: "gas lah")
+- [ ] Bila ya: buat Meta app + daftarkan diri sebagai Threads tester — **masih harus dilakukan user** (env `THREADS_APP_ID`, `THREADS_APP_SECRET`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` + migrasi 0016)
+- [ ] Bila tidak: ADR ini ditutup sebagai "ditunda tanpa batas waktu"; jalur manual + web intent tetap jalur utama

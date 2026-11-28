@@ -16,6 +16,10 @@ interface Props {
   refDialog: React.RefObject<HTMLDialogElement | null>;
   onBatal: () => void;
   onSimpan: () => void;
+  /** Fase 7 (ADR 0023): tampil hanya bila akun Threads terhubung. */
+  otomatisTersedia?: boolean;
+  otomatis?: boolean;
+  setOtomatis?: (v: boolean) => void;
 }
 
 export function DialogJadwal({
@@ -25,6 +29,9 @@ export function DialogJadwal({
   refDialog,
   onBatal,
   onSimpan,
+  otomatisTersedia = false,
+  otomatis = false,
+  setOtomatis,
 }: Props) {
   return (
     <dialog
@@ -62,6 +69,22 @@ export function DialogJadwal({
             className={cn(inputClass, "mt-1")}
           />
         </label>
+        {otomatisTersedia && setOtomatis ? (
+          <label className="mt-3 flex items-start gap-2 text-badan text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={otomatis}
+              onChange={(e) => setOtomatis(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0"
+            />
+            <span>
+              Kirim otomatis saat waktunya (Fase 7). Teks utama konten ini dititipkan ke
+              server persis seperti sudah kamu setujui — bisa dibatalkan kapan saja
+              lewat kill switch di Pengaturan.
+            </span>
+          </label>
+        ) : null}
+
         <div className="mt-5 flex justify-end gap-3">
           <button
             type="button"

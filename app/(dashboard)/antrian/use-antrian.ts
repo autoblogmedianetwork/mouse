@@ -51,11 +51,28 @@ export function useAntrian() {
   const [konfirmasi, setKonfirmasi] = useState<Konfirmasi | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
   const [jadwalTarget, setJadwalTarget] = useState<{ id: string; judul: string } | null>(null);
+  /** Fase 7 (ADR 0023): koneksi Threads + pilihan kirim otomatis. */
+  const [threadsTerhubung, setThreadsTerhubung] = useState(false);
+  const [kirimOtomatis, setKirimOtomatis] = useState(false);
   const [jadwalTanggal, setJadwalTanggal] = useState("");
   /** Konten yang menunggu konfirmasi kirim (Fase 7, selalu lewat ConfirmDialog). */
   const [kirimTarget, setKirimTarget] = useState<Konten | null>(null);
   const [sedangKirim, setSedangKirim] = useState(false);
   const posting = usePosting();
+
+  // Cek koneksi Threads (Fase 7) sekali saat halaman dibuka.
+  useEffect(() => {
+    let aktif = true;
+    void fetch("/api/threads/status")
+      .then((r) => r.json())
+      .then((j: { terhubung?: boolean }) => {
+        if (aktif) setThreadsTerhubung(Boolean(j.terhubung));
+      })
+      .catch(() => {});
+    return () => {
+      aktif = false;
+    };
+  }, []);
   const [biaya, setBiaya] = useState<StatistikBiaya>({
     hariIniUsd: null,
     bulanIniUsd: null,
@@ -417,6 +434,34 @@ export function useAntrian() {
       return;
     }
     setKonten(hasil.list);
+
+    // Fase 7 (ADR 0023): titip kirim otomatis bila dicentang dan terhubung.
+    if (kirimOtomatis && threadsTerhubung) {
+      const target = konten.find((k) => k.id === jadwalTarget.id);
+      const teksUtama = target?.statuses[0] ?? "";
+      void fetch("/api/threads/jadwalkan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: jadwalTarget.judul,
+          teks: teksUtama,
+          jadwal_pada: d.toISOString(),
+        }),
+      })
+        .then((r) => r.json())
+        .then((j: { ok?: boolean; galat?: string }) => {
+          setPesan(
+            j.ok
+              ? `Jadwal disimpan + dititipkan kirim otomatis ${d.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}. Batalkan kapan saja lewat kill switch di Pengaturan.`
+              : `Jadwal lokal tersimpan, tapi titip kirim gagal: ${j.galat ?? "tidak diketahui"}`,
+          );
+        })
+        .catch(() => setPesan("Jadwal lokal tersimpan. Titip kirim gagal (jaringan) — coba lagi dari Pengaturan."));
+      setKirimOtomatis(false);
+      setJadwalTarget(null);
+      return;
+    }
+
     setPesan(
       `Jadwal disimpan: ${d.toLocaleString("id-ID", {
         dateStyle: "medium",
@@ -462,6 +507,9 @@ export function useAntrian() {
     sedangKirim,
     jalankanKirim,
     jadwalTarget,
+    threadsTerhubung,
+    kirimOtomatis,
+    setKirimOtomatis,
     setJadwalTarget,
     jadwalTanggal,
     setJadwalTanggal,

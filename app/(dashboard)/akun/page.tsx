@@ -3,6 +3,7 @@ import { Card } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
 import { TabMenuOtomatis } from "@/components/tab-menu-otomatis";
 import { DaftarAkun } from "@/features/akun/daftar-akun";
+import { ThreadsOtomatis } from "@/features/akun/threads-otomatis";
 import { wajibSesiHalaman } from "@/lib/supabase/server";
 
 export const metadata = { title: "Akun sosial" };
@@ -19,6 +20,8 @@ export default async function AkunPage() {
       />
 
       <DaftarAkun />
+
+      <ThreadsOtomatis />
 
       <Card>
         <div className="flex items-center justify-between gap-3">

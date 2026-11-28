@@ -304,6 +304,9 @@ export function AntrianReview() {
           refDialog={dialogJadwalRef}
           onBatal={() => a.setJadwalTarget(null)}
           onSimpan={a.simpanJadwal}
+          otomatisTersedia={a.threadsTerhubung}
+          otomatis={a.kirimOtomatis}
+          setOtomatis={a.setKirimOtomatis}
         />
       ) : null}
 
