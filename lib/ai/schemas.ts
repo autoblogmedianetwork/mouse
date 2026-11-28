@@ -629,3 +629,37 @@ export const mirrorRequestSkema = z.object({
 });
 
 export type Mirror = z.infer<typeof mirrorSkema>;
+
+/** Bedah anatomi satu postingan orang lain (ide #4, prompt bedah-postingan.v1). */
+export const bedahPostinganSkema = z.object({
+  hook: z.object({
+    jenis: z.enum(["pertanyaan", "masalah_relatif", "pernyataan_mengejutkan", "lainnya"]),
+    penjelasan: z.string().max(120),
+  }),
+  cta: z.object({
+    ada: z.boolean(),
+    jenis: z.enum([
+      "beli_sekarang",
+      "cek_bio",
+      "tanya_di_komentar",
+      "simpan_atau_bagikan",
+      "tanya_pengalaman",
+      "tidak_ada",
+    ]),
+    penjelasan: z.string().max(100),
+  }),
+  panjang_karakter: z.number().int().min(0),
+  jumlah_bagian: z.number().int().min(0),
+  struktur: z.array(z.string().min(1).max(80)).min(1).max(5),
+  pelajaran: z.array(z.string().min(1).max(140)).min(1).max(3),
+  kejujuran: z.enum(["baik", "ragu"]),
+  peringatan: z.string().max(140).default(""),
+});
+
+export type BedahPostingan = z.infer<typeof bedahPostinganSkema>;
+
+export const bedahPostinganRequestSkema = z.object({
+  postingan: z.string().trim().min(40, "Postingan minimal 40 karakter.").max(10000),
+});
+
+export type BedahPostinganRequest = z.infer<typeof bedahPostinganRequestSkema>;

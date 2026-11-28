@@ -9,6 +9,7 @@ import { BagianLabUji, BagianIdeMasalah } from "./lab-uji-ide";
 import { BagianSerial, BagianHashtag, BagianSerial30 } from "./lab-serial";
 import { BagianGhostwriter, BagianBattle, BagianJujur, BagianParalel } from "./lab-kreator";
 import { BagianTimeCapsule, BagianNyanyian, BagianGamifikasi, BagianLawanBots, BagianFoto, BagianMirror } from "./lab-alat";
+import { BagianBedah } from "./lab-bedah";
 
 export function LabKlien() {
   return (
@@ -18,6 +19,7 @@ export function LabKlien() {
         tindakan Anda. Panggilan AI memakai kredit server dan dihentikan otomatis saat batas biaya
         bulanan tercapai.
       </p>
+      <BagianBedah />
       <BagianLabUji />
       <BagianIdeMasalah />
       <BagianSerial />
