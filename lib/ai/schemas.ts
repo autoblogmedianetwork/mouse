@@ -681,3 +681,18 @@ export const utasPanjangRequestSkema = z.object({
 });
 
 export type UtasPanjangRequest = z.infer<typeof utasPanjangRequestSkema>;
+
+/** Varian balasan AI (pengembangan Bank Balasan, prompt varian-balasan.v1). */
+export const varianBalasanSkema = z.object({
+  varian: z.array(z.string().min(5).max(500)).min(2).max(3),
+});
+
+export type VarianBalasan = z.infer<typeof varianBalasanSkema>;
+
+export const varianBalasanRequestSkema = z.object({
+  situasi: z.string().trim().min(3).max(120),
+  templat: z.string().trim().min(5, "Template minimal 5 karakter.").max(500),
+  gayaBicara: z.string().trim().max(300).optional(),
+});
+
+export type VarianBalasanRequest = z.infer<typeof varianBalasanRequestSkema>;
