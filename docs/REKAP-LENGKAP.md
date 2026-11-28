@@ -132,6 +132,8 @@ Jadwal posting sebulan sekaligus.
 - Ringkasan klik/komisi, insight atribusi.
 - Impor laporan performa (CSV) → analisis hook mana yang bekerja.
 - **Kalkulator Cuan** — hitung komisi nyata dari klik/persetujuan/komisi.
+- **Rangking sudut konten** — urutkan sudut dari komisi cair nyata: lanjutkan /
+  uji lagi / ganti sudut / belum ada data, plus keyakinan dari jumlah konten.
 
 ### Kelompok: Alat & Pengaturan
 
@@ -152,10 +154,22 @@ Pemakaian token & estimasi biaya per generate.
 #### 5.12 Aset (`/link`, `/template`, `/akun`, `/konten`, `/penawaran`)
 - Detektor link (mendeteksi marketplace & ID affiliate).
 - Template konten, akun sosial, aset penawaran.
+- **Panduan kode pelacak** di Antrian: tempat menempel Sub ID 1, format lima
+  segmen, larangan memendekkan tautan affiliate (pasal 2.6 & 6.3o).
+
+#### 5.13 Eksperimen (`/lab`) — 19 bagian, berdaftar isi
+- **Lab Iklan** — kalkulator balik modal, pembuat 3 varian iklan Meta, wizard
+  landing page. Tidak ada Meta API: peluncuran iklan tetap manual.
+- **Uji psikologi** dan **periksa kepatuhan** di tahap preview posting:
+  keduanya dihitung di browser, tanpa AI dan tanpa kredit.
+- Alat lain: bedah postingan, utas panjang, uji konten, ide dari masalah,
+  serial 7/30 hari, hashtag, rapi curhatan, dua sudut berdebat, versi jujur,
+  varian paralel, pesan untuk nanti, lirik, poin & level, dua bot berdebat,
+  pengingat, konten dari foto, tiru pola gaya.
 
 ---
 
-## 6. Prompt AI aktif (22 versi)
+## 6. Prompt AI aktif (44 versi)
 
 Aturan: **versi lama tidak diedit**; perubahan selalu file baru.
 
@@ -271,7 +285,7 @@ lib/ai/
   persona.ts            daftar persona + "bernama"
   gaya-bahasa.ts        ATURAN_BAHASA (dipakai semua prompt)
   kerangka.ts           KERANGKA_IDS, BAGIAN, instruksiKerangka
-  prompts/              23 prompt versioned
+  prompts/              44 prompt versioned (versi lama tidak dihapus)
   jalankan-ai.ts        pemanggil provider + retry + biaya
 features/
   posting/              5 tahap alur buat konten
@@ -284,9 +298,14 @@ lib/
   riset/                preset persona, skor peluang, tempel cepat
   konten/               siap-copas, auto-isi, daur-ulang
   storage/kotak.ts      pembungkus localStorage (16 store)
+  advertising/          kalkulator balik modal iklan
+  kepatuhan/            periksa kepatuhan (aturan T&C Shopee)
+  psikologi/            prinsip persuasi + skor deterministik
+  performa/             atribusi sub_id, rekomendasi, rangking sudut
+  deploy/               penjaga cron Vercel dan RLS migrasi
 app/(dashboard)/…       halaman per menu
-app/api/…               35 route (generate, ide, riset, lab, serial, …)
-supabase/migrations/    0001–0015
+app/api/…               43 route (generate, ide, riset, lab, marketing, threads, …)
+supabase/migrations/    0001–0018
 ```
 
 ---
@@ -296,7 +315,7 @@ supabase/migrations/    0001–0015
 ```bash
 npx tsc --noEmit          # tipe
 npm run lint              # 0 error, 0 warning
-npx vitest run            # 960 test hijau
+npx vitest run            # 1151 test hijau (147 berkas)
 npm run build             # build produksi
 ```
 
