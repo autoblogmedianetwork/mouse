@@ -5,6 +5,7 @@ import { Card } from "@/components/card";
 import { hitungKomisiTarget } from "@/lib/affiliate/kalkulator-komisi";
 import { formatRupiah } from "@/lib/impor/normalisasi";
 import { komisiPerKontenDariData, kebutuhanUntukTarget } from "@/lib/kalkulator/kalkulator-cuan";
+import { bandingkanProduk } from "@/lib/kalkulator/banding";
 import { useAtribusi } from "@/features/performa/use-atribusi";
 
 const inputClass =
@@ -151,6 +152,99 @@ export function KalkulatorKomisi() {
           Isi harga, komisi, dan target di atas untuk melihat perkiraan.
         </p>
       ) : null}
+
+      <BandingDuaProduk targetBulanan={Number(target) || 0} penjualanPerKonten={Number(penjualanPerKonten) || 0} />
     </Card>
+  );
+}
+
+/** Bandingkan 2 produk: mana yang lebih cepat balik modal WAKTU (konten). */
+function BandingDuaProduk({
+  targetBulanan,
+  penjualanPerKonten,
+}: {
+  targetBulanan: number;
+  penjualanPerKonten: number;
+}) {
+  const [buka, setBuka] = useState(false);
+  const [namaA, setNamaA] = useState("");
+  const [hargaA, setHargaA] = useState("");
+  const [rateA, setRateA] = useState("");
+  const [namaB, setNamaB] = useState("");
+  const [hargaB, setHargaB] = useState("");
+  const [rateB, setRateB] = useState("");
+  const [hasil, setHasil] = useState<ReturnType<typeof bandingkanProduk> | null>(null);
+
+  const hitung = () => {
+    setHasil(
+      bandingkanProduk(
+        { nama: namaA.trim() || "Produk A", harga: Number(hargaA), ratePersen: Number(rateA) },
+        { nama: namaB.trim() || "Produk B", harga: Number(hargaB), ratePersen: Number(rateB) },
+        targetBulanan,
+        penjualanPerKonten > 0 ? 1 / penjualanPerKonten : 0,
+      ),
+    );
+  };
+
+  return (
+    <div className="mt-4 border-t border-surface-border pt-4">
+      <button type="button" className="text-badan font-medium underline" aria-expanded={buka} onClick={() => setBuka((v) => !v)}>
+        {buka ? "Tutup perbandingan produk" : "Bandingkan 2 produk — mana lebih cepat cuan?"}
+      </button>
+      {buka ? (
+        <div className="mt-3">
+          <p className="text-meta text-muted-foreground">
+            Memakai target dan estimasi penjualan di atas. Yang dibandingkan: berapa KONTEN yang
+            harus dibuat per bulan untuk target yang sama — konten lebih sedikit = cuan lebih cepat.
+          </p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <fieldset className="border border-surface-border p-3">
+              <legend className="px-1 text-meta font-medium">Produk A</legend>
+              <input value={namaA} onChange={(e) => setNamaA(e.target.value)} placeholder="Nama produk A" aria-label="Nama produk A" className={`mb-2 ${inputClass}`} />
+              <div className="flex gap-2">
+                <input type="number" min={0} inputMode="numeric" value={hargaA} onChange={(e) => setHargaA(e.target.value)} placeholder="Harga" aria-label="Harga produk A" className={inputClass} />
+                <input type="number" min={0} step="0.1" inputMode="decimal" value={rateA} onChange={(e) => setRateA(e.target.value)} placeholder="Komisi %" aria-label="Persen komisi produk A" className={inputClass} />
+              </div>
+            </fieldset>
+            <fieldset className="border border-surface-border p-3">
+              <legend className="px-1 text-meta font-medium">Produk B</legend>
+              <input value={namaB} onChange={(e) => setNamaB(e.target.value)} placeholder="Nama produk B" aria-label="Nama produk B" className={`mb-2 ${inputClass}`} />
+              <div className="flex gap-2">
+                <input type="number" min={0} inputMode="numeric" value={hargaB} onChange={(e) => setHargaB(e.target.value)} placeholder="Harga" aria-label="Harga produk B" className={inputClass} />
+                <input type="number" min={0} step="0.1" inputMode="decimal" value={rateB} onChange={(e) => setRateB(e.target.value)} placeholder="Komisi %" aria-label="Persen komisi produk B" className={inputClass} />
+              </div>
+            </fieldset>
+          </div>
+          <button type="button" onClick={hitung} className="mt-3 inline-flex h-11 sm:h-9 items-center border border-primary bg-primary px-4 text-meta font-medium text-primary-foreground hover:opacity-90">
+            Bandingkan
+          </button>
+          {hasil ? (
+            hasil.ok ? (
+              <div className="mt-3 space-y-2 text-badan">
+                <p className={hasil.pemenang === "seri" ? "" : "font-medium"}>
+                  {hasil.pemenang === "seri" ? "🤝" : "🏆"} {hasil.alasan}
+                </p>
+                <dl className="grid gap-2 sm:grid-cols-2">
+                  {[hasil.a, hasil.b].map((s, i) => (
+                    <div key={i} className={`border p-2 ${hasil.pemenang === (i === 0 ? "a" : "b") ? "border-primary bg-primary/5" : "border-surface-border"}`}>
+                      <dt className="text-meta text-muted-foreground">
+                        {s.nama} {hasil.pemenang === (i === 0 ? "a" : "b") ? "(pemenang)" : ""}
+                      </dt>
+                      <dd className="tabular-nums">
+                        Komisi {formatRupiah(s.komisiPerUnit)}/unit · {s.kontenPerBulan} konten/bulan (± {s.kontenPerHari}/hari)
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : (
+              <p className="mt-3 text-meta text-status-failed" role="alert">
+                {hasil.galat}
+              </p>
+            )
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
